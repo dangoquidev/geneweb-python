@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}GenEWeb Server{% endblock %}
+
+{% block content %}
+<!-- Header avec logo et titre -->
+<div class="row justify-content-center align-items-center py-4">
+    <div class="col-md-3 text-center mb-3 mb-md-0">
+        <svg class="geneweb-logo" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#2f6400">
+                <!-- Arbre généalogique stylisé -->
+                <circle cx="100" cy="20" r="8"/>
+                <line x1="100" y1="28" x2="100" y2="50" stroke="#2f6400" stroke-width="2"/>
+                <line x1="70" y1="50" x2="130" y2="50" stroke="#2f6400" stroke-width="2"/>
+                <circle cx="70" cy="50" r="6"/>
+                <circle cx="130" cy="50" r="6"/>
+                <line x1="70" y1="56" x2="70" y2="75" stroke="#2f6400" stroke-width="1.5"/>
+                <line x1="130" y1="56" x2="130" y2="75" stroke="#2f6400" stroke-width="1.5"/>
+                <line x1="50" y1="75" x2="90" y2="75" stroke="#2f6400" stroke-width="1.5"/>
+                <line x1="110" y1="75" x2="150" y2="75" stroke="#2f6400" stroke-width="1.5"/>
+                <circle cx="50" cy="75" r="4"/>
+                <circle cx="90" cy="75" r="4"/>
+                <circle cx="110" cy="75" r="4"/>
+                <circle cx="150" cy="75" r="4"/>
+                <!-- Feuilles -->
+                <path d="M40,85 Q45,95 50,85" fill="#4a8c2a"/>
+                <path d="M85,85 Q90,95 95,85" fill="#4a8c2a"/>
+                <path d="M105,85 Q110,95 115,85" fill="#4a8c2a"/>
+                <path d="M145,85 Q150,95 155,85" fill="#4a8c2a"/>
+            </g>
+            <text x="100" y="110" text-anchor="middle" font-family="serif" font-size="16" font-weight="bold" fill="#2f6400">GeneWeb</text>
+        </svg>
+    </div>
+    <div class="col-md-6 text-center">
+        <h1 class="header-title display-4 mb-2">Serveur Généalogique</h1>
+        <p class="lead text-muted">Base de données généalogiques en ligne</p>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<!-- Section des bases de données -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-database me-2"></i>
+                    Bases de données disponibles
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                {% if databases %}
+                <div class="row">
+                    {% for db_name in databases %}
+                    <div class="col-lg-6 col-xl-4 mb-3">
+                        <a href="/{{ db_name }}" class="database-link">
+                            <div class="card database-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-sitemap text-success fa-2x mb-3"></i>
+                                    <h5 class="card-title">{{ db_name }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small>Cliquez pour accéder</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-circle text-warning fa-3x mb-3"></i>
+                    <h4 class="text-muted">Aucune base de données trouvée</h4>
+                    <p class="text-muted">Placez vos fichiers .pickle dans le répertoire des bases.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informations du serveur -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 server-stats">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <i class="fas fa-server me-2"></i>
+                    Informations du serveur
+                </h4>
+                <div class="row mt-3">
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <i class="fas fa-plug text-primary fa-2x"></i>
+                            <h6 class="mt-2 mb-0">Port</h6>
+                            <strong>{{ server_port }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <i class="fas fa-folder-open text-warning fa-2x"></i>
+                            <h6 class="mt-2 mb-0">Répertoire</h6>
+                            <small class="text-muted">{{ database_dir }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <i class="fas fa-python text-success fa-2x"></i>
+                            <h6 class="mt-2 mb-0">Version</h6>
+                            <small>GenEWeb Python</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Outils -->
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tools me-2"></i>
+                    Outils
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-center">
+                    <a href="/admin" class="btn btn-outline-primary m-1" title="Administration">
+                        <i class="fas fa-cog me-1"></i>
+                        Administration
+                    </a>
+                    <a href="#" class="btn btn-outline-info m-1" title="Statistiques" onclick="alert('Fonctionnalité en développement')">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Statistiques globales
+                    </a>
+                    <a href="#" class="btn btn-outline-success m-1" title="Aide" onclick="alert('Documentation disponible sur GitHub')">
+                        <i class="fas fa-question-circle me-1"></i>
+                        Aide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

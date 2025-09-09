@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}{{ base_name }} - GenEWeb{% endblock %}
+
+{% block navbar_items %}
+<a class="nav-link text-white" href="/{{ base_name }}">
+    <i class="fas fa-tree me-1"></i>
+    {{ base_name }}
+</a>
+<a class="nav-link text-white" href="/">
+    <i class="fas fa-home me-1"></i>
+    Accueil
+</a>
+{% endblock %}
+
+{% set show_navbar = true %}
+
+{% block content %}
+<!-- En-tête de la base -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="text-center">
+            <h1 class="display-4 database-title mb-2">
+                <i class="fas fa-tree me-3"></i>
+                Base {{ base_name }}
+            </h1>
+            <p class="lead text-muted">
+                Base de données généalogique
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques de la base -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+        <div class="card stats-card">
+            <div class="card-header bg-transparent border-0">
+                <h3 class="card-title text-center mb-0">
+                    <i class="fas fa-chart-bar me-2 text-warning"></i>
+                    Informations sur la base
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-item text-center">
+                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                            <h4 class="mb-1">{{ db_info.number_of_persons | number_format }}</h4>
+                            <small class="text-muted">
+                                {% if db_info.number_of_persons == 1 %}Personne{% else %}Personnes{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-item text-center">
+                            <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                            <h4 class="mb-1">{{ db_info.number_of_families | number_format }}</h4>
+                            <small class="text-muted">
+                                {% if db_info.number_of_families == 1 %}Famille{% else %}Familles{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="stat-item">
+                            <strong>Chemin:</strong> <code>{{ db_info.path }}</code><br>
+                            <strong>Version:</strong> {{ db_info.version }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+        <div class="card search-card">
+            <div class="card-header bg-transparent border-0">
+                <h3 class="card-title text-center mb-0">
+                    <i class="fas fa-search me-2 text-info"></i>
+                    Rechercher dans la base
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="/{{ base_name }}">
+                    <input type="hidden" name="m" value="search">
+                    <div class="input-group input-group-lg">
+                        <input type="search" class="form-control" 
+                               name="search" 
+                               placeholder="Entrez un nom à rechercher..."
+                               autofocus>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i>
+                                Rechercher
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Recherchez par prénom, nom de famille, ou les deux
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Outils de navigation -->
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card tools-card">
+            <div class="card-header bg-transparent border-0">
+                <h4 class="card-title text-center mb-0">
+                    <i class="fas fa-tools me-2 text-success"></i>
+                    Outils de navigation
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 mb-3">
+                        <a href="/{{ base_name }}?m=search" class="btn btn-outline-primary btn-block nav-btn">
+                            <i class="fas fa-search fa-fw me-2"></i>
+                            Recherche avancée
+                        </a>
+                    </div>
+                    <div class="col-lg-4 mb-3">
+                        <a href="/{{ base_name }}?m=stats" class="btn btn-outline-info btn-block nav-btn">
+                            <i class="fas fa-chart-bar fa-fw me-2"></i>
+                            Statistiques détaillées
+                        </a>
+                    </div>
+                    <div class="col-lg-4 mb-3">
+                        <a href="/" class="btn btn-outline-secondary btn-block nav-btn">
+                            <i class="fas fa-arrow-left fa-fw me-2"></i>
+                            Retour aux bases
+                        </a>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-lg-3 mb-2">
+                        <button class="btn btn-outline-warning btn-sm btn-block nav-btn" disabled>
+                            <i class="fas fa-calendar fa-fw me-1"></i>
+                            <small>Calendrier</small>
+                        </button>
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <button class="btn btn-outline-success btn-sm btn-block nav-btn" disabled>
+                            <i class="fas fa-birthday-cake fa-fw me-1"></i>
+                            <small>Anniversaires</small>
+                        </button>
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <button class="btn btn-outline-danger btn-sm btn-block nav-btn" disabled>
+                            <i class="fas fa-map-marked-alt fa-fw me-1"></i>
+                            <small>Lieux</small>
+                        </button>
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <button class="btn btn-outline-dark btn-sm btn-block nav-btn" disabled>
+                            <i class="fas fa-cog fa-fw me-1"></i>
+                            <small>Configuration</small>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Certaines fonctionnalités sont en cours de développement
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

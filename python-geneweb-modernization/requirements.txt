@@ -1,0 +1,34 @@
+# Core dependencies
+aiofiles>=0.8.0
+aiohttp>=3.8.0
+click>=8.0.0
+
+# Date and time handling
+python-dateutil>=2.8.0
+
+# Template engine
+jinja2>=3.0.0
+
+# Configuration
+pyyaml>=6.0
+toml>=0.10.0
+
+# Cryptography for security
+cryptography>=3.4.0
+
+# Database support
+sqlalchemy>=1.4.0
+
+# Web framework utilities
+werkzeug>=2.0.0
+
+# File format support
+lxml>=4.6.0
+pillow>=8.0.0
+
+# Internationalization
+babel>=2.9.0
+
+# Utilities
+colorama>=0.4.0
+tqdm>=4.60.0
