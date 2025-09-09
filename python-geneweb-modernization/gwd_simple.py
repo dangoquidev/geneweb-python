@@ -6,19 +6,20 @@ Cette version utilise le serveur HTTP de Python pour éviter les problèmes asyn
 tout en gardant exactement la même interface et les mêmes fonctionnalités que l'original.
 """
 
-import http.server
-import socketserver
-import os
-import sys
-import signal
-import logging
-import urllib.parse
 import argparse
+import http.server
+import logging
+import os
+import signal
+import socketserver
+import sys
+import urllib.parse
 from pathlib import Path
+
+from geneweb.core.config import Config
 
 # Import des modules GenEWeb
 from geneweb.db.driver import create_database_driver
-from geneweb.core.config import Config
 from geneweb.security import create_security_manager
 from geneweb.util.string_utils import *
 
@@ -28,179 +29,180 @@ from template_engine import render_template
 
 class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     """Handler HTTP pour GenEWeb - comportement identique à l'original"""
-    
+
     def __init__(self, *args, gwd_config=None, **kwargs):
         self.gwd_config = gwd_config
         super().__init__(*args, **kwargs)
-    
+
     def log_message(self, format_str, *args):
         """Logging personnalisé (équivalent aux logs OCaml)"""
         remote_addr = self.client_address[0]
         message = format_str % args
-        logging.getLogger('geneweb.gwd').info(f"{remote_addr} - {message}")
-    
+        logging.getLogger("geneweb.gwd").info(f"{remote_addr} - {message}")
+
     def do_GET(self):
         """Traiter les requêtes GET (équivalent à la fonction connection OCaml)"""
         self.handle_request()
-    
+
     def do_POST(self):
         """Traiter les requêtes POST"""
         self.handle_request()
-    
+
     def handle_request(self):
         """Fonction principale de traitement des requêtes"""
         try:
             # Obtenir l'adresse client
             from_addr = self.client_address[0]
-            
+
             # Résoudre le nom d'hôte si nécessaire
             if not self.gwd_config.no_host_address:
                 try:
                     import socket
+
                     hostname = socket.gethostbyaddr(from_addr)[0]
                     from_addr = hostname
                 except:
                     pass
-            
+
             # Parser l'URL
             parsed_url = urllib.parse.urlparse(self.path)
-            script_name = parsed_url.path[1:] if parsed_url.path.startswith('/') else parsed_url.path
+            script_name = parsed_url.path[1:] if parsed_url.path.startswith("/") else parsed_url.path
             query_string = parsed_url.query
-            
+
             # Traitement spécial pour les fichiers statiques
-            if script_name.startswith('static/'):
+            if script_name.startswith("static/"):
                 self.serve_static_file(script_name)
                 return
-            
+
             # Traitement spécial robots.txt (exactement comme l'original)
             if script_name == "robots.txt":
                 self.handle_robots_txt()
                 return
-            
+
             # Vérifier les exclusions (exactement comme l'original)
             if from_addr in self.gwd_config.excluded_addresses:
                 self.refuse_log(from_addr)
                 return
-            
+
             # Vérifier only_addresses (exactement comme l'original)
             if self.gwd_config.only_addresses and from_addr not in self.gwd_config.only_addresses:
                 self.only_log(from_addr)
                 return
-            
+
             # Traiter les fichiers statiques (images, css, js)
             if self.is_static_request(script_name):
                 self.serve_static_file(script_name)
                 return
-            
+
             # Traitement principal GenEWeb
             self.handle_geneweb_request(script_name, query_string, from_addr)
-            
+
         except Exception as e:
-            logging.getLogger('geneweb.gwd').error(f"Error handling request: {e}")
+            logging.getLogger("geneweb.gwd").error(f"Error handling request: {e}")
             self.send_error(500, "Internal Server Error")
-    
+
     def handle_robots_txt(self):
         """Traiter robots.txt (exactement comme l'original OCaml)"""
-        logging.getLogger('geneweb.gwd').info("Robot request")
-        
+        logging.getLogger("geneweb.gwd").info("Robot request")
+
         self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
+        self.send_header("Content-Type", "text/plain")
         self.end_headers()
-        
+
         # Essayer de lire le fichier robots
         robots_file = os.path.join(self.gwd_config.etc_prefix, "robots.txt")
         if os.path.exists(robots_file):
-            with open(robots_file, 'r') as f:
-                self.wfile.write(f.read().encode('utf-8'))
+            with open(robots_file, "r") as f:
+                self.wfile.write(f.read().encode("utf-8"))
         else:
             # Contenu par défaut (exactement comme l'original)
             self.wfile.write(b"User-Agent: *\\nDisallow: /\\n")
-    
+
     def refuse_log(self, from_addr: str):
         """Refuser une connexion (exactement comme refuse_log OCaml)"""
-        logging.getLogger('geneweb.gwd').warning(f"Excluded: {from_addr}")
-        
+        logging.getLogger("geneweb.gwd").warning(f"Excluded: {from_addr}")
+
         self.send_response(403)
-        self.send_header('Content-Type', 'text/html')
+        self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(b"<html><body><h1>Forbidden</h1></body></html>")
-    
+
     def only_log(self, from_addr: str):
         """Logger les connexions non autorisées"""
-        logging.getLogger('geneweb.gwd').warning(f"Not in only_addresses: {from_addr}")
-        
+        logging.getLogger("geneweb.gwd").warning(f"Not in only_addresses: {from_addr}")
+
         self.send_response(403)
-        self.send_header('Content-Type', 'text/html')
+        self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(b"<html><body><h1>Access Restricted</h1></body></html>")
-    
+
     def is_static_request(self, script_name: str) -> bool:
         """Vérifier si c'est une requête de fichier statique"""
-        static_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.css', '.js', '.txt', '.xml']
+        static_extensions = [".png", ".jpg", ".jpeg", ".gif", ".ico", ".css", ".js", ".txt", ".xml"]
         return any(script_name.endswith(ext) for ext in static_extensions)
-    
+
     def serve_static_file(self, script_name: str):
         """Servir un fichier statique (équivalent à image_request + misc_request)"""
         # Si c'est un fichier dans /static/, le servir depuis notre dossier static
-        if script_name.startswith('static/'):
+        if script_name.startswith("static/"):
             static_path = os.path.join(os.path.dirname(__file__), script_name)
             if os.path.exists(static_path) and os.path.isfile(static_path):
                 try:
-                    with open(static_path, 'rb') as f:
+                    with open(static_path, "rb") as f:
                         content = f.read()
-                    
+
                     self.send_response(200)
-                    self.send_header('Content-Type', self.get_content_type(script_name))
-                    self.send_header('Content-Length', str(len(content)))
-                    self.send_header('Cache-Control', 'max-age=3600')  # Cache 1 heure
+                    self.send_header("Content-Type", self.get_content_type(script_name))
+                    self.send_header("Content-Length", str(len(content)))
+                    self.send_header("Cache-Control", "max-age=3600")  # Cache 1 heure
                     self.end_headers()
                     self.wfile.write(content)
                     return
                 except Exception as e:
-                    logging.getLogger('geneweb.gwd').error(f"Error serving static file {static_path}: {e}")
-        
+                    logging.getLogger("geneweb.gwd").error(f"Error serving static file {static_path}: {e}")
+
         # Sinon, chercher dans les répertoires traditionnels GenEWeb
         file_paths = [
             os.path.join(self.gwd_config.images_dir, script_name),
             os.path.join(self.gwd_config.images_prefix, script_name),
-            os.path.join(self.gwd_config.etc_prefix, script_name)
+            os.path.join(self.gwd_config.etc_prefix, script_name),
         ]
-        
+
         for file_path in file_paths:
             if os.path.exists(file_path) and os.path.isfile(file_path):
                 try:
-                    with open(file_path, 'rb') as f:
+                    with open(file_path, "rb") as f:
                         content = f.read()
-                    
+
                     self.send_response(200)
-                    self.send_header('Content-Type', self.get_content_type(script_name))
-                    self.send_header('Content-Length', str(len(content)))
+                    self.send_header("Content-Type", self.get_content_type(script_name))
+                    self.send_header("Content-Length", str(len(content)))
                     self.end_headers()
                     self.wfile.write(content)
                     return
                 except Exception as e:
-                    logging.getLogger('geneweb.gwd').error(f"Error serving static file {file_path}: {e}")
-        
+                    logging.getLogger("geneweb.gwd").error(f"Error serving static file {file_path}: {e}")
+
         # Fichier non trouvé
         self.send_error(404, "File Not Found")
-    
+
     def get_content_type(self, filename: str) -> str:
         """Déterminer le content-type"""
         ext = os.path.splitext(filename)[1].lower()
         content_types = {
-            '.html': 'text/html; charset=utf-8',
-            '.css': 'text/css',
-            '.js': 'application/javascript',
-            '.png': 'image/png',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.gif': 'image/gif',
-            '.ico': 'image/x-icon',
-            '.txt': 'text/plain',
-            '.xml': 'application/xml'
+            ".html": "text/html; charset=utf-8",
+            ".css": "text/css",
+            ".js": "application/javascript",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+            ".ico": "image/x-icon",
+            ".txt": "text/plain",
+            ".xml": "application/xml",
         }
-        return content_types.get(ext, 'application/octet-stream')
-    
+        return content_types.get(ext, "application/octet-stream")
+
     def handle_geneweb_request(self, script_name: str, query_string: str, from_addr: str):
         """Traiter une requête GenEWeb (équivalent conf_and_connection OCaml)"""
         try:
@@ -208,57 +210,57 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             if not script_name:
                 self.serve_base_list()
                 return
-            
+
             # Extraire le nom de la base
-            if '/' in script_name:
-                base_name = script_name.split('/')[0]
+            if "/" in script_name:
+                base_name = script_name.split("/")[0]
             else:
                 base_name = script_name
-            
+
             # Vérifier si la base existe
             base_path = os.path.join(self.gwd_config.database_dir, f"{base_name}.pickle")
             if not os.path.exists(base_path):
                 self.send_error(404, f"Database '{base_name}' not found")
                 return
-            
+
             # Charger la base de données
             db_driver = create_database_driver(base_path, "pickle")
             if not db_driver.open_database(read_only=True):
                 self.send_error(500, "Cannot open database")
                 return
-            
+
             try:
                 # Parser les paramètres de la requête
                 params = urllib.parse.parse_qs(query_string)
-                
+
                 # Traitement selon le mode
-                mode = params.get('m', [''])[0]
-                
-                if mode == 'search' or 'search' in params:
+                mode = params.get("m", [""])[0]
+
+                if mode == "search" or "search" in params:
                     self.handle_search(db_driver, params, base_name)
-                elif mode == 'stats':
+                elif mode == "stats":
                     self.handle_stats(db_driver, base_name)
                 else:
                     self.handle_database_info(db_driver, base_name)
-            
+
             finally:
                 db_driver.close_database()
-        
+
         except Exception as e:
-            logging.getLogger('geneweb.gwd').error(f"Error in GenEWeb request: {e}")
+            logging.getLogger("geneweb.gwd").error(f"Error in GenEWeb request: {e}")
             self.send_error(500, "Internal Server Error")
-    
+
     def serve_base_list(self):
         """Servir la liste des bases (page d'accueil comme l'original)"""
         databases = []
         try:
             for file in os.listdir(self.gwd_config.database_dir):
-                if file.endswith('.pickle'):
+                if file.endswith(".pickle"):
                     db_name = file[:-7]
                     databases.append(db_name)
         except OSError:
             pass
-        
+
         html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -271,32 +273,32 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <style>
         body {{ background: #f8f9fa; }}
         .main-container {{ min-height: 100vh; }}
-        .geneweb-logo {{ 
-            width: 180px; 
-            height: auto; 
+        .geneweb-logo {{
+            width: 180px;
+            height: auto;
             filter: sepia(100%) saturate(500%) hue-rotate(85deg) brightness(1.2);
         }}
-        .database-card {{ 
+        .database-card {{
             transition: transform 0.2s, box-shadow 0.2s;
             border: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
-        .database-card:hover {{ 
+        .database-card:hover {{
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             text-decoration: none;
         }}
         .database-link {{ color: inherit; text-decoration: none; }}
         .database-link:hover {{ color: inherit; text-decoration: none; }}
-        .server-stats {{ 
+        .server-stats {{
             background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
             border-left: 4px solid #007bff;
         }}
-        .header-title {{ 
+        .header-title {{
             color: #2f6400;
             font-weight: 600;
         }}
-        .footer-info {{ 
+        .footer-info {{
             background: #343a40;
             color: #ffffff;
         }}
@@ -350,7 +352,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                         </h3>
                     </div>
                     <div class="card-body p-4">"""
-        
+
         if databases:
             html += '                        <div class="row">'
             for db_name in sorted(databases):
@@ -368,14 +370,14 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                                     </div>
                                 </a>
                             </div>"""
-            html += '\n                        </div>'
+            html += "\n                        </div>"
         else:
-            html += '''                        <div class="text-center py-5">
+            html += """                        <div class="text-center py-5">
                             <i class="fas fa-exclamation-circle text-warning fa-3x mb-3"></i>
                             <h4 class="text-muted">Aucune base de données trouvée</h4>
                             <p class="text-muted">Placez vos fichiers .pickle dans le répertoire des bases.</p>
-                        </div>'''
-        
+                        </div>"""
+
         html += f"""                    </div>
                 </div>
             </div>
@@ -474,21 +476,21 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>"""
-        
+
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(html.encode('utf-8'))
-    
+        self.wfile.write(html.encode("utf-8"))
+
     def handle_search(self, db_driver, params, base_name: str):
         """Traiter une recherche (exactement comme l'original)"""
-        search_query = params.get('search', [''])[0] or params.get('s', [''])[0]
+        search_query = params.get("search", [""])[0] or params.get("s", [""])[0]
         info = db_driver.get_database_info()
         results = []
-        
+
         if search_query:
             results = db_driver.search_persons(search_query)
-        
+
         html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -500,21 +502,21 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <style>
         body {{ background: #f8f9fa; }}
         .navbar-geneweb {{ background: linear-gradient(135deg, #2f6400 0%, #4a8c2a 100%); }}
-        .search-header {{ 
+        .search-header {{
             background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
             border-radius: 1rem;
             padding: 2rem;
             margin: 1rem 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }}
-        .person-card {{ 
+        .person-card {{
             background: white;
             border: none;
             border-left: 4px solid #007bff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s ease;
         }}
-        .person-card:hover {{ 
+        .person-card:hover {{
             transform: translateX(5px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }}
@@ -568,15 +570,15 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                         <i class="fas fa-search text-primary me-3"></i>
                         Recherche dans {base_name}
                     </h1>
-                    
+
                     <form method="GET" action="/{base_name}">
                         <input type="hidden" name="m" value="search">
                         <div class="row justify-content-center">
                             <div class="col-md-8">
                                 <div class="input-group input-group-lg">
-                                    <input type="search" class="form-control" 
-                                           name="search" 
-                                           value="{escape_html(search_query)}" 
+                                    <input type="search" class="form-control"
+                                           name="search"
+                                           value="{escape_html(search_query)}"
                                            placeholder="Prénom, nom de famille ou les deux..."
                                            autofocus>
                                     <div class="input-group-append">
@@ -592,10 +594,10 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                 </div>
             </div>
         </div>"""
-        
+
         if search_query:
             # Affichage des résultats
-            html += f'''
+            html += f"""
         <!-- Résultats -->
         <div class="row justify-content-center mt-4">
             <div class="col-lg-10">
@@ -603,42 +605,44 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                     <h4 class="mb-0">
                         <i class="fas fa-list-ul me-2 text-info"></i>
                         Résultats pour "<strong>{escape_html(search_query)}</strong>"
-                    </h4>'''
-            
+                    </h4>"""
+
             if results:
                 total_results = len(results)
                 showing_results = min(50, total_results)
-                html += f'''
+                html += f"""
                     <p class="mb-0 text-muted">
-                        Affichage de {showing_results} résultat{"s" if showing_results > 1 else ""} 
+                        Affichage de {showing_results} résultat{"s" if showing_results > 1 else ""}
                         sur {total_results} au total
                     </p>
                 </div>
 
-                <div class="mt-4">'''
-                
+                <div class="mt-4">"""
+
                 for person_id, person in results[:50]:
                     # Informations sur la personne
                     birth_info = ""
                     if person.birth_date:
                         birth_info = f'<i class="fas fa-birthday-cake text-success me-1"></i>Né{"e" if person.sex == "F" else ""} le {geneweb_date_to_string(person.birth_date)}'
-                    
+
                     death_info = ""
                     if person.death_date:
                         death_info = f'<i class="fas fa-cross text-danger me-1"></i>Décédé{"e" if person.sex == "F" else ""} le {geneweb_date_to_string(person.death_date)}'
-                    
+
                     occupation_info = ""
                     if person.occupation:
-                        occupation_info = f'<i class="fas fa-briefcase text-warning me-1"></i>{escape_html(person.occupation)}'
-                    
+                        occupation_info = (
+                            f'<i class="fas fa-briefcase text-warning me-1"></i>{escape_html(person.occupation)}'
+                        )
+
                     # Badge de sexe
                     sex_badge = ""
                     if person.sex == "M":
                         sex_badge = '<span class="badge badge-primary mr-2"><i class="fas fa-mars"></i></span>'
                     elif person.sex == "F":
                         sex_badge = '<span class="badge badge-danger mr-2"><i class="fas fa-venus"></i></span>'
-                    
-                    html += f'''
+
+                    html += f"""
                     <div class="card person-card mb-3">
                         <div class="card-body">
                             <div class="row">
@@ -647,8 +651,8 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                                         {sex_badge}
                                         <strong>{escape_html(person.first_name)} {escape_html(person.surname)}</strong>
                                     </h5>
-                                    <div class="card-text">'''
-                    
+                                    <div class="card-text">"""
+
                     if birth_info or death_info or occupation_info:
                         html += '<div class="d-flex flex-wrap">'
                         if birth_info:
@@ -657,9 +661,9 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                             html += f'<div class="me-3 mb-1 small">{death_info}</div>'
                         if occupation_info:
                             html += f'<div class="me-3 mb-1 small">{occupation_info}</div>'
-                        html += '</div>'
-                    
-                    html += f'''
+                        html += "</div>"
+
+                    html += f"""
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-md-right">
@@ -676,25 +680,25 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                                 </div>
                             </div>
                         </div>
-                    </div>'''
-                
-                html += '</div>'
-                
+                    </div>"""
+
+                html += "</div>"
+
                 if total_results > 50:
-                    html += f'''
+                    html += f"""
                 <div class="alert alert-info text-center">
                     <i class="fas fa-info-circle me-2"></i>
-                    Seuls les 50 premiers résultats sont affichés. 
+                    Seuls les 50 premiers résultats sont affichés.
                     Affinez votre recherche pour obtenir des résultats plus précis.
-                </div>'''
-            
+                </div>"""
+
             else:
-                html += '''
+                html += """
                     <p class="mb-0 text-muted">
                         Aucun résultat trouvé
                     </p>
                 </div>
-                
+
                 <div class="no-results mt-4">
                     <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
                     <h4 class="text-muted">Aucun résultat trouvé</h4>
@@ -710,11 +714,11 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                             <li>Recherchez seulement par prénom ou nom de famille</li>
                         </ul>
                     </div>
-                </div>'''
-        
+                </div>"""
+
         else:
             # Page de recherche vide
-            html += '''
+            html += """
         <!-- Conseils de recherche -->
         <div class="row justify-content-center mt-4">
             <div class="col-lg-8">
@@ -745,9 +749,9 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                     </div>
                 </div>
             </div>
-        </div>'''
-        
-        html += f'''
+        </div>"""
+
+        html += f"""
         </div>
 
         <!-- Navigation -->
@@ -782,17 +786,17 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>'''
-        
+</html>"""
+
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(html.encode('utf-8'))
-    
+        self.wfile.write(html.encode("utf-8"))
+
     def handle_stats(self, db_driver, base_name: str):
         """Afficher les statistiques"""
         info = db_driver.get_database_info()
-        
+
         html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -808,7 +812,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 </head>
 <body>
     <h1>📊 Statistics for {base_name}</h1>
-    
+
     <div class="stats">
         <div class="stat-item">
             <strong>Number of Persons:</strong> {info.number_of_persons:,}
@@ -823,23 +827,23 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             <strong>Version:</strong> {info.version}
         </div>
     </div>
-    
+
     <div class="navigation">
         <a href="/{base_name}">← Back to {base_name}</a> |
         <a href="/">← Database List</a>
     </div>
 </body>
 </html>"""
-        
+
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(html.encode('utf-8'))
-    
+        self.wfile.write(html.encode("utf-8"))
+
     def handle_database_info(self, db_driver, base_name: str):
         """Afficher les informations de la base (page principale de base)"""
         info = db_driver.get_database_info()
-        
+
         html = f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -851,31 +855,31 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <style>
         body {{ background: #f8f9fa; }}
         .navbar-geneweb {{ background: linear-gradient(135deg, #2f6400 0%, #4a8c2a 100%); }}
-        .search-card {{ 
+        .search-card {{
             background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
             border: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }}
-        .stats-card {{ 
+        .stats-card {{
             background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%);
             border: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }}
-        .tools-card {{ 
+        .tools-card {{
             background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
             border: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }}
-        .nav-btn {{ 
+        .nav-btn {{
             transition: all 0.3s ease;
             border: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
-        .nav-btn:hover {{ 
+        .nav-btn:hover {{
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }}
-        .stat-item {{ 
+        .stat-item {{
             padding: 1rem;
             background: rgba(255,255,255,0.8);
             border-radius: 0.5rem;
@@ -978,8 +982,8 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                         <form method="GET" action="/{base_name}">
                             <input type="hidden" name="m" value="search">
                             <div class="input-group input-group-lg">
-                                <input type="search" class="form-control" 
-                                       name="search" 
+                                <input type="search" class="form-control"
+                                       name="search"
                                        placeholder="Entrez un nom à rechercher..."
                                        autofocus>
                                 <div class="input-group-append">
@@ -1032,9 +1036,9 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                                 </a>
                             </div>
                         </div>
-                        
+
                         <hr class="my-4">
-                        
+
                         <div class="row">
                             <div class="col-lg-3 mb-2">
                                 <button class="btn btn-outline-warning btn-sm btn-block nav-btn" disabled>
@@ -1061,7 +1065,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="text-center mt-3">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
@@ -1088,15 +1092,16 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>"""
-        
+
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(html.encode('utf-8'))
+        self.wfile.write(html.encode("utf-8"))
 
 
 class GWDConfig:
     """Configuration du serveur GWD"""
+
     def __init__(self):
         # Paramètres par défaut (exactement comme l'original gwd.ml)
         self.selected_addr = None
@@ -1122,52 +1127,46 @@ class GWDConfig:
 
 def setup_logging():
     """Configuration du logging (exactement comme l'original)"""
-    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format=log_format,
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    logging.basicConfig(level=logging.INFO, format=log_format, handlers=[logging.StreamHandler(sys.stdout)])
 
 
 def parse_arguments():
     """Parser les arguments (exactement comme l'original gwd)"""
     parser = argparse.ArgumentParser(
-        prog='gwd',
-        description='GenEWeb Daemon - Genealogy Web Server (Python version)',
+        prog="gwd",
+        description="GenEWeb Daemon - Genealogy Web Server (Python version)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   %(prog)s                          # Start server on port 2317
-  %(prog)s -p 8080                  # Start server on port 8080  
+  %(prog)s -p 8080                  # Start server on port 8080
   %(prog)s -hd /path/to/databases   # Set database directory
   %(prog)s -daemon                  # Run as daemon
   %(prog)s -only 127.0.0.1          # Only accept from localhost
 
 The server will be accessible at:
   http://localhost:PORT/DATABASE_NAME
-        """
+        """,
     )
-    
-    parser.add_argument('-addr', type=str, help='IP address to bind to')
-    parser.add_argument('-p', '-port', type=int, default=2317, dest='port',
-                       help='Port number (default: 2317)')
-    parser.add_argument('-hd', type=str, default='.', dest='database_dir',
-                       help='Database directory (default: current directory)')
-    parser.add_argument('-daemon', action='store_true',
-                       help='Run as daemon (background process)')
-    parser.add_argument('-only', type=str, action='append', dest='only_addresses',
-                       help='Only accept connections from these addresses')
-    parser.add_argument('-exclude', type=str, action='append', dest='excluded_addresses',
-                       help='Exclude these addresses')
-    parser.add_argument('-no_host_address', action='store_true',
-                       help='Do not resolve IP addresses to hostnames')
-    parser.add_argument('-auth', type=str, dest='auth_file',
-                       help='Authentication file')
-    parser.add_argument('-trace_failed_passwd', action='store_true',
-                       help='Trace failed password attempts')
-    
+
+    parser.add_argument("-addr", type=str, help="IP address to bind to")
+    parser.add_argument("-p", "-port", type=int, default=2317, dest="port", help="Port number (default: 2317)")
+    parser.add_argument(
+        "-hd", type=str, default=".", dest="database_dir", help="Database directory (default: current directory)"
+    )
+    parser.add_argument("-daemon", action="store_true", help="Run as daemon (background process)")
+    parser.add_argument(
+        "-only", type=str, action="append", dest="only_addresses", help="Only accept connections from these addresses"
+    )
+    parser.add_argument(
+        "-exclude", type=str, action="append", dest="excluded_addresses", help="Exclude these addresses"
+    )
+    parser.add_argument("-no_host_address", action="store_true", help="Do not resolve IP addresses to hostnames")
+    parser.add_argument("-auth", type=str, dest="auth_file", help="Authentication file")
+    parser.add_argument("-trace_failed_passwd", action="store_true", help="Trace failed password attempts")
+
     return parser.parse_args()
 
 
@@ -1176,13 +1175,14 @@ def show_startup_info(config: GWDConfig):
     if not config.daemon:
         try:
             import socket
+
             hostname = socket.gethostname()
         except:
             hostname = "computer"
-        
+
         addr = config.selected_addr or hostname
         port = config.selected_port
-        
+
         print("Possible addresses:")
         print(f"  http://localhost:{port}/base")
         print(f"  http://127.0.0.1:{port}/base")
@@ -1200,9 +1200,9 @@ def daemonize():
     except OSError as e:
         print(f"Fork failed: {e}", file=sys.stderr)
         sys.exit(1)
-    
+
     os.setsid()
-    
+
     try:
         pid = os.fork()
         if pid > 0:
@@ -1215,7 +1215,7 @@ def daemonize():
 def main():
     """Fonction principale (exactement comme gwd.ml)"""
     args = parse_arguments()
-    
+
     # Créer la configuration
     config = GWDConfig()
     config.selected_addr = args.addr
@@ -1227,45 +1227,47 @@ def main():
     config.no_host_address = args.no_host_address
     config.auth_file = args.auth_file or ""
     config.trace_failed_passwd = args.trace_failed_passwd
-    
+
     # Configurer les chemins
     if not config.gw_prefix:
         config.gw_prefix = os.getcwd()
     config.etc_prefix = os.path.join(config.gw_prefix, "etc")
     config.images_prefix = os.path.join(config.gw_prefix, "images")
     config.images_dir = config.images_prefix
-    
+
     # Créer les répertoires
     os.makedirs(config.database_dir, exist_ok=True)
     os.makedirs(config.etc_prefix, exist_ok=True)
     os.makedirs(config.images_prefix, exist_ok=True)
-    
+
     # Configuration du logging
     setup_logging()
-    
+
     # Daemonize si nécessaire
     if config.daemon:
         daemonize()
-    
+
     # Afficher les infos de démarrage
     show_startup_info(config)
-    
+
     # Créer le handler avec la configuration
     def handler(*args, **kwargs):
         return GeneWebHTTPHandler(*args, gwd_config=config, **kwargs)
-    
+
     # Gestionnaire de signaux
     def signal_handler(signum, frame):
         print(f"\\nReceived signal {signum}, shutting down...")
         sys.exit(0)
-    
+
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     # Démarrer le serveur
     try:
         with socketserver.TCPServer((config.selected_addr or "", config.selected_port), handler) as httpd:
-            logging.getLogger('geneweb.gwd').info(f"GenEWeb server listening on {config.selected_addr or 'localhost'}:{config.selected_port}")
+            logging.getLogger("geneweb.gwd").info(
+                f"GenEWeb server listening on {config.selected_addr or 'localhost'}:{config.selected_port}"
+            )
             httpd.serve_forever()
     except KeyboardInterrupt:
         print("\\nServer stopped by user")

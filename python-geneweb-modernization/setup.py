@@ -6,13 +6,16 @@ maintaining compatibility with existing databases while
 providing modern Python infrastructure.
 """
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
 
 # Read long description from README
 def read_readme():
     with open("README.md", "r", encoding="utf-8") as f:
         return f.read()
+
 
 # Read version from package
 def read_version():
@@ -22,6 +25,7 @@ def read_version():
             if line.startswith("__version__"):
                 return line.split("=")[1].strip().strip('"').strip("'")
     return "1.0.0"
+
 
 setup(
     name="geneweb-python",
@@ -59,33 +63,24 @@ setup(
         "aiofiles>=0.8.0",
         "aiohttp>=3.8.0",
         "click>=8.0.0",
-        
         # Date and time handling
         "python-dateutil>=2.8.0",
-        
         # Template engine
         "jinja2>=3.0.0",
-        
         # Configuration
         "pyyaml>=6.0",
         "toml>=0.10.0",
-        
         # Cryptography for security
         "cryptography>=3.4.0",
-        
         # Database support
         "sqlalchemy>=1.4.0",
-        
         # Web framework utilities
         "werkzeug>=2.0.0",
-        
         # File format support
         "lxml>=4.6.0",  # For XML/GEDCOM processing
         "pillow>=8.0.0",  # For image handling
-        
         # Internationalization
         "babel>=2.9.0",
-        
         # Utilities
         "colorama>=0.4.0",  # For colored console output
         "tqdm>=4.60.0",  # For progress bars
@@ -140,8 +135,14 @@ setup(
     include_package_data=True,
     zip_safe=False,
     keywords=[
-        "genealogy", "family tree", "ancestry", "geneweb", 
-        "database", "web server", "historical", "preservation"
+        "genealogy",
+        "family tree",
+        "ancestry",
+        "geneweb",
+        "database",
+        "web server",
+        "historical",
+        "preservation",
     ],
     platforms=["any"],
 )

@@ -1,4 +1,4 @@
-/* 
+/*
    GenEWeb - Styles CSS
    Style principal pour l'interface GenEWeb Python
 */
@@ -14,11 +14,11 @@
     --geneweb-info: #17a2b8;
     --geneweb-light: #f8f9fa;
     --geneweb-dark: #343a40;
-    
+
     --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
     --shadow-medium: 0 4px 8px rgba(0,0,0,0.1);
     --shadow-heavy: 0 4px 12px rgba(0,0,0,0.15);
-    
+
     --border-radius: 0.5rem;
     --border-radius-lg: 1rem;
 }
@@ -196,11 +196,11 @@ body {
     .geneweb-logo {
         width: 120px;
     }
-    
+
     .search-header {
         padding: 1.5rem;
     }
-    
+
     .display-4 {
         font-size: 2rem;
     }

@@ -24,15 +24,15 @@
                 <i class="fas fa-search text-primary me-3"></i>
                 Recherche dans {{ base_name }}
             </h1>
-            
+
             <form method="GET" action="/{{ base_name }}">
                 <input type="hidden" name="m" value="search">
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <div class="input-group input-group-lg">
-                            <input type="search" class="form-control" 
-                                   name="search" 
-                                   value="{{ search_query | escape }}" 
+                            <input type="search" class="form-control"
+                                   name="search"
+                                   value="{{ search_query | escape }}"
                                    placeholder="Prénom, nom de famille ou les deux..."
                                    autofocus>
                             <div class="input-group-append">
@@ -62,7 +62,7 @@
             {% set total_results = results | length %}
             {% set showing_results = [50, total_results] | min %}
             <p class="mb-0 text-muted">
-                Affichage de {{ showing_results }} résultat{{ 's' if showing_results > 1 else '' }} 
+                Affichage de {{ showing_results }} résultat{{ 's' if showing_results > 1 else '' }}
                 sur {{ total_results }} au total
             </p>
         </div>
@@ -85,19 +85,19 @@
                                 {% set birth_info = "" %}
                                 {% set death_info = "" %}
                                 {% set occupation_info = "" %}
-                                
+
                                 {% if person.birth_date %}
                                 {% set birth_info = '<i class="fas fa-birthday-cake text-success me-1"></i>Né' + ('e' if person.sex == 'F' else '') + ' le ' + (person.birth_date | date_to_string) %}
                                 {% endif %}
-                                
+
                                 {% if person.death_date %}
                                 {% set death_info = '<i class="fas fa-cross text-danger me-1"></i>Décédé' + ('e' if person.sex == 'F' else '') + ' le ' + (person.death_date | date_to_string) %}
                                 {% endif %}
-                                
+
                                 {% if person.occupation %}
                                 {% set occupation_info = '<i class="fas fa-briefcase text-warning me-1"></i>' + (person.occupation | escape) %}
                                 {% endif %}
-                                
+
                                 {% if birth_info or death_info or occupation_info %}
                                 <div class="d-flex flex-wrap">
                                     {% if birth_info %}<div class="me-3 mb-1 small">{{ birth_info | safe }}</div>{% endif %}
@@ -124,21 +124,21 @@
             </div>
             {% endfor %}
         </div>
-        
+
         {% if total_results > 50 %}
         <div class="alert alert-info text-center">
             <i class="fas fa-info-circle me-2"></i>
-            Seuls les 50 premiers résultats sont affichés. 
+            Seuls les 50 premiers résultats sont affichés.
             Affinez votre recherche pour obtenir des résultats plus précis.
         </div>
         {% endif %}
-        
+
         {% else %}
         <p class="mb-0 text-muted">
             Aucun résultat trouvé
         </p>
         </div>
-        
+
         <div class="no-results mt-4">
             <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
             <h4 class="text-muted">Aucun résultat trouvé</h4>

@@ -5,29 +5,31 @@ Version simplifiée qui utilise les modules HTTP standards de Python
 """
 
 import http.server
-import socketserver
-import os
 import json
-from urllib.parse import urlparse, parse_qs
-from geneweb.db.driver import create_database_driver
+import os
+import socketserver
+from urllib.parse import parse_qs, urlparse
+
 from geneweb.core.config import Config
+from geneweb.db.driver import create_database_driver
+
 
 class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     """Handler HTTP simple pour GenEWeb"""
-    
+
     def __init__(self, *args, database_dir=".", **kwargs):
         self.database_dir = database_dir
         super().__init__(*args, **kwargs)
-    
+
     def do_GET(self):
         """Gérer les requêtes GET"""
         try:
             parsed_url = urlparse(self.path)
             path = parsed_url.path
             query = parse_qs(parsed_url.query)
-            
+
             print(f"Requête: {self.path}")
-            
+
             if path == "/":
                 self.send_main_page()
             elif path.startswith("/") and len(path) > 1:
@@ -36,21 +38,21 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                 self.send_database_page(db_name, query)
             else:
                 self.send_404()
-                
+
         except Exception as e:
             print(f"Erreur: {e}")
             self.send_error(500, f"Erreur interne: {e}")
-    
+
     def send_main_page(self):
         """Envoyer la page principale avec la liste des bases"""
         try:
             # Chercher les bases de données
             databases = []
             for file in os.listdir(self.database_dir):
-                if file.endswith('.pickle'):
+                if file.endswith(".pickle"):
                     db_name = file[:-7]  # Enlever .pickle
                     databases.append(db_name)
-            
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -69,60 +71,60 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             </head>
             <body>
                 <h1>🌳 GenEWeb - Généalogie</h1>
-                
+
                 <div class="info">
                     <h2>Bases de données disponibles:</h2>
                     <ul>
             """
-            
+
             for db in databases:
                 html += f'<li>📊 <a href="/{db}">{db}</a></li>\\n'
-            
+
             if not databases:
-                html += '<li><em>Aucune base de données trouvée</em></li>'
-            
+                html += "<li><em>Aucune base de données trouvée</em></li>"
+
             html += f"""
                     </ul>
                 </div>
-                
+
                 <hr>
                 <p><small>GenEWeb Python Modernization - Serveur simple de test</small></p>
             </body>
             </html>
             """
-            
+
             self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(html.encode('utf-8'))
-            
+            self.wfile.write(html.encode("utf-8"))
+
         except Exception as e:
             self.send_error(500, f"Erreur lors de la génération de la page: {e}")
-    
+
     def send_database_page(self, db_name, query):
         """Envoyer la page d'une base de données"""
         try:
             db_path = os.path.join(self.database_dir, f"{db_name}.pickle")
-            
+
             if not os.path.exists(db_path):
                 self.send_404()
                 return
-            
+
             # Charger la base de données
             driver = create_database_driver(db_path, "pickle")
             if not driver.open_database(read_only=True):
                 self.send_error(500, "Impossible d'ouvrir la base de données")
                 return
-            
+
             # Obtenir les informations
             info = driver.get_database_info()
-            
+
             # Recherche si demandée
             search_results = []
-            search_query = query.get('search', [''])[0]
+            search_query = query.get("search", [""])[0]
             if search_query:
                 search_results = driver.search_persons(search_query)
-            
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -141,14 +143,14 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             </head>
             <body>
                 <h1>🌳 Base: {db_name}</h1>
-                
+
                 <div class="info">
                     <h2>📊 Informations</h2>
                     <p><strong>Personnes:</strong> {info.number_of_persons}</p>
                     <p><strong>Familles:</strong> {info.number_of_families}</p>
                     <p><strong>Fichier:</strong> {info.path}</p>
                 </div>
-                
+
                 <div class="search">
                     <h2>🔍 Recherche</h2>
                     <form method="GET">
@@ -156,7 +158,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                         <button type="submit">Chercher</button>
                     </form>
             """
-            
+
             if search_query:
                 html += f"<h3>Résultats pour '{search_query}':</h3>"
                 if search_results:
@@ -164,37 +166,38 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                         birth_info = ""
                         if person.birth_date:
                             from geneweb.util.string_utils import geneweb_date_to_string
+
                             birth_info = f" (né le {geneweb_date_to_string(person.birth_date)})"
-                        
-                        html += f'''
+
+                        html += f"""
                         <div class="person">
                             <strong>{person.first_name} {person.surname}</strong>{birth_info}
                             {f"<br><em>{person.occupation}</em>" if person.occupation else ""}
                         </div>
-                        '''
+                        """
                 else:
                     html += "<p><em>Aucun résultat trouvé</em></p>"
-            
+
             html += """
                 </div>
-                
+
                 <hr>
                 <p><a href="/">← Retour aux bases de données</a></p>
                 <p><small>GenEWeb Python Modernization</small></p>
             </body>
             </html>
             """
-            
+
             driver.close_database()
-            
+
             self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(html.encode('utf-8'))
-            
+            self.wfile.write(html.encode("utf-8"))
+
         except Exception as e:
             self.send_error(500, f"Erreur base de données: {e}")
-    
+
     def send_404(self):
         """Envoyer une page 404"""
         html = """
@@ -208,22 +211,23 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
         </html>
         """
         self.send_response(404)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(html.encode('utf-8'))
+        self.wfile.write(html.encode("utf-8"))
+
 
 def run_simple_server(port=2317, database_dir="."):
     """Démarrer le serveur simple"""
-    
+
     # Créer le handler avec le répertoire des bases
     def handler(*args, **kwargs):
         return GeneWebHTTPHandler(*args, database_dir=database_dir, **kwargs)
-    
+
     print(f"🌳 GenEWeb Serveur Simple")
     print(f"📁 Répertoire des bases: {os.path.abspath(database_dir)}")
     print(f"🌐 URL: http://localhost:{port}/")
     print(f"⏹️  Arrêt: Ctrl+C")
-    
+
     try:
         with socketserver.TCPServer(("", port), handler) as httpd:
             print(f"✅ Serveur démarré sur le port {port}")
@@ -233,15 +237,16 @@ def run_simple_server(port=2317, database_dir="."):
     except Exception as e:
         print(f"❌ Erreur: {e}")
 
+
 if __name__ == "__main__":
     import sys
-    
+
     port = 2317
     database_dir = "."
-    
+
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
     if len(sys.argv) > 2:
         database_dir = sys.argv[2]
-    
+
     run_simple_server(port, database_dir)

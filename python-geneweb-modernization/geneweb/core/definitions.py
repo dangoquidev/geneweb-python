@@ -9,10 +9,10 @@ Copyright (c) 1998-2007 INRIA
 Python modernization preserving original structure and functionality.
 """
 
-from typing import Optional, List, Dict, Union, Any, Tuple
-from enum import Enum, auto
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import date, datetime
+from enum import Enum, auto
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
 # HTTP Response Status
@@ -30,6 +30,7 @@ class HttpStatus(Enum):
 
 class HttpException(Exception):
     """Exception for HTTP status errors"""
+
     def __init__(self, status: HttpStatus, message: str):
         self.status = status
         self.message = message
@@ -57,6 +58,7 @@ class Precision(Enum):
 @dataclass
 class DateMY2:
     """Secondary date for intervals"""
+
     day2: int
     month2: int
     year2: int
@@ -66,6 +68,7 @@ class DateMY2:
 @dataclass
 class DateMY:
     """Date Month Year structure"""
+
     day: int
     month: int
     year: int
@@ -76,14 +79,15 @@ class DateMY:
 @dataclass
 class GeneDate:
     """Genealogical date - can be gregorian date or text"""
+
     # Union type: either structured date or text
     gregorian_date: Optional[Tuple[DateMY, Calendar]] = None
     text_date: Optional[str] = None
-    
+
     @classmethod
     def from_gregorian(cls, dmy: DateMY, calendar: Calendar = Calendar.GREGORIAN):
         return cls(gregorian_date=(dmy, calendar))
-    
+
     @classmethod
     def from_text(cls, text: str):
         return cls(text_date=text)
@@ -173,6 +177,7 @@ class TitleName(Enum):
 @dataclass
 class Title:
     """Noble title information"""
+
     name: Union[TitleName, str]
     identifier: str
     place: str
@@ -251,6 +256,7 @@ class PersonalEventName(Enum):
 @dataclass
 class PersonalEvent:
     """Personal event information"""
+
     name: Union[PersonalEventName, str]  # Can be enum value or custom string
     date: Optional[GeneDate]
     place: str
@@ -280,6 +286,7 @@ class FamilyEventName(Enum):
 @dataclass
 class FamilyEvent:
     """Family event information"""
+
     name: Union[FamilyEventName, str]  # Can be enum value or custom string
     date: Optional[GeneDate]
     place: str
@@ -301,6 +308,7 @@ class RelationType(Enum):
 @dataclass
 class Relation:
     """Relation information with parents (if not native)"""
+
     relation_type: RelationType
     father: Optional[Any]  # Will be Person type
     mother: Optional[Any]  # Will be Person type
@@ -318,6 +326,7 @@ class Sex(Enum):
 @dataclass
 class Place:
     """Geographic place information"""
+
     other: str = ""
     town: str = ""
     township: str = ""
@@ -332,58 +341,59 @@ class Place:
 @dataclass
 class Person:
     """Core person information structure"""
+
     # Names and identification
     first_name: str
     surname: str
     occurrence: int  # For distinguishing homonyms
-    
+
     # Additional names and aliases
     public_name: str = ""
     qualifiers: List[str] = field(default_factory=list)
     aliases: List[str] = field(default_factory=list)
     first_names_aliases: List[str] = field(default_factory=list)
     surnames_aliases: List[str] = field(default_factory=list)
-    
+
     # Titles and relations
     titles: List[Title] = field(default_factory=list)
     relations_with_parents: List[Relation] = field(default_factory=list)
     related_persons: List[Any] = field(default_factory=list)  # List of Person references
-    
+
     # Basic info
     occupation: str = ""
     sex: Sex = Sex.NEUTER
     access: Access = Access.PRIVATE
     image: str = ""
-    
+
     # Birth information
     birth_date: Optional[GeneDate] = None
     birth_place: str = ""
     birth_note: str = ""
     birth_source: str = ""
-    
+
     # Baptism information
     baptism_date: Optional[GeneDate] = None
     baptism_place: str = ""
     baptism_note: str = ""
     baptism_source: str = ""
-    
+
     # Death information
     death: Optional[Death] = None
     death_place: str = ""
     death_note: str = ""
     death_source: str = ""
-    
+
     # Burial information
     burial: Optional[Burial] = None
     burial_place: str = ""
     burial_note: str = ""
     burial_source: str = ""
-    
+
     # Events and notes
     personal_events: List[PersonalEvent] = field(default_factory=list)
     notes: str = ""
     sources: str = ""
-    
+
     # System fields
     key_index: Optional[Any] = None  # Will be database key type
 
@@ -391,6 +401,7 @@ class Person:
 @dataclass
 class Ascendants:
     """Person's ascendants (family where they are children)"""
+
     parents_family: Optional[Any] = None  # Will be Family type
     consanguinity: float = 0.0  # Relationship between parents
 
@@ -398,18 +409,21 @@ class Ascendants:
 @dataclass
 class Union:
     """Person's families where they are parent"""
+
     families: List[Any] = field(default_factory=list)  # List of Family references
 
 
 @dataclass
 class Descendants:
     """Children of a family"""
+
     children: List[Any] = field(default_factory=list)  # List of Person references
 
 
 @dataclass
 class Couple:
     """Couple in a family"""
+
     father: Optional[Any] = None  # Person reference
     mother: Optional[Any] = None  # Person reference
 
@@ -417,23 +431,24 @@ class Couple:
 @dataclass
 class Family:
     """Family information structure"""
+
     # Marriage information
     marriage_date: Optional[GeneDate] = None
     marriage_place: str = ""
     marriage_note: str = ""
     marriage_source: str = ""
     witnesses: List[Any] = field(default_factory=list)  # List of Person references
-    
+
     # Relationship
     relation: RelationKind = RelationKind.MARRIED
     divorce: Optional[Divorce] = None
-    
+
     # Events and sources
     family_events: List[FamilyEvent] = field(default_factory=list)
     comment: str = ""
     origin_file: str = ""  # .gw filename where family is defined
     sources: str = ""
-    
+
     # System fields
     family_index: Optional[Any] = None  # Will be database key type
 
@@ -441,6 +456,7 @@ class Family:
 # Database errors and warnings
 class PersonError(Exception):
     """Database errors describing bad specification of person"""
+
     pass
 
 
@@ -501,20 +517,22 @@ class WarningType(Enum):
 @dataclass
 class Warning:
     """Database warning"""
+
     warning_type: WarningType
     details: Dict[str, Any] = field(default_factory=dict)
 
 
 # Database note reading modes
 class ReadingMode(Enum):
-    ALL = "all"          # Read all content
-    FIRST_LINE = "1ln"   # Read first line
-    DEGREE = "deg"       # If file isn't empty returns a space
+    ALL = "all"  # Read all content
+    FIRST_LINE = "1ln"  # Read first line
+    DEGREE = "deg"  # If file isn't empty returns a space
 
 
 @dataclass
 class BaseNotes:
     """Database note/page explorer structure"""
+
     # These will be implemented as methods in the actual database class
     pass
 
@@ -542,6 +560,7 @@ class UpdateType(Enum):
 @dataclass
 class BaseUpdate:
     """Database update for history tracking"""
+
     update_type: UpdateType
     details: Dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
@@ -559,17 +578,20 @@ class PageType(Enum):
 @dataclass
 class NameKey:
     """Key for name lookup"""
+
     first_name: str
     surname: str
     occurrence: int
-    
+
     def __eq__(self, other):
         if not isinstance(other, NameKey):
             return False
-        return (self.occurrence == other.occurrence and 
-                self.first_name == other.first_name and 
-                self.surname == other.surname)
-    
+        return (
+            self.occurrence == other.occurrence
+            and self.first_name == other.first_name
+            and self.surname == other.surname
+        )
+
     def __hash__(self):
         return hash((self.first_name, self.surname, self.occurrence))
 
@@ -577,6 +599,7 @@ class NameKey:
 @dataclass
 class NameIndex:
     """Index entry for name lookup"""
+
     text: Optional[str] = None
     position: int = 0
 

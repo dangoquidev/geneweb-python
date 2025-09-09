@@ -2,4 +2,4 @@
 Web module initialization
 """
 
-from .server import GeneWebServer, start_server, ServerConfig, HTTPRequest, HTTPResponse
+from .server import GeneWebServer, HTTPRequest, HTTPResponse, ServerConfig, start_server
