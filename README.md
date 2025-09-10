@@ -16,19 +16,42 @@ GenEWeb is a genealogical software system that manages family trees, genealogica
 ## Project Structure
 
 ```
-geneweb/
-├── core/
-│   ├── definitions.py    # Core data structures (Person, Family, dates, etc.)
-│   └── config.py         # Configuration management
-├── db/
-│   └── driver.py         # Database abstraction layer
-├── web/
-│   └── server.py         # HTTP web server implementation
-├── security/
-│   └── __init__.py       # Authentication and authorization
-├── util/
-│   └── string_utils.py   # Utility functions
-└── cli.py                # Command line interface
+python-geneweb-modernization/
+├── src/                          # Source code (modern Python structure)
+│   └── backend/                  # Backend implementation
+│       ├── geneweb/             # Main GenEWeb package
+│       │   ├── core/            # Core functionality
+│       │   │   ├── config.py    # Configuration management
+│       │   │   └── definitions.py # Data structures (Person, Family, etc.)
+│       │   ├── db/              # Database layer
+│       │   │   └── driver.py    # Database abstraction and drivers
+│       │   ├── security/        # Security and authentication
+│       │   │   └── __init__.py  # Authentication and authorization
+│       │   ├── util/            # Utility functions
+│       │   │   └── string_utils.py # String manipulation utilities
+│       │   └── web/             # Web server components
+│       │       ├── gwd_server.py # Main GenEWeb daemon server
+│       │       └── server.py    # HTTP server implementation
+│       ├── servers/             # Server implementations
+│       │   ├── gwd_simple.py    # Main daemon server (production)
+│       │   ├── simple_server.py # Development/test server
+│       │   └── gwd_templates.py # Template-based server
+│       ├── static/              # Static web assets
+│       │   └── css/             # Stylesheets
+│       ├── templates/           # HTML templates
+│       └── template_engine.py   # Template rendering engine
+├── tests/                       # Test suite
+│   ├── test_basic.py           # Basic functionality tests
+│   ├── test_compliance.py      # Code quality and compliance tests
+│   └── test_server.py          # Server integration tests
+├── data/                        # Database files
+│   ├── ma_famille.pickle       # Sample family database
+│   └── sample_family.pickle    # Example database
+├── config/                      # Configuration files
+├── docs/                        # Project documentation
+├── Makefile                     # Development workflow automation
+├── pyproject.toml              # Modern Python project configuration
+└── requirements.txt            # Python dependencies
 ```
 
 ## Installation
@@ -58,9 +81,9 @@ make all          # Format, check, and test everything
 ### 1. Create a Sample Database
 
 ```python
-from geneweb.core.definitions import Person, Family, Sex
-from geneweb.db.driver import create_database_driver
-from geneweb.util.string_utils import date_to_geneweb_date
+from backend.geneweb.core.definitions import Person, Family, Sex
+from backend.geneweb.db.driver import create_database_driver
+from backend.geneweb.util.string_utils import date_to_geneweb_date
 from datetime import date
 
 # Create database
@@ -86,26 +109,41 @@ print(f"Found: {len(persons)} persons")
 
 ```bash
 # List databases
-python -m geneweb.cli list-db --database-dir ./data
+python -m backend.geneweb.cli list-db --database-dir ./data
 
 # Create new database
-python -m geneweb.cli create-db my_family --database-dir ./data
+python -m backend.geneweb.cli create-db my_family --database-dir ./data
 
 # Get database info
-python -m geneweb.cli info my_family --database-dir ./data
+python -m backend.geneweb.cli info my_family --database-dir ./data
 
 # Search for persons
-python -m geneweb.cli search my_family "John" --database-dir ./data
+python -m backend.geneweb.cli search my_family "John" --database-dir ./data
 
 # Start web server
-python -m geneweb.cli server --port 8080 --database-dir ./data
+python -m backend.geneweb.cli server --port 8080 --database-dir ./data
 ```
 
 ### 3. Starting the Web Server
 
+**Using the Makefile (recommended):**
+
+```bash
+# Start production server
+make run
+
+# Start development server
+make run-simple
+
+# List available databases
+make list-db
+```
+
+**Direct Python execution:**
+
 ```python
-from geneweb.web.server import GeneWebServer
-from geneweb.core.config import Config
+from backend.geneweb.web.server import GeneWebServer
+from backend.geneweb.core.config import Config
 import asyncio
 
 async def run_server():
@@ -124,13 +162,8 @@ asyncio.run(run_server())
 Run the test suite to verify installation:
 
 ```bash
-python test_basic.py
-```
-
-Run the example usage script:
-
-```bash
-python example_usage.py
+# Run all tests (recommended)
+make test
 ```
 
 ## Status
@@ -193,7 +226,7 @@ python example_usage.py
 Configuration is handled through the `Config` class and environment variables:
 
 ```python
-from geneweb.core.config import Config
+from backend.geneweb.core.config import Config
 
 config = Config()
 config.port = 8080

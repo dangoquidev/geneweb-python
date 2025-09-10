@@ -16,15 +16,15 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-from geneweb.core.config import Config
+from ..geneweb.core.config import Config
 
 # Import des modules GenEWeb
-from geneweb.db.driver import create_database_driver
-from geneweb.security import create_security_manager
-from geneweb.util.string_utils import *
+from ..geneweb.db.driver import create_database_driver
+from ..geneweb.security import create_security_manager
+from ..geneweb.util.string_utils import *
 
 # Import du moteur de templates
-from template_engine import render_template
+from ..template_engine import render_template
 
 
 class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):

@@ -10,8 +10,8 @@ import tempfile
 import unittest
 from datetime import date
 
-from geneweb.core.config import Config
-from geneweb.core.definitions import (
+from backend.geneweb.core.config import Config
+from backend.geneweb.core.definitions import (
     Access,
     Calendar,
     DateMY,
@@ -23,9 +23,9 @@ from geneweb.core.definitions import (
     RelationKind,
     Sex,
 )
-from geneweb.db.driver import create_database_driver
-from geneweb.security import AccessLevel, create_security_manager
-from geneweb.util.string_utils import (
+from backend.geneweb.db.driver import create_database_driver
+from backend.geneweb.security import AccessLevel, create_security_manager
+from backend.geneweb.util.string_utils import (
     calculate_age,
     compare_names,
     date_to_geneweb_date,

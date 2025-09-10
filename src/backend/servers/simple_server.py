@@ -10,8 +10,8 @@ import os
 import socketserver
 from urllib.parse import parse_qs, urlparse
 
-from geneweb.core.config import Config
-from geneweb.db.driver import create_database_driver
+from ..geneweb.core.config import Config
+from ..geneweb.db.driver import create_database_driver
 
 
 class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):

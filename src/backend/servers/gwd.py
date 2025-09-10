@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 # Import du serveur GenEWeb
-from geneweb.web.gwd_server import ServerConfig, start_geneweb_daemon
+from ..geneweb.web.gwd_server import ServerConfig, start_geneweb_daemon
 
 
 def parse_arguments():
