@@ -6,6 +6,10 @@ extend-exclude = '''
 # A regex preceded with ^/ will apply only to files and directories
 # in the root of the project.
 ^/setup.py
+# Exemples de fichiers à ignorer :
+# | src/backend/servers/gwd\.py
+# | src/backend/servers/gwd_simple\.py
+# | src/backend/geneweb/web/server\.py
 '''
 
 [tool.isort]

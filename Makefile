@@ -12,8 +12,11 @@ help:
 	@echo "  make run     - Start GenEWeb server (databases in data/)"
 	@echo "  make run-simple - Start simple test server (databases in data/)"
 	@echo "  make setup   - Setup development environment"
-	@echo "  make format  - Format code with black and isort"
+	@echo "  make format  - Format code with black and isort + auto-fixes"
+	@echo "  make autofix - Auto-fix common style issues only"
 	@echo "  make check   - Run quality checks (flake8, mypy)"
+	@echo "  make mypy-help - Get assistance with MyPy errors"
+	@echo "  make mypy-safe - Auto-fix SAFE MyPy errors only"
 	@echo "  make test    - Run all test suites"
 	@echo "  make all     - Complete workflow (format + check + test)"
 	@echo "  make status  - Show project status"
@@ -44,7 +47,7 @@ setup:
 	pip install -e .
 	@echo "🔧 Installing development tools..."
 	pip install --upgrade pip
-	pip install black isort flake8 mypy pytest pre-commit pylint pytest-cov
+	pip install black isort flake8 mypy pytest pre-commit pylint pytest-cov autopep8 autoflake
 	@echo "🪝 Installing pre-commit hooks..."
 	pre-commit install
 	@echo "✨ Installing pre-commit dependencies..."
@@ -59,27 +62,50 @@ setup:
 install:
 	pip install -e .
 
-# Format code with black and isort
+# Format code with black and isort + auto-fix common issues
 format:
-	@echo "🎨 Formatting code..."
+	@echo "🎨 Formatting code and fixing style issues..."
 	@which black >/dev/null 2>&1 || (echo "❌ black not found. Run 'make setup' first." && exit 1)
 	@which isort >/dev/null 2>&1 || (echo "❌ isort not found. Run 'make setup' first." && exit 1)
-	black --line-length=120 src/ *.py
-	isort --profile=black --line-length=120 src/ *.py
-	@echo "✨ Code formatting completed!"
+	@which autopep8 >/dev/null 2>&1 || (echo "⚠️  autopep8 not found. Run 'make setup' to install." && exit 1)
+	@which autoflake >/dev/null 2>&1 || (echo "⚠️  autoflake not found. Run 'make setup' to install." && exit 1)
+	@echo "🧹 Removing unused imports..."
+	autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive src/ tests/ || true
+	@echo "🔧 Fixing whitespace and basic formatting..."
+	autopep8 --in-place --aggressive --aggressive --max-line-length=120 --recursive src/ tests/ || true
+	@echo "⚫ Applying black formatting..."
+	black --line-length=120 src/ tests/ || true
+	@echo "📋 Sorting imports..."
+	isort --profile=black --line-length=120 src/ tests/ || true
+	@echo "✨ Code formatting and style fixes completed!"
+
+# Auto-fix specific style issues
+autofix:
+	@echo "🔧 Auto-fixing common style issues..."
+	@echo "  • Removing trailing whitespace..."
+	@find src/ tests/ -name "*.py" -exec sed -i 's/[[:space:]]*$$//' {} \; 2>/dev/null || true
+	@echo "  • Removing unused imports..."
+	@autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive src/ tests/ || true
+	@echo "  • Fixing whitespace around parentheses..."
+	@autopep8 --select=E201,E202,E203 --in-place --recursive src/ tests/ || true
+	@echo "  • Fixing line length..."
+	@autopep8 --select=E501 --max-line-length=120 --in-place --recursive src/ tests/ || true
+	@echo "  • Fixing f-strings without placeholders..."
+	@python3 scripts/fix_fstrings.py || true
+	@echo "✅ Auto-fixes completed!"
 
 # Run quality checks
 check:
 	@echo "🔍 Running quality checks..."
 	@echo "📏 Checking code style with flake8..."
 	@if which flake8 >/dev/null 2>&1; then \
-		flake8 --max-line-length=120 src/ *.py || echo "⚠️  flake8 found style issues"; \
+		flake8 --config=config/.flake8 src/ tests/ || echo "⚠️  flake8 found style issues"; \
 	else \
 		echo "⚠️  flake8 not installed. Run 'make setup' to install."; \
 	fi
 	@echo "🔍 Checking types with mypy..."
 	@if which mypy >/dev/null 2>&1; then \
-		PYTHONPATH=src mypy --ignore-missing-imports src/ *.py || echo "⚠️  mypy found type issues"; \
+		PYTHONPATH=src mypy --config-file=config/mypy.ini src/ || echo "⚠️  mypy found type issues"; \
 	else \
 		echo "⚠️  mypy not installed. Run 'make setup' to install."; \
 	fi
@@ -102,6 +128,16 @@ all: format check test
 	@echo "🎉 All development checks completed!"
 	@echo "✅ Code formatted, quality checked, tests passed"
 	@echo "🚀 Ready to commit!"
+
+# MyPy error assistance
+mypy-help:
+	@echo "🔍 Analysing MyPy errors..."
+	@python3 scripts/mypy_assistant.py
+
+# Safe MyPy auto-fixes (only simple type annotations)
+mypy-safe:
+	@echo "🔧 Applying safe MyPy fixes..."
+	@python3 scripts/mypy_safe_fix.py
 
 # Clean generated files and caches
 clean:
