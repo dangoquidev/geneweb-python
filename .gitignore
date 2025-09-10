@@ -1,7 +1,10 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
-*
-.venv
-bin
-include
-lib
+bin/
+lib/
 lib64
+python-geneweb-modernization/geneweb/__pycache__/
+python-geneweb-modernization/geneweb/core/__pycache__/
+python-geneweb-modernization/geneweb/db/__pycache__/
+python-geneweb-modernization/geneweb/security/__pycache__/
+python-geneweb-modernization/geneweb/util/__pycache__/
+python-geneweb-modernization/geneweb/web/__pycache__/
+pyvenv.cfg
