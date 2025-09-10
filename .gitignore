@@ -8,3 +8,6 @@ python-geneweb-modernization/geneweb/security/__pycache__/
 python-geneweb-modernization/geneweb/util/__pycache__/
 python-geneweb-modernization/geneweb/web/__pycache__/
 pyvenv.cfg
+python-geneweb-modernization/__pycache__/
+python-geneweb-modernization/unit_tests/__init__.py
+python-geneweb-modernization/unit_tests/__pycache__/
