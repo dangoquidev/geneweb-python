@@ -10,8 +10,8 @@ Python modernization preserving original structure and functionality.
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
-from enum import Enum, auto
+from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 
@@ -457,8 +457,6 @@ class Family:
 class PersonError(Exception):
     """Database errors describing bad specification of person"""
 
-    pass
-
 
 class AlreadyDefinedError(PersonError):
     def __init__(self, person):
@@ -534,7 +532,6 @@ class BaseNotes:
     """Database note/page explorer structure"""
 
     # These will be implemented as methods in the actual database class
-    pass
 
 
 # Update modifications for history tracking

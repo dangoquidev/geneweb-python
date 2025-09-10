@@ -17,8 +17,8 @@ import shutil
 import tempfile
 import unicodedata
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import parse_qs, quote, unquote
+from typing import List, Optional, Tuple, Union
+from urllib.parse import quote, unquote
 
 from ..core.definitions import Calendar, DateMY, GeneDate, Precision
 
@@ -69,7 +69,7 @@ def create_environment(query_string: str) -> List[Tuple[str, str]]:
     if not query_string:
         return []
 
-    env = []
+    env: list[str] = []
     pairs = query_string.split("&")
 
     for pair in pairs:
@@ -542,7 +542,7 @@ def split_name_parts(full_name: str) -> Tuple[str, str]:
 
 def join_name_parts(first_name: str, surname: str) -> str:
     """Join first name and surname into full name"""
-    parts = []
+    parts: list[str] = []
     if first_name:
         parts.append(first_name)
     if surname:

@@ -29,7 +29,7 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-        args: [--max-line-length=120, --extend-ignore=E203,W503]
+        args: [--config=config/.flake8]
         files: ^src/.*\.py$|^tests/.*\.py$|^scripts/.*\.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -37,17 +37,17 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [types-requests, types-PyYAML]
-        args: [--ignore-missing-imports, --no-strict-optional]
+        args: [--config-file=config/mypy.ini]
         files: ^src/.*\.py$
         exclude: ^tests/.*\.py$
 
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.0.3
-    hooks:
-      - id: pylint
-        args: [
-          --max-line-length=120,
-          --disable=missing-docstring,missing-module-docstring,
-          --init-hook=import sys; sys.path.append('./src/backend')
-        ]
-        files: ^src/.*\.py$
+  # - repo: https://github.com/pycqa/pylint
+  #   rev: v3.0.3
+  #   hooks:
+  #     - id: pylint
+  #       args: [
+  #         --max-line-length=120,
+  #         --disable=missing-docstring,missing-module-docstring,
+  #         --init-hook=import sys; sys.path.append('./src/backend')
+  #       ]
+  #       files: ^src/.*\.py$

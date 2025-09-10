@@ -5,12 +5,10 @@ Version simplifiée qui utilise les modules HTTP standards de Python
 """
 
 import http.server
-import json
 import os
 import socketserver
 from urllib.parse import parse_qs, urlparse
 
-from ..geneweb.core.config import Config
 from ..geneweb.db.driver import create_database_driver
 
 
@@ -47,7 +45,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
         """Envoyer la page principale avec la liste des bases"""
         try:
             # Chercher les bases de données
-            databases = []
+            databases: list[str] = []
             for file in os.listdir(self.database_dir):
                 if file.endswith(".pickle"):
                     db_name = file[:-7]  # Enlever .pickle
@@ -120,7 +118,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             info = driver.get_database_info()
 
             # Recherche si demandée
-            search_results = []
+            search_results: list[str] = []
             search_query = query.get("search", [""])[0]
             if search_query:
                 search_results = driver.search_persons(search_query)

@@ -15,18 +15,15 @@ import mimetypes
 import os
 import socket
 import sys
-import threading
 import time
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple
-from urllib.parse import parse_qs, unquote, urlparse
+from typing import Any, Dict, Tuple
+from urllib.parse import parse_qs, unquote
 
-from ..core.config import Config, create_default_output_config
+from ..core.config import Config
 from ..core.definitions import HttpStatus
 from ..db.driver import DatabaseDriver, create_database_driver, get_available_databases
-from ..security import AccessLevel, SecurityManager, create_security_manager
-from ..util.string_utils import create_environment, extract_parameter
+from ..security import SecurityManager, create_security_manager
 
 
 @dataclass
@@ -178,7 +175,7 @@ class HTTPResponse:
         """Convert response to bytes for sending"""
         status_line = f"HTTP/1.1 {self.status.value} {self.status.name}\r\n"
 
-        headers_lines = []
+        headers_lines: list[str] = []
         for name, value in self.headers.items():
             headers_lines.append(f"{name}: {value}\r\n")
 
@@ -352,7 +349,7 @@ class RequestHandler:
         config.debug = self.server_config.debug
 
         # Extract environment from query parameters and form data
-        env_list = []
+        env_list: list[str] = []
 
         # Add query parameters
         for key, values in request.query_params.items():
@@ -688,7 +685,7 @@ class GeneWebServer:
                 error_response.set_content("Bad Request")
                 try:
                     await asyncio.get_event_loop().sock_sendall(client_socket, error_response.to_bytes())
-                except:
+                except BaseException:
                     pass
                 return
 
@@ -718,14 +715,14 @@ class GeneWebServer:
                     asyncio.get_event_loop().sock_sendall(client_socket, error_response.to_bytes()),
                     timeout=5.0,  # Plus court timeout pour les erreurs
                 )
-            except:
+            except BaseException:
                 pass
 
         finally:
             # Fermer le socket proprement
             try:
                 client_socket.close()
-            except:
+            except BaseException:
                 pass
 
     def _parse_http_request(self, request_data: bytes, remote_addr: str) -> HTTPRequest:
@@ -779,7 +776,7 @@ class GeneWebServer:
             query_string = ""
 
         # Parse headers
-        headers = {}
+        headers: dict[str, str] = {}
         for line in lines[1:]:
             if ":" in line:
                 key, value = line.split(":", 1)

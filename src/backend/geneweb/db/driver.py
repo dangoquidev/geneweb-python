@@ -13,8 +13,7 @@ import os
 import pickle
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Protocol, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 
 from ..core.definitions import Ascendants, BaseUpdate, Descendants, Family, NameKey, Person, Union, Warning
 
@@ -22,13 +21,9 @@ from ..core.definitions import Ascendants, BaseUpdate, Descendants, Family, Name
 class PersonId(int):
     """Type for person identifiers"""
 
-    pass
-
 
 class FamilyId(int):
     """Type for family identifiers"""
-
-    pass
 
 
 @dataclass
@@ -58,160 +53,130 @@ class DatabaseDriver(ABC):
     @abstractmethod
     def open_database(self, read_only: bool = True) -> bool:
         """Open the database connection"""
-        pass
 
     @abstractmethod
     def close_database(self) -> None:
         """Close the database connection"""
-        pass
 
     @abstractmethod
     def get_database_info(self) -> DatabaseInfo:
         """Get information about the database"""
-        pass
 
     # Person operations
     @abstractmethod
     def get_person(self, person_id: PersonId) -> Optional[Person]:
         """Retrieve a person by ID"""
-        pass
 
     @abstractmethod
     def get_persons(self) -> Iterator[Tuple[PersonId, Person]]:
         """Iterate over all persons"""
-        pass
 
     @abstractmethod
     def find_person_by_name(
         self, first_name: str, surname: str, occurrence: int = 0
     ) -> Optional[Tuple[PersonId, Person]]:
         """Find person by name"""
-        pass
 
     @abstractmethod
     def search_persons(self, query: str, max_results: int = 100) -> List[Tuple[PersonId, Person]]:
         """Search persons by various criteria"""
-        pass
 
     @abstractmethod
     def add_person(self, person: Person) -> PersonId:
         """Add a new person"""
-        pass
 
     @abstractmethod
     def update_person(self, person_id: PersonId, person: Person) -> bool:
         """Update an existing person"""
-        pass
 
     @abstractmethod
     def delete_person(self, person_id: PersonId) -> bool:
         """Delete a person"""
-        pass
 
     # Family operations
     @abstractmethod
     def get_family(self, family_id: FamilyId) -> Optional[Family]:
         """Retrieve a family by ID"""
-        pass
 
     @abstractmethod
     def get_families(self) -> Iterator[Tuple[FamilyId, Family]]:
         """Iterate over all families"""
-        pass
 
     @abstractmethod
     def add_family(self, family: Family) -> FamilyId:
         """Add a new family"""
-        pass
 
     @abstractmethod
     def update_family(self, family_id: FamilyId, family: Family) -> bool:
         """Update an existing family"""
-        pass
 
     @abstractmethod
     def delete_family(self, family_id: FamilyId) -> bool:
         """Delete a family"""
-        pass
 
     # Relationship operations
     @abstractmethod
     def get_ascendants(self, person_id: PersonId) -> Optional[Ascendants]:
         """Get person's ascendants (parents)"""
-        pass
 
     @abstractmethod
     def get_union(self, person_id: PersonId) -> Optional[Union]:
         """Get person's unions (families as parent)"""
-        pass
 
     @abstractmethod
     def get_descendants(self, family_id: FamilyId) -> Optional[Descendants]:
         """Get family's descendants (children)"""
-        pass
 
     @abstractmethod
     def set_ascendants(self, person_id: PersonId, ascendants: Ascendants) -> bool:
         """Set person's ascendants"""
-        pass
 
     @abstractmethod
     def set_union(self, person_id: PersonId, union: Union) -> bool:
         """Set person's unions"""
-        pass
 
     @abstractmethod
     def set_descendants(self, family_id: FamilyId, descendants: Descendants) -> bool:
         """Set family's descendants"""
-        pass
 
     # Validation and integrity
     @abstractmethod
     def validate_database(self) -> List[Warning]:
         """Validate database integrity and return warnings"""
-        pass
 
     @abstractmethod
     def check_person(self, person: Person) -> List[Warning]:
         """Check a person for potential issues"""
-        pass
 
     @abstractmethod
     def check_family(self, family: Family) -> List[Warning]:
         """Check a family for potential issues"""
-        pass
 
     # History and updates
     @abstractmethod
     def record_update(self, update: BaseUpdate) -> bool:
         """Record an update for history tracking"""
-        pass
 
     @abstractmethod
     def get_update_history(self, limit: Optional[int] = None) -> List[BaseUpdate]:
         """Get update history"""
-        pass
 
     # Utility methods
     @abstractmethod
     def get_person_count(self) -> int:
         """Get total number of persons"""
-        pass
 
     @abstractmethod
     def get_family_count(self) -> int:
         """Get total number of families"""
-        pass
 
     @abstractmethod
     def backup_database(self, backup_path: str) -> bool:
         """Create a backup of the database"""
-        pass
 
     @abstractmethod
     def restore_database(self, backup_path: str) -> bool:
         """Restore database from backup"""
-        pass
 
 
 class PickleDatabaseDriver(DatabaseDriver):
@@ -284,7 +249,7 @@ class PickleDatabaseDriver(DatabaseDriver):
 
     def search_persons(self, query: str, max_results: int = 100) -> List[Tuple[PersonId, Person]]:
         """Simple search implementation"""
-        results = []
+        results: list[str] = []
         query = query.lower()
 
         for person_id, person in self.persons.items():
@@ -430,19 +395,19 @@ class PickleDatabaseDriver(DatabaseDriver):
 
     def validate_database(self) -> List[Warning]:
         """Basic validation - would be expanded in full implementation"""
-        warnings = []
+        warnings: list[str] = []
         # Implementation would check for data consistency issues
         return warnings
 
     def check_person(self, person: Person) -> List[Warning]:
         """Check person for issues"""
-        warnings = []
+        warnings: list[str] = []
         # Implementation would check person data for issues
         return warnings
 
     def check_family(self, family: Family) -> List[Warning]:
         """Check family for issues"""
-        warnings = []
+        warnings: list[str] = []
         # Implementation would check family data for issues
         return warnings
 
@@ -539,7 +504,7 @@ class PickleDatabaseDriver(DatabaseDriver):
 
 def get_available_databases(base_directory: str) -> List[str]:
     """Get list of available databases in directory"""
-    databases = []
+    databases: list[str] = []
 
     if not os.path.exists(base_directory):
         return databases

@@ -13,7 +13,6 @@ import argparse
 import os
 import signal
 import sys
-from pathlib import Path
 
 # Import du serveur GenEWeb
 from ..geneweb.web.gwd_server import ServerConfig, start_geneweb_daemon
@@ -217,7 +216,7 @@ def validate_arguments(args):
     """
     Valider les arguments (comme l'original gwd)
     """
-    errors = []
+    errors: list[str] = []
 
     # Vérifier le port
     if not (1 <= args.port <= 65535):

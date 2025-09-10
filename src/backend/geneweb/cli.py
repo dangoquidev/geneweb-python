@@ -12,14 +12,12 @@ Python modernization preserving original structure and functionality.
 import logging
 import os
 import sys
-from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import click
 
-from .core.config import Config
 from .db.driver import create_database_driver, get_available_databases
-from .web.server import ServerConfig, start_server
+from .web.server import start_server
 
 
 @click.group()
@@ -32,7 +30,6 @@ def main():
     carefully translated from OCaml while preserving all core functionality
     and historical significance.
     """
-    pass
 
 
 @main.command()
@@ -350,7 +347,7 @@ def import_data(source_file: str, database_name: str, database_dir: str, file_fo
 def export_data(database_name: str, output_file: str, database_dir: str, file_format: str):
     """Export data to various formats"""
 
-    db_path = os.path.join(database_dir, database_name)
+    os.path.join(database_dir, database_name)
 
     # This would be implemented with proper export functionality
     click.echo(f"Exporting database '{database_name}' to {file_format} format: '{output_file}'")

@@ -12,9 +12,5 @@ __author__ = "GenEWeb Python Modernization Project"
 __license__ = "GPL-2.0-only"
 
 # Core modules
-from . import core, db, security, util, web
-from .core.config import Config
-from .db.driver import DatabaseDriver
 
 # Main entry points
-from .web.server import start_server

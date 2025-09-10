@@ -9,13 +9,12 @@ Copyright (c) 1998-2007 INRIA
 Python modernization preserving original structure and functionality.
 """
 
-import hashlib
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from .definitions import Access, DateMY, HttpStatus, Precision, Sex
+from .definitions import Access, DateMY, HttpStatus, Precision
 
 
 # Authentication scheme types
@@ -289,7 +288,7 @@ class Config:
 
     def validate_configuration(self) -> List[str]:
         """Validate configuration and return list of errors"""
-        errors = []
+        errors: list[str] = []
 
         if not self.database_name:
             errors.append("Database name is required")
@@ -349,7 +348,7 @@ def read_base_environment(base_file: str, gw_prefix: str, debug: bool = False) -
     Read base environment from .gwf file
     This function reads configuration from the base's .gwf file
     """
-    base_env = []
+    base_env: list[str] = []
     gwf_file = base_file + ".gwf"
 
     try:
@@ -398,7 +397,7 @@ def get_vowels_for_language(base_env: List[Tuple[str, str]]) -> List[str]:
     for key, value in base_env:
         if key == "vowels":
             # Parse vowels from string - this would need proper UTF-8 handling
-            vowels = []
+            vowels: list[str] = []
             i = 0
             while i < len(value):
                 # Simple implementation - in real version would need proper UTF-8 parsing

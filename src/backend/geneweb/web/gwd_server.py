@@ -9,24 +9,17 @@ Python modernization preserving original structure and functionality.
 """
 
 import asyncio
-import base64
-import hashlib
 import logging
 import logging.handlers
-import multiprocessing
 import os
 import secrets
-import signal
 import socket
-import subprocess
 import sys
-import threading
 import time
 import traceback
 import urllib.parse
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from ..core.config import Config
 from ..core.definitions import HttpStatus
@@ -186,7 +179,7 @@ class GeneWebDaemon:
             syslog_handler = logging.handlers.SysLogHandler()
             syslog_handler.setFormatter(logging.Formatter(log_format))
             root_logger.addHandler(syslog_handler)
-        except:
+        except BaseException:
             pass  # Syslog pas disponible
 
     def _setup_paths(self):
@@ -278,7 +271,7 @@ class GeneWebDaemon:
         """
         Construire l'environnement de la requête (équivalent build_env OCaml)
         """
-        env = {}
+        env: dict[str, str] = {}
 
         # Parser les headers HTTP
         for line in request_lines:
@@ -458,12 +451,12 @@ class GeneWebDaemon:
             try:
                 hostname = socket.gethostbyaddr(from_addr)[0]
                 from_addr = hostname
-            except:
+            except BaseException:
                 pass  # Garder l'adresse IP
 
         try:
             # Lire la requête HTTP
-            request_lines = []
+            request_lines: list[str] = []
             contents = b""
 
             # Lire les headers
@@ -553,7 +546,7 @@ class GeneWebDaemon:
             try:
                 writer.close()
                 await writer.wait_closed()
-            except:
+            except BaseException:
                 pass
 
     async def conf_and_connection(
@@ -625,7 +618,7 @@ class GeneWebDaemon:
         """
         Servir la liste des bases de données (page d'accueil)
         """
-        databases = []
+        databases: list[str] = []
         try:
             for file in os.listdir(self.config.database_dir):
                 if file.endswith(".pickle"):
@@ -726,7 +719,7 @@ class GeneWebDaemon:
         search_query = params.get("search", [""])[0] or params.get("s", [""])[0]
 
         info = db_driver.get_database_info()
-        results = []
+        results: list[str] = []
 
         if search_query:
             results = db_driver.search_persons(search_query)
@@ -963,7 +956,7 @@ class GeneWebDaemon:
         if not self.config.daemon:
             try:
                 hostname = socket.gethostname()
-            except:
+            except BaseException:
                 hostname = "computer"
 
             addr = self.config.selected_addr or hostname

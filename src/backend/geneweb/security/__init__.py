@@ -18,10 +18,10 @@ import secrets
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from ..core.config import AuthScheme, AuthSchemeKind, Config, TokenAuthScheme
-from ..core.definitions import Access, HttpStatus
+from ..core.config import Config
+from ..core.definitions import Access
 
 
 class AccessLevel(Enum):
@@ -256,7 +256,7 @@ class SecurityManager:
         if not auth_header.startswith("Digest "):
             return {}
 
-        params = {}
+        params: dict[str, str] = {}
         content = auth_header[7:]  # Remove 'Digest '
 
         # Simple parsing - in production, use a proper parser
@@ -343,7 +343,7 @@ class SecurityManager:
     def cleanup_expired_sessions(self, max_age: int = 3600) -> None:
         """Clean up expired session tokens"""
         current_time = time.time()
-        expired_tokens = []
+        expired_tokens: list[str] = []
 
         for token, (username, timestamp) in self.active_sessions.items():
             if current_time - timestamp > max_age:
@@ -439,7 +439,7 @@ class SecurityManager:
             del self.auth_users[username]
 
             # Remove any active sessions for this user
-            tokens_to_remove = []
+            tokens_to_remove: list[str] = []
             for token, (stored_username, _) in self.active_sessions.items():
                 if stored_username == username:
                     tokens_to_remove.append(token)
@@ -473,7 +473,7 @@ def create_security_manager(config: Config) -> SecurityManager:
 
 def validate_password_strength(password: str) -> Tuple[bool, List[str]]:
     """Validate password strength and return (is_valid, error_messages)"""
-    errors = []
+    errors: list[str] = []
 
     if len(password) < 8:
         errors.append("Password must be at least 8 characters long")

@@ -4,7 +4,6 @@ Test du serveur GenEWeb Python
 Simple script pour tester la connexion HTTP
 """
 
-import sys
 
 import requests
 

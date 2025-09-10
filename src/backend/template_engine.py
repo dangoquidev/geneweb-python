@@ -5,13 +5,11 @@ Remplacement léger de Jinja2 pour éviter les dépendances
 
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 class TemplateError(Exception):
     """Exception pour les erreurs de template."""
-
-    pass
 
 
 class TemplateEngine:
@@ -52,7 +50,7 @@ class TemplateEngine:
             TemplateError: Si erreur de syntaxe dans le template
         """
         if context is None:
-            context = {}
+            context: dict[str, str] = {}
 
         template_content = self._load_template(template_name)
         return self._render_template(template_content, context)
@@ -126,7 +124,7 @@ class TemplateEngine:
             Template avec les blocs fusionnés
         """
         # Extraire tous les blocs du template enfant
-        child_blocks = {}
+        child_blocks: dict[str, str] = {}
         block_pattern = r"{%\s*block\s+(\w+)\s*%}(.*?){%\s*endblock\s*%}"
 
         for match in re.finditer(block_pattern, child, re.DOTALL):
@@ -306,7 +304,7 @@ class TemplateEngine:
             if not iterable:
                 return ""
 
-            result = []
+            result: list[str] = []
             for item in iterable:
                 loop_context = context.copy()
                 loop_context[loop_var] = item

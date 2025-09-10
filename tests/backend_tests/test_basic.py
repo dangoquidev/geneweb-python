@@ -11,18 +11,7 @@ import unittest
 from datetime import date
 
 from backend.geneweb.core.config import Config
-from backend.geneweb.core.definitions import (
-    Access,
-    Calendar,
-    DateMY,
-    Family,
-    GeneDate,
-    HttpStatus,
-    Person,
-    Precision,
-    RelationKind,
-    Sex,
-)
+from backend.geneweb.core.definitions import Access, Calendar, Family, Person, RelationKind, Sex
 from backend.geneweb.db.driver import create_database_driver
 from backend.geneweb.security import AccessLevel, create_security_manager
 from backend.geneweb.util.string_utils import (

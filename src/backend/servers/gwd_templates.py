@@ -11,13 +11,9 @@ import signal
 import socketserver
 import sys
 import urllib.parse
-from pathlib import Path
-
-from ..geneweb.core.config import Config
 
 # Import des modules GenEWeb
 from ..geneweb.db.driver import create_database_driver
-from ..geneweb.security import create_security_manager
 from ..geneweb.util.string_utils import *
 
 # Import du moteur de templates
@@ -179,7 +175,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def serve_base_list(self):
         """Servir la liste des bases avec template"""
-        databases = []
+        databases: list[str] = []
         try:
             for file in os.listdir(self.gwd_config.database_dir):
                 if file.endswith(".pickle"):
@@ -249,7 +245,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     def handle_search(self, db_driver, params, base_name: str):
         """Traiter une recherche avec template"""
         search_query = params.get("search", [""])[0] or params.get("s", [""])[0]
-        results = []
+        results: list[str] = []
 
         if search_query:
             results = db_driver.search_persons(search_query)

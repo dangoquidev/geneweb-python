@@ -14,17 +14,12 @@ import signal
 import socketserver
 import sys
 import urllib.parse
-from pathlib import Path
-
-from ..geneweb.core.config import Config
 
 # Import des modules GenEWeb
 from ..geneweb.db.driver import create_database_driver
-from ..geneweb.security import create_security_manager
 from ..geneweb.util.string_utils import *
 
 # Import du moteur de templates
-from ..template_engine import render_template
 
 
 class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
@@ -61,7 +56,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
                     hostname = socket.gethostbyaddr(from_addr)[0]
                     from_addr = hostname
-                except:
+                except BaseException:
                     pass
 
             # Parser l'URL
@@ -252,7 +247,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def serve_base_list(self):
         """Servir la liste des bases (page d'accueil comme l'original)"""
-        databases = []
+        databases: list[str] = []
         try:
             for file in os.listdir(self.gwd_config.database_dir):
                 if file.endswith(".pickle"):
@@ -485,8 +480,8 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
     def handle_search(self, db_driver, params, base_name: str):
         """Traiter une recherche (exactement comme l'original)"""
         search_query = params.get("search", [""])[0] or params.get("s", [""])[0]
-        info = db_driver.get_database_info()
-        results = []
+        db_driver.get_database_info()
+        results: list[str] = []
 
         if search_query:
             results = db_driver.search_persons(search_query)
@@ -1177,7 +1172,7 @@ def show_startup_info(config: GWDConfig):
             import socket
 
             hostname = socket.gethostname()
-        except:
+        except BaseException:
             hostname = "computer"
 
         addr = config.selected_addr or hostname
