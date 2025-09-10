@@ -40,10 +40,20 @@ status:
 # Setup development environment
 setup:
 	@echo "🛠️  Setting up development environment..."
+	@echo "📦 Installing package in development mode..."
 	pip install -e .
-	pip install black isort flake8 mypy pytest pre-commit pylint
+	@echo "🔧 Installing development tools..."
+	pip install --upgrade pip
+	pip install black isort flake8 mypy pytest pre-commit pylint pytest-cov
+	@echo "🪝 Installing pre-commit hooks..."
 	pre-commit install
+	@echo "✨ Installing pre-commit dependencies..."
+	pre-commit install --install-hooks
 	@echo "✅ Development environment setup completed!"
+	@echo ""
+	@echo "🎯 Next steps:"
+	@echo "  • Run 'make test' to verify everything works"
+	@echo "  • Run 'make run' to start the server"
 
 # Install package in development mode
 install:
