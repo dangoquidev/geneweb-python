@@ -12,7 +12,8 @@ import {
   ViewToggle,
   ContentContainer,
   ResultsDisplay,
-  NoResults
+  NoResults,
+  PopulationPyramid
 } from '../components';
 
 export default function DatabasePage() {
@@ -33,6 +34,7 @@ export default function DatabasePage() {
   
   const {
     statisticsResults,
+    populationPyramidData,
     loadingStatistics,
     selectedStatistic,
     error: statisticsError,
@@ -85,14 +87,16 @@ export default function DatabasePage() {
   }
 
   // Get current results and refs based on view
+  console.log(statisticsResults)
   const currentResults = currentView === 'search' ? searchResults : statisticsResults;
   const currentResultsRef = currentView === 'search' ? searchResultsRef : statisticsResultsRef;
   const hasResults = currentResults.length > 0;
+  const hasPopulationPyramid = populationPyramidData && selectedStatistic === 'population-pyramid';
   
   // Check if we should show "no results" message
   const shouldShowNoResults = currentView === 'search' 
     ? (searchResults.length === 0 && !searching)
-    : (statisticsResults.length === 0 && !loadingStatistics && selectedStatistic);
+    : (statisticsResults.length === 0 && !populationPyramidData && !loadingStatistics && selectedStatistic);
 
   return (
     <BaseLayout
@@ -129,6 +133,13 @@ export default function DatabasePage() {
           viewType={currentView}
           selectedStatistic={selectedStatistic}
           resultsRef={currentResultsRef}
+        />
+      )}
+
+      {hasPopulationPyramid && (
+        <PopulationPyramid
+          data={populationPyramidData}
+          resultsRef={statisticsResultsRef}
         />
       )}
 

@@ -3,6 +3,7 @@ export { SearchForm } from './search/SearchForm';
 
 // Statistics components
 export { StatisticsOptions } from './statistics/StatisticsOptions';
+export { PopulationPyramid } from './statistics/PopulationPyramid';
 
 // Shared components
 export { ResultsDisplay } from './shared/ResultsDisplay';

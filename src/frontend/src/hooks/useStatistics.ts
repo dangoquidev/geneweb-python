@@ -3,6 +3,7 @@ import type { SearchResult } from '../types/database';
 
 export const useStatistics = (baseName: string | undefined) => {
   const [statisticsResults, setStatisticsResults] = useState<SearchResult[]>([]);
+  const [populationPyramidData, setPopulationPyramidData] = useState<any>(null);
   const [loadingStatistics, setLoadingStatistics] = useState(false);
   const [selectedStatistic, setSelectedStatistic] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,15 @@ export const useStatistics = (baseName: string | undefined) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setStatisticsResults(data.results || []);
+      
+      // Handle population pyramid differently
+      if (statisticType === 'population-pyramid') {
+        setPopulationPyramidData(data.data || data.results);
+        setStatisticsResults([]);
+      } else {
+        setStatisticsResults(data.results || []);
+        setPopulationPyramidData(null);
+      }
       
       // Scroll to results after a short delay
       setTimeout(() => {
@@ -40,12 +49,14 @@ export const useStatistics = (baseName: string | undefined) => {
 
   const clearStatistics = () => {
     setStatisticsResults([]);
+    setPopulationPyramidData(null);
     setSelectedStatistic(null);
     setError(null);
   };
 
   return {
     statisticsResults,
+    populationPyramidData,
     loadingStatistics,
     selectedStatistic,
     error,

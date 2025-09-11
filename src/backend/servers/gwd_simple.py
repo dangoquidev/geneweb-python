@@ -23,6 +23,9 @@ import urllib.request
 from ..geneweb.db.driver import create_database_driver
 from ..geneweb.util.string_utils import *
 
+# Import des endpoints modulaires
+from ..api.endpoints import DatabaseEndpoints, SearchEndpoints, StatisticsEndpoints
+
 # Import du moteur de templates
 
 
@@ -31,6 +34,11 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def __init__(self, *args, gwd_config=None, **kwargs):
         self.gwd_config = gwd_config
+        # Initialize modular endpoints
+        if gwd_config:
+            self.database_endpoints = DatabaseEndpoints(gwd_config.database_dir)
+            self.search_endpoints = SearchEndpoints(gwd_config.database_dir)
+            self.statistics_endpoints = StatisticsEndpoints(gwd_config.database_dir)
         super().__init__(*args, **kwargs)
 
     def log_message(self, format_str, *args):
@@ -181,109 +189,52 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(500, "Internal Server Error")
 
     def handle_api_request(self, script_name: str, query_string: str) -> None:
-        """Endpoints JSON simples pour le frontend moderne.
+        """Modern modular API endpoints for the frontend.
 
-        - GET /api/databases -> {"databases": ["name1", ...]}
-        - GET /api/{base}/info -> infos base
-        - GET /api/{base}/search?q=term -> résultats de recherche
+        Routes:
+        - GET /api/databases -> list all databases
+        - GET /api/{base}/info -> database information
+        - GET /api/{base}/search -> basic search
+        - GET /api/{base}/search/advanced -> advanced search
+        - GET /api/{base}/statistics/{stat_type} -> statistical data
         """
         try:
             parts = script_name.split("/")  # ["api", ...]
+            
+            # Route: GET /api/databases
             if len(parts) == 2 and parts[1] == "databases":
-                # Liste des bases disponibles (.pickle)
-                databases: list[str] = []
-                try:
-                    for file in os.listdir(self.gwd_config.database_dir):
-                        if file.endswith(".pickle"):
-                            databases.append(file[:-7])
-                except OSError:
-                    pass
-
-                payload = {"databases": sorted(databases)}
-                body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json; charset=utf-8")
-                self.send_header("Cache-Control", "no-store")
-                self.send_header("Content-Length", str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
+                self.database_endpoints.handle_databases_list(self)
                 return
-
+            
+            # Routes requiring base name
             if len(parts) >= 3:
                 base_name = parts[1]
                 action = parts[2]
-
-                base_path = os.path.join(self.gwd_config.database_dir, f"{base_name}.pickle")
-                if not os.path.exists(base_path):
-                    self.send_error(404, f"Database '{base_name}' not found")
+                
+                # Route: GET /api/{base}/info
+                if action == "info":
+                    self.database_endpoints.handle_database_info(self, base_name)
                     return
-
-                # Ouvrir la base
-                db_driver = create_database_driver(base_path, "pickle")
-                if not db_driver.open_database(read_only=True):
-                    self.send_error(500, "Cannot open database")
+                
+                # Route: GET /api/{base}/search
+                elif action == "search":
+                    if len(parts) == 4 and parts[3] == "advanced":
+                        # Route: GET /api/{base}/search/advanced
+                        self.search_endpoints.handle_advanced_search(self, base_name, query_string)
+                    else:
+                        # Basic search
+                        self.search_endpoints.handle_search(self, base_name, query_string)
                     return
-
-                try:
-                    if action == "info":
-                        info = db_driver.get_database_info()
-                        payload = {
-                            "base_name": base_name,
-                            "persons": info.number_of_persons,
-                            "families": info.number_of_families,
-                            "path": info.path,
-                            "version": info.version,
-                        }
-                        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-                        self.send_response(200)
-                        self.send_header("Content-Type", "application/json; charset=utf-8")
-                        self.send_header("Cache-Control", "no-store")
-                        self.send_header("Content-Length", str(len(body)))
-                        self.end_headers()
-                        self.wfile.write(body)
-                        return
-
-                    if action == "search":
-                        params = urllib.parse.parse_qs(query_string)
-                        q = params.get("q", [""])[0] or params.get("search", [""])[0]
-                        results: list[dict[str, str]] = []
-                        if q:
-                            for person_id, person in db_driver.search_persons(q, max_results=50):
-                                birth_text = geneweb_date_to_string(person.birth_date) if getattr(person, "birth_date", None) else ""
-                                death_text = ""
-                                # Compat: death_date peut exister en attribut direct
-                                if getattr(person, "death_date", None):
-                                    death_text = geneweb_date_to_string(person.death_date)  # type: ignore[arg-type]
-                                elif getattr(person, "death", None) and getattr(person.death, "date", None):
-                                    death_text = geneweb_date_to_string(person.death.date)
-
-                                results.append(
-                                    {
-                                        "id": str(person_id),
-                                        "first_name": str(getattr(person, "first_name", "")),
-                                        "surname": str(getattr(person, "surname", "")),
-                                        "occupation": str(getattr(person, "occupation", "")),
-                                        "sex": str(getattr(person, "sex", "")),
-                                        "birth_date": birth_text,
-                                        "death_date": death_text,
-                                    }
-                                )
-
-                        payload = {"base": base_name, "query": q, "results": results}
-                        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-                        self.send_response(200)
-                        self.send_header("Content-Type", "application/json; charset=utf-8")
-                        self.send_header("Cache-Control", "no-store")
-                        self.send_header("Content-Length", str(len(body)))
-                        self.end_headers()
-                        self.wfile.write(body)
-                        return
-
-                finally:
-                    db_driver.close_database()
-
-            # Endpoint non trouvé
+                
+                # Route: GET /api/{base}/statistics/{stat_type}
+                elif action == "statistics" and len(parts) >= 4:
+                    stat_type = parts[3]
+                    self.statistics_endpoints.handle_statistics(self, base_name, stat_type, query_string)
+                    return
+            
+            # Endpoint not found
             self.send_error(404, "API endpoint not found")
+            
         except Exception as e:
             logging.getLogger("geneweb.gwd").error(f"API error: {e}")
             self.send_error(500, "Internal Server Error")
