@@ -1,7 +1,7 @@
 import os
 import tempfile
 import pytest
-from template_engine import TemplateEngine, render_template, get_template_engine
+from src.backend.template_engine import TemplateEngine, render_template, get_template_engine
 
 
 @pytest.fixture
