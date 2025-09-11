@@ -249,20 +249,23 @@ class PickleDatabaseDriver(DatabaseDriver):
 
     def search_persons(self, query: str, max_results: int = 100) -> List[Tuple[PersonId, Person]]:
         """Simple search implementation"""
-        results: list[str] = []
-        query = query.lower()
+        results: List[Tuple[PersonId, Person]] = []
+        query = (query or "").lower()
 
         for person_id, person in self.persons.items():
             if len(results) >= max_results:
                 break
 
             # Search in names
-            if (
-                query in person.first_name.lower()
-                or query in person.surname.lower()
-                or query in person.public_name.lower()
-            ):
-                results.append((person_id, person))
+            try:
+                if (
+                    query in (person.first_name or "").lower()
+                    or query in (person.surname or "").lower()
+                    or query in (person.public_name or "").lower()
+                ):
+                    results.append((person_id, person))
+            except Exception:
+                continue
 
         return results
 

@@ -338,7 +338,9 @@ def get_template_engine():
     """Obtenir l'instance du moteur de templates"""
     global template_engine
     if template_engine is None:
-        template_dir = os.path.join(os.path.dirname(__file__), "templates")
+        # Chercher les templates dans le dossier frontend pour une meilleure organisation
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        template_dir = os.path.join(base_dir, "frontend", "templates")
         template_engine = TemplateEngine(template_dir)
     return template_engine
 

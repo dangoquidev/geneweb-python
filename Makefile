@@ -170,7 +170,7 @@ quick-check:
 run:
 	@echo "🚀 Starting GenEWeb daemon server..."
 	@echo "💡 Use Ctrl+C to stop the server"
-	cd src && python3 -m backend.servers.gwd_simple -p 2317 -hd ../data
+	cd src && python -m backend.servers.gwd_simple --frontend-dev --frontend-dir ./frontend -p 2317 -hd ../data
 
 # Run the simple test server (for development)
 run-simple:
@@ -197,3 +197,12 @@ run-help:
 	@echo "========================"
 	@echo ""
 	cd src && python3 -m backend.servers.gwd_simple --help
+
+.PHONY: run-prod build-frontend
+
+build-frontend:
+	cd src/frontend && pnpm build || npm run build
+
+run-prod: build-frontend
+	@echo "🚀 Starting GenEWeb in production mode (serving React build)..."
+	cd src && python -m backend.servers.gwd_simple --frontend-dist ../src/frontend/dist -p 2317 -hd ../data
