@@ -1,0 +1,1103 @@
+{
+  "persons": {
+    "I1": {
+      "first_name": "Jean",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Jean Dupont",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "12 JAN 1940"
+      },
+      "birth_place": "Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "PhD in Genetics",
+      "refn": "REF1",
+      "uid": "I1",
+      "objects": [],
+      "notes": []
+    },
+    "I2": {
+      "first_name": "Marie",
+      "surname": "Durand",
+      "occurrence": 0,
+      "public_name": "Marie Durand",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "5 MAY 1942"
+      },
+      "birth_place": "Testville, Testland",
+      "death": {
+        "date": {
+          "text_date": "21 MAY 2026"
+        }
+      },
+      "death_place": "Testville, Testland",
+      "occupation": "Journalist",
+      "education": "BSc in History",
+      "refn": "REF2",
+      "uid": "I2",
+      "objects": [],
+      "notes": []
+    },
+    "I3": {
+      "first_name": "Paul",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "Paul Martin",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "3 MAR 1938"
+      },
+      "birth_place": "Oldtown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "High School Diploma",
+      "refn": "REF3",
+      "uid": "I3",
+      "objects": [],
+      "notes": []
+    },
+    "I4": {
+      "first_name": "Anne",
+      "surname": "Leroy",
+      "occurrence": 0,
+      "public_name": "Anne Leroy",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "20 AUG 1941"
+      },
+      "birth_place": "Oldtown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "PhD in Genetics",
+      "refn": "REF4",
+      "uid": "I4",
+      "objects": [],
+      "notes": []
+    },
+    "I5": {
+      "first_name": "Luc",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Luc Moreau",
+      "aliases": [
+        "Luc M"
+      ],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "1 APR 1935"
+      },
+      "birth_place": "Rivière, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Farmer",
+      "education": "BSc in History",
+      "refn": "REF5",
+      "uid": "I5",
+      "objects": [],
+      "notes": []
+    },
+    "I6": {
+      "first_name": "Claire",
+      "surname": "Roux",
+      "occurrence": 0,
+      "public_name": "Claire Roux",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "17 SEP 1937"
+      },
+      "birth_place": "Rivière, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "PhD in Genetics",
+      "refn": "REF6",
+      "uid": "I6",
+      "objects": [
+        {
+          "file": "photos/Roux_Claire.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I7": {
+      "first_name": "Alain",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Alain Petit",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "9 NOV 1939"
+      },
+      "birth_place": "Montagne, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Software Engineer",
+      "education": "BSc in History",
+      "refn": "REF7",
+      "uid": "I7",
+      "objects": [
+        {
+          "file": "photos/Petit_Alain.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I8": {
+      "first_name": "Henri",
+      "surname": "Garnier",
+      "occurrence": 0,
+      "public_name": "Henri Garnier",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "30 JUN 1940"
+      },
+      "birth_place": "Montagne, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Farmer",
+      "education": "High School Diploma",
+      "refn": "REF8",
+      "uid": "I8",
+      "objects": [
+        {
+          "file": "photos/Garnier_Henri.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I9": {
+      "first_name": "Pierre",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Pierre Dupont",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1963"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Carpenter",
+      "education": "MSc in Engineering",
+      "refn": "REF9",
+      "uid": "I9",
+      "objects": [],
+      "notes": []
+    },
+    "I10": {
+      "first_name": "Sophie",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Sophie Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "15 JUN 1965"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Doctor",
+      "education": "MSc in Engineering",
+      "refn": "REF10",
+      "uid": "I10",
+      "objects": [],
+      "notes": []
+    },
+    "I11": {
+      "first_name": "Jacques",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Jacques Dupont",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1968"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Teacher",
+      "education": "PhD in Genetics",
+      "refn": "REF11",
+      "uid": "I11",
+      "objects": [],
+      "notes": []
+    },
+    "I12": {
+      "first_name": "Isabelle",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "Isabelle Martin",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1966"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Farmer",
+      "education": "High School Diploma",
+      "refn": "REF12",
+      "uid": "I12",
+      "objects": [],
+      "notes": []
+    },
+    "I13": {
+      "first_name": "François",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "François Martin",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "15 JUN 1968"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Retired",
+      "education": "MSc in Engineering",
+      "refn": "REF13",
+      "uid": "I13",
+      "objects": [],
+      "notes": []
+    },
+    "I14": {
+      "first_name": "Catherine",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "Catherine Martin",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1970"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": {
+        "date": {
+          "text_date": "25 OCT 2032"
+        }
+      },
+      "death_place": "Parish Church, Testland, Testland",
+      "occupation": "Carpenter",
+      "education": "High School Diploma",
+      "refn": "REF14",
+      "uid": "I14",
+      "objects": [],
+      "notes": []
+    },
+    "I15": {
+      "first_name": "Nathalie",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Nathalie Moreau",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1959"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": {
+        "date": {
+          "text_date": "17 APR 2035"
+        }
+      },
+      "death_place": "Parish Church, Testland, Testland",
+      "occupation": "Software Engineer",
+      "education": "BSc in History",
+      "refn": "REF15",
+      "uid": "I15",
+      "objects": [],
+      "notes": []
+    },
+    "I16": {
+      "first_name": "Bruno",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Bruno Moreau",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "15 JUN 1961"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Carpenter",
+      "education": "PhD in Genetics",
+      "refn": "REF16",
+      "uid": "I16",
+      "objects": [],
+      "notes": []
+    },
+    "I17": {
+      "first_name": "Laurent",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Laurent Moreau",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1964"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Retired",
+      "education": "High School Diploma",
+      "refn": "REF17",
+      "uid": "I17",
+      "objects": [],
+      "notes": []
+    },
+    "I18": {
+      "first_name": "Sébastien",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Sébastien Petit",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1965"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Retired",
+      "education": "High School Diploma",
+      "refn": "REF18",
+      "uid": "I18",
+      "objects": [],
+      "notes": []
+    },
+    "I19": {
+      "first_name": "Élodie",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Élodie Petit",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "15 JUN 1967"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Doctor",
+      "education": "MSc in Engineering",
+      "refn": "REF19",
+      "uid": "I19",
+      "objects": [],
+      "notes": []
+    },
+    "I20": {
+      "first_name": "Camille",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Camille Petit",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "15 JUN 1971"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Teacher",
+      "education": "PhD in Genetics",
+      "refn": "REF20",
+      "uid": "I20",
+      "objects": [
+        {
+          "file": "photos/Petit_Camille.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I21": {
+      "first_name": "Child5@_1",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child5@_1 Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "28 NOV 1998"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Teacher",
+      "education": "PhD in Genetics",
+      "refn": "REF21",
+      "uid": "I21",
+      "objects": [
+        {
+          "file": "photos/Dupont_Child5@_1.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I22": {
+      "first_name": "Child5@_2",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child5@_2 Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "25 SEP 1999"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "High School Diploma",
+      "refn": "REF22",
+      "uid": "I22",
+      "objects": [],
+      "notes": []
+    },
+    "I23": {
+      "first_name": "Child6@_1",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child6@_1 Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "10 JAN 1991"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Carpenter",
+      "education": "BSc in History",
+      "refn": "REF23",
+      "uid": "I23",
+      "objects": [],
+      "notes": []
+    },
+    "I24": {
+      "first_name": "Child6@_2",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child6@_2 Dupont",
+      "aliases": [
+        "Child6@_2 D"
+      ],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "23 JUL 1999"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Software Engineer",
+      "education": "PhD in Genetics",
+      "refn": "REF24",
+      "uid": "I24",
+      "objects": [],
+      "notes": []
+    },
+    "I25": {
+      "first_name": "Child7@_1",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child7@_1 Dupont",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "22 SEP 1999"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Farmer",
+      "education": "BSc in History",
+      "refn": "REF25",
+      "uid": "I25",
+      "objects": [],
+      "notes": []
+    },
+    "I26": {
+      "first_name": "Child7@_2",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "Child7@_2 Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "13 MAY 1996"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Journalist",
+      "education": "High School Diploma",
+      "refn": "REF26",
+      "uid": "I26",
+      "objects": [
+        {
+          "file": "photos/Dupont_Child7@_2.jpg",
+          "title": "Profile photo (fake)"
+        }
+      ],
+      "notes": []
+    },
+    "I27": {
+      "first_name": "Child8@_1",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "Child8@_1 Martin",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "23 JUL 1995"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Doctor",
+      "education": "MSc in Engineering",
+      "refn": "REF27",
+      "uid": "I27",
+      "objects": [],
+      "notes": []
+    },
+    "I28": {
+      "first_name": "Child8@_2",
+      "surname": "Martin",
+      "occurrence": 0,
+      "public_name": "Child8@_2 Martin",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "21 NOV 1991"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Doctor",
+      "education": "PhD in Genetics",
+      "refn": "REF28",
+      "uid": "I28",
+      "objects": [],
+      "notes": []
+    },
+    "I29": {
+      "first_name": "Child9@_1",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Child9@_1 Moreau",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "6 JUL 1994"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Retired",
+      "education": "MSc in Engineering",
+      "refn": "REF29",
+      "uid": "I29",
+      "objects": [],
+      "notes": []
+    },
+    "I30": {
+      "first_name": "Child9@_2",
+      "surname": "Moreau",
+      "occurrence": 0,
+      "public_name": "Child9@_2 Moreau",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "23 NOV 1994"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": {
+        "date": {
+          "text_date": "12 SEP 2074"
+        }
+      },
+      "death_place": "Town Hall, Testville, Testland",
+      "occupation": "Retired",
+      "education": "High School Diploma",
+      "refn": "REF30",
+      "uid": "I30",
+      "objects": [],
+      "notes": []
+    },
+    "I31": {
+      "first_name": "Child0@_1",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Child0@_1 Petit",
+      "aliases": [
+        "Child0@_1 P"
+      ],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "1 SEP 1998"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Software Engineer",
+      "education": "BSc in History",
+      "refn": "REF31",
+      "uid": "I31",
+      "objects": [],
+      "notes": []
+    },
+    "I32": {
+      "first_name": "Child0@_2",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "Child0@_2 Petit",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "11 NOV 2000"
+      },
+      "birth_place": "Town Hall, Testville, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Retired",
+      "education": "BSc in History",
+      "refn": "REF32",
+      "uid": "I32",
+      "objects": [],
+      "notes": []
+    },
+    "I33": {
+      "first_name": "Laura",
+      "surname": "Beau",
+      "occurrence": 0,
+      "public_name": "Laura Beau",
+      "aliases": [
+        "Laura B"
+      ],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "2 FEB 1970"
+      },
+      "birth_place": "Coasttown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Farmer",
+      "education": "MSc in Engineering",
+      "refn": "REF33",
+      "uid": "I33",
+      "objects": [],
+      "notes": []
+    },
+    "I34": {
+      "first_name": "ReChild1",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "ReChild1 Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "12 OCT 2001"
+      },
+      "birth_place": "Coast Chapel, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Teacher",
+      "education": "PhD in Genetics",
+      "refn": "REF34",
+      "uid": "I34",
+      "objects": [],
+      "notes": []
+    },
+    "I35": {
+      "first_name": "AdoptedAlex",
+      "surname": "Petit",
+      "occurrence": 0,
+      "public_name": "AdoptedAlex Petit",
+      "aliases": [],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "03 MAR 1985"
+      },
+      "birth_place": "Unknown, Testland",
+      "death": {
+        "date": {
+          "text_date": "25 FEB 2073"
+        }
+      },
+      "death_place": "Unknown, Testland",
+      "occupation": "Farmer",
+      "education": "BSc in History",
+      "refn": "REF35",
+      "uid": "I35",
+      "objects": [],
+      "notes": [
+        "Adopted by the couple in 1986 (formal adoption record)."
+      ]
+    },
+    "I36": {
+      "first_name": "TwinA",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "TwinA Dupont",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "02 FEB 1998"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Teacher",
+      "education": "High School Diploma",
+      "refn": "REF36",
+      "uid": "I36",
+      "objects": [],
+      "notes": [
+        "Twin of @@I37@@"
+      ]
+    },
+    "I37": {
+      "first_name": "TwinB",
+      "surname": "Dupont",
+      "occurrence": 0,
+      "public_name": "TwinB Dupont",
+      "aliases": [
+        "TwinB D"
+      ],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "02 FEB 1998"
+      },
+      "birth_place": "Parish Church, Testland, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "Software Engineer",
+      "education": "High School Diploma",
+      "refn": "REF37",
+      "uid": "I37",
+      "objects": [],
+      "notes": [
+        "Twin of @@I36@@"
+      ]
+    },
+    "I38": {
+      "first_name": "Extra1",
+      "surname": "Var",
+      "occurrence": 0,
+      "public_name": "Extra1 Var",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "01 JAN 1975"
+      },
+      "birth_place": "MiscTown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "",
+      "education": "",
+      "refn": "",
+      "uid": "I38",
+      "objects": [],
+      "notes": []
+    },
+    "I39": {
+      "first_name": "Extra2",
+      "surname": "Var",
+      "occurrence": 0,
+      "public_name": "Extra2 Var",
+      "aliases": [
+        "Extra2 V"
+      ],
+      "sex": "Male",
+      "birth_date": {
+        "text_date": "01 JAN 1975"
+      },
+      "birth_place": "MiscTown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "",
+      "education": "",
+      "refn": "",
+      "uid": "I39",
+      "objects": [],
+      "notes": []
+    },
+    "I40": {
+      "first_name": "Extra3",
+      "surname": "Var",
+      "occurrence": 0,
+      "public_name": "Extra3 Var",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "01 JAN 1975"
+      },
+      "birth_place": "MiscTown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "",
+      "education": "",
+      "refn": "",
+      "uid": "I40",
+      "objects": [],
+      "notes": []
+    },
+    "I41": {
+      "first_name": "Extra4",
+      "surname": "Var",
+      "occurrence": 0,
+      "public_name": "Extra4 Var",
+      "aliases": [],
+      "sex": "Female",
+      "birth_date": {
+        "text_date": "01 JAN 1975"
+      },
+      "birth_place": "MiscTown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "",
+      "education": "",
+      "refn": "",
+      "uid": "I41",
+      "objects": [],
+      "notes": []
+    },
+    "I42": {
+      "first_name": "Extra5",
+      "surname": "Var",
+      "occurrence": 0,
+      "public_name": "Extra5 Var",
+      "aliases": [],
+      "sex": "Unknown",
+      "birth_date": {
+        "text_date": "01 JAN 1975"
+      },
+      "birth_place": "MiscTown, Testland",
+      "death": null,
+      "death_place": "",
+      "occupation": "",
+      "education": "",
+      "refn": "",
+      "uid": "I42",
+      "objects": [],
+      "notes": []
+    }
+  },
+  "families": {
+    "F1": {
+      "husband": "I1",
+      "wife": "I2",
+      "children": [
+        "I9",
+        "I10",
+        "I11",
+        "I36",
+        "I37"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "12 JUN 1962"
+        },
+        "place": "Parish Church, Testland"
+      },
+      "divorce": null
+    },
+    "F2": {
+      "husband": "I3",
+      "wife": "I4",
+      "children": [
+        "I12",
+        "I13",
+        "I14"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "23 SEP 1965"
+        },
+        "place": "Parish Church, Testland"
+      },
+      "divorce": null
+    },
+    "F3": {
+      "husband": "I5",
+      "wife": "I6",
+      "children": [
+        "I15",
+        "I16",
+        "I17"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "01 MAY 1958"
+        },
+        "place": "Parish Church, Testland"
+      },
+      "divorce": null
+    },
+    "F4": {
+      "husband": "I7",
+      "wife": "I8",
+      "children": [
+        "I18",
+        "I19",
+        "I20"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "14 FEB 1964"
+        },
+        "place": "Parish Church, Testland"
+      },
+      "divorce": null
+    },
+    "F5": {
+      "husband": "I9",
+      "wife": "I13",
+      "children": [
+        "I21",
+        "I22"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "10 SEP 1988"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": {
+        "date": {
+          "text_date": "12 DEC 1998"
+        },
+        "place": "Court, Testville"
+      }
+    },
+    "F6": {
+      "husband": "I10",
+      "wife": "I15",
+      "children": [
+        "I23",
+        "I24"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "05 JUN 1990"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": null
+    },
+    "F7": {
+      "husband": "I11",
+      "wife": "I14",
+      "children": [
+        "I25",
+        "I26"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "22 AUG 1987"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": null
+    },
+    "F8": {
+      "husband": "I12",
+      "wife": "I16",
+      "children": [
+        "I27",
+        "I28"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "01 MAR 1982"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": null
+    },
+    "F9": {
+      "husband": "I17",
+      "wife": "I19",
+      "children": [
+        "I29",
+        "I30"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "20 JUL 1992"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": null
+    },
+    "F10": {
+      "husband": "I18",
+      "wife": "I20",
+      "children": [
+        "I31",
+        "I32"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "30 APR 1995"
+        },
+        "place": "Town Hall, Testville"
+      },
+      "divorce": null
+    },
+    "F11": {
+      "husband": "I9",
+      "wife": "I33",
+      "children": [
+        "I34"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "14 JUN 2000"
+        },
+        "place": "Coast Chapel"
+      },
+      "divorce": null
+    },
+    "F12": {
+      "husband": "I7",
+      "wife": "I8",
+      "children": [
+        "I35"
+      ],
+      "marriage": {
+        "date": {
+          "text_date": "30 JUN 1970"
+        },
+        "place": "Montagne Town Hall"
+      },
+      "divorce": null
+    }
+  }
+}
