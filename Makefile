@@ -1,6 +1,14 @@
 # GenEWeb Python - Development Makefile
 # Simple, standard, and efficient development workflow
 
+# Detect Python command (prefer python3, fallback to python)
+PYTHON := $(shell command -v python3 2> /dev/null || command -v python 2> /dev/null || echo "python")
+
+# Check if Python is available
+ifeq ($(shell command -v $(PYTHON) 2> /dev/null),)
+$(error Python is not installed or not in PATH. Please install Python 3.6+ and try again)
+endif
+
 .PHONY: help format check test all setup clean status install run run-simple
 
 # Default target shows help
@@ -12,6 +20,8 @@ help:
 	@echo "  make run     - Start GenEWeb server (databases in data/)"
 	@echo "  make run-simple - Start simple test server (databases in data/)"
 	@echo "  make setup   - Setup development environment"
+	@echo "  make setup-frontend - Install frontend dependencies"
+	@echo "  make create-frontend - Create new React frontend project"
 	@echo "  make format  - Format code with black and isort + auto-fixes"
 	@echo "  make autofix - Auto-fix common style issues only"
 	@echo "  make check   - Run quality checks (flake8, mypy)"
@@ -31,6 +41,7 @@ status:
 	@echo "🚀 GenEWeb Python - Project Status"
 	@echo "=================================="
 	@echo ""
+	@echo "🐍 Python: $(PYTHON) ($(shell $(PYTHON) --version 2>&1))"
 	@printf "📁 Python files: "
 	@find . -name "*.py" -not -path "./.pytest_cache/*" -not -path "./__pycache__/*" | wc -l
 	@printf "📊 Lines of code: "
@@ -48,6 +59,19 @@ setup:
 	@echo "🔧 Installing development tools..."
 	pip install --upgrade pip
 	pip install black isort flake8 mypy pytest pre-commit pylint pytest-cov autopep8 autoflake
+	@echo "📦 Installing pnpm (package manager for frontend)..."
+	@if command -v npm >/dev/null 2>&1; then \
+		npm install -g pnpm || echo "⚠️  Failed to install pnpm. You may need to run with sudo or install manually."; \
+	else \
+		echo "⚠️  npm not found. Please install Node.js first to use pnpm."; \
+	fi
+	@echo "🎨 Setting up frontend development environment..."
+	@if [ -d "src/frontend" ] && [ -f "src/frontend/package.json" ]; then \
+		echo "📦 Installing frontend dependencies from src/frontend..."; \
+		(cd src/frontend && (pnpm install || npm install)) && echo "✅ Frontend dependencies installed"; \
+	else \
+		echo "ℹ️  Frontend directory not found. Run setup commands from Next steps to create it."; \
+	fi
 	@echo "🪝 Installing pre-commit hooks..."
 	pre-commit install
 	@echo "✨ Installing pre-commit dependencies..."
@@ -57,6 +81,15 @@ setup:
 	@echo "🎯 Next steps:"
 	@echo "  • Run 'make test' to verify everything works"
 	@echo "  • Run 'make run' to start the server"
+	@echo "  • Set up frontend: mkdir -p src/frontend && cd src/frontend && pnpm create vite . --template react"
+	@echo ""
+	@echo "📋 Installed tools:"
+	@echo "  🐍 Python: $(PYTHON)"
+	@if command -v pnpm >/dev/null 2>&1; then \
+		echo "  📦 pnpm: $(shell pnpm --version 2>/dev/null || echo 'not found')"; \
+	else \
+		echo "  ⚠️  pnpm: not installed (needed for frontend development)"; \
+	fi
 
 # Install package in development mode
 install:
@@ -91,7 +124,7 @@ autofix:
 	@echo "  • Fixing line length..."
 	@autopep8 --select=E501 --max-line-length=120 --in-place --recursive src/ tests/ || true
 	@echo "  • Fixing f-strings without placeholders..."
-	@python3 scripts/fix_fstrings.py || true
+	@$(PYTHON) scripts/fix_fstrings.py || true
 	@echo "✅ Auto-fixes completed!"
 
 # Run quality checks
@@ -115,11 +148,11 @@ check:
 test:
 	@echo "🧪 Running tests..."
 	@echo "📋 Running compliance tests..."
-	PYTHONPATH=src python3 -m pytest tests/backend_tests/test_compliance.py -v
+	PYTHONPATH=src $(PYTHON) -m pytest tests/backend_tests/test_compliance.py -v
 	@echo "🔧 Running basic functionality tests..."
-	PYTHONPATH=src python3 tests/backend_tests/test_basic.py
+	PYTHONPATH=src $(PYTHON) tests/backend_tests/test_basic.py
 	@echo "🌐 Running server tests..."
-	@PYTHONPATH=src python3 tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
+	@PYTHONPATH=src $(PYTHON) tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
 	@echo "🎉 Test execution completed!"
 
 # Complete development workflow
@@ -132,12 +165,12 @@ all: format check test
 # MyPy error assistance
 mypy-help:
 	@echo "🔍 Analysing MyPy errors..."
-	@python3 scripts/mypy_assistant.py
+	@$(PYTHON) scripts/mypy_assistant.py
 
 # Safe MyPy auto-fixes (only simple type annotations)
 mypy-safe:
 	@echo "🔧 Applying safe MyPy fixes..."
-	@python3 scripts/mypy_safe_fix.py
+	@$(PYTHON) scripts/mypy_safe_fix.py
 
 # Clean generated files and caches
 clean:
@@ -158,7 +191,7 @@ lint:
 
 coverage:
 	@echo "📊 Running test coverage analysis..."
-	python3 -m pytest test_compliance.py --cov=. --cov-report=html || echo "Install pytest-cov for coverage: pip install pytest-cov"
+	$(PYTHON) -m pytest test_compliance.py --cov=. --cov-report=html || echo "Install pytest-cov for coverage: pip install pytest-cov"
 
 # Quick quality check (faster than full check)
 quick-check:
@@ -170,13 +203,13 @@ quick-check:
 run:
 	@echo "🚀 Starting GenEWeb daemon server..."
 	@echo "💡 Use Ctrl+C to stop the server"
-	cd src && python -m backend.servers.gwd_simple --frontend-dev --frontend-dir ./frontend -p 2317 -hd ../data
+	cd src && $(PYTHON) -m backend.servers.gwd_simple --frontend-dev --frontend-dir ./frontend -p 2317 -hd ../data
 
 # Run the simple test server (for development)
 run-simple:
 	@echo "🧪 Starting simple GenEWeb test server..."
 	@echo "💡 Use Ctrl+C to stop the server"
-	cd src && python3 -m backend.servers.simple_server 2317 ../data
+	cd src && $(PYTHON) -m backend.servers.simple_server 2317 ../data
 
 # Run with specific port
 run-port:
@@ -184,7 +217,7 @@ run-port:
 	@read -p "Enter port number (default 2317): " port; \
 	port=$${port:-2317}; \
 	echo "Starting server on port $$port..."; \
-	cd src && python3 -m backend.servers.gwd_simple -p $$port -hd ../data
+	cd src && $(PYTHON) -m backend.servers.gwd_simple -p $$port -hd ../data
 
 # List available databases
 list-db:
@@ -196,7 +229,7 @@ run-help:
 	@echo "🚀 GenEWeb Server Options"
 	@echo "========================"
 	@echo ""
-	cd src && python3 -m backend.servers.gwd_simple --help
+	cd src && $(PYTHON) -m backend.servers.gwd_simple --help
 
 .PHONY: run-prod build-frontend
 
@@ -205,4 +238,4 @@ build-frontend:
 
 run-prod: build-frontend
 	@echo "🚀 Starting GenEWeb in production mode (serving React build)..."
-	cd src && python -m backend.servers.gwd_simple --frontend-dist ../src/frontend/dist -p 2317 -hd ../data
+	cd src && $(PYTHON) -m backend.servers.gwd_simple --frontend-dist ../src/frontend/dist -p 2317 -hd ../data
