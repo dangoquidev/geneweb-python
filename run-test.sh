@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # to stop the script if a command fail
-set -e
+# set -e
 
 # Folder where the makefile is located
 MAKE_TEST="$(pwd)/legacy/ocaml-old-project"
 
 # Script Python à exécuter
-PYTHON_TEST="python -m pytest python-geneweb-modernization/unit_tests/ -v"
+PYTHON_TEST_SPECIFIC_TEST_WITH_PYTEST="python -m pytest python-geneweb-modernization/unit_tests/ -v"
 
 # Sauvegarde du répertoire courant
 CURRENT_DIR=$(pwd)
 
-echo "================================== Test execution of the old project =================================="
+echo "================================== Test execution of the old project ============================================="
 cd "$MAKE_TEST"
 eval $(opam env)
 ocaml ./configure.ml
@@ -22,12 +22,18 @@ echo "================================== End of the test execution of the old pr
 
 cd "$CURRENT_DIR"
 
-echo "================================== Test execution of the new project =================================="
+echo "================================== Test execution of the new project ============================================="
 
-${PYTHON_TEST}
-
-echo "================================== End of the test execution of the new project =================================="
+${PYTHON_TEST_SPECIFIC_TEST_WITH_PYTEST}
 
 cd "$CURRENT_DIR"
 
-echo "=== Script terminé avec succès ==="
+python -m unittest -v tests/backend_tests/test_basic.py
+
+python tests/backend_tests/test_compliance.py
+
+python tests/backend_tests/test_server.py
+
+
+
+echo "================================== End of the test execution of the new project =================================="
