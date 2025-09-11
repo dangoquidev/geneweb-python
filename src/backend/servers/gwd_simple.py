@@ -7,13 +7,16 @@ tout en gardant exactement la même interface et les mêmes fonctionnalités que
 """
 
 import argparse
+import json
 import http.server
 import logging
 import os
+import subprocess
 import signal
 import socketserver
 import sys
 import urllib.parse
+import urllib.request
 
 # Import des modules GenEWeb
 from ..geneweb.db.driver import create_database_driver
@@ -64,6 +67,19 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
             script_name = parsed_url.path[1:] if parsed_url.path.startswith("/") else parsed_url.path
             query_string = parsed_url.query
 
+            # API JSON (pour frontend React)
+            if script_name.startswith("api/"):
+                self.handle_api_request(script_name, query_string)
+                return
+
+            # Frontend React (dev or prod)
+            if self.gwd_config.frontend_dev:
+                self.serve_frontend_dev(script_name, query_string)
+                return
+            if self.gwd_config.frontend_dist:
+                self.serve_frontend_prod(script_name)
+                return
+
             # Traitement spécial pour les fichiers statiques
             if script_name.startswith("static/"):
                 self.serve_static_file(script_name)
@@ -94,6 +110,181 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
         except Exception as e:
             logging.getLogger("geneweb.gwd").error(f"Error handling request: {e}")
+            self.send_error(500, "Internal Server Error")
+
+    # ===== Frontend (React) integration =====
+    def serve_frontend_dev(self, script_name: str, query_string: str) -> None:
+        """Proxy les requêtes vers le serveur Vite en dev, fallback index.html (SPA)."""
+        base = getattr(self.gwd_config, "frontend_dev_url", "http://localhost:5173").rstrip("/")
+        path = f"/{script_name}" if script_name else "/"
+        url = f"{base}{path}"
+        if query_string:
+            url = f"{url}?{query_string}"
+        try:
+            req = urllib.request.Request(url, headers={"Accept": "*/*"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                body = resp.read()
+                status = resp.getcode() or 200
+                content_type = resp.headers.get("Content-Type", self.get_content_type(path))
+                self.send_response(status)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+        except Exception:
+            # Fallback SPA
+            try:
+                req = urllib.request.Request(f"{base}/index.html")
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    body = resp.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Cache-Control", "no-store")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+            except Exception as e:
+                logging.getLogger("geneweb.gwd").error(f"Dev proxy error: {e}")
+                self.send_error(502, "Bad Gateway")
+
+    def serve_frontend_prod(self, script_name: str) -> None:
+        """Servir les fichiers générés (dist). Fallback SPA index.html pour routes inconnues."""
+        dist_dir = self.gwd_config.frontend_dist
+        if not dist_dir:
+            self.send_error(404, "Frontend not configured")
+            return
+        requested = script_name if script_name else "index.html"
+        candidate = os.path.join(dist_dir, requested)
+        # Routes sans extension => SPA index.html
+        if not os.path.splitext(requested)[1]:
+            candidate = os.path.join(dist_dir, "index.html")
+        if not os.path.exists(candidate) or not os.path.isfile(candidate):
+            candidate = os.path.join(dist_dir, "index.html")
+        try:
+            with open(candidate, "rb") as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", self.get_content_type(candidate))
+            self.send_header("Content-Length", str(len(content)))
+            if candidate.endswith(".html"):
+                self.send_header("Cache-Control", "no-store")
+            else:
+                self.send_header("Cache-Control", "public, max-age=31536000, immutable")
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            logging.getLogger("geneweb.gwd").error(f"Error serving frontend file {candidate}: {e}")
+            self.send_error(500, "Internal Server Error")
+
+    def handle_api_request(self, script_name: str, query_string: str) -> None:
+        """Endpoints JSON simples pour le frontend moderne.
+
+        - GET /api/databases -> {"databases": ["name1", ...]}
+        - GET /api/{base}/info -> infos base
+        - GET /api/{base}/search?q=term -> résultats de recherche
+        """
+        try:
+            parts = script_name.split("/")  # ["api", ...]
+            if len(parts) == 2 and parts[1] == "databases":
+                # Liste des bases disponibles (.pickle)
+                databases: list[str] = []
+                try:
+                    for file in os.listdir(self.gwd_config.database_dir):
+                        if file.endswith(".pickle"):
+                            databases.append(file[:-7])
+                except OSError:
+                    pass
+
+                payload = {"databases": sorted(databases)}
+                body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+
+            if len(parts) >= 3:
+                base_name = parts[1]
+                action = parts[2]
+
+                base_path = os.path.join(self.gwd_config.database_dir, f"{base_name}.pickle")
+                if not os.path.exists(base_path):
+                    self.send_error(404, f"Database '{base_name}' not found")
+                    return
+
+                # Ouvrir la base
+                db_driver = create_database_driver(base_path, "pickle")
+                if not db_driver.open_database(read_only=True):
+                    self.send_error(500, "Cannot open database")
+                    return
+
+                try:
+                    if action == "info":
+                        info = db_driver.get_database_info()
+                        payload = {
+                            "base_name": base_name,
+                            "persons": info.number_of_persons,
+                            "families": info.number_of_families,
+                            "path": info.path,
+                            "version": info.version,
+                        }
+                        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Cache-Control", "no-store")
+                        self.send_header("Content-Length", str(len(body)))
+                        self.end_headers()
+                        self.wfile.write(body)
+                        return
+
+                    if action == "search":
+                        params = urllib.parse.parse_qs(query_string)
+                        q = params.get("q", [""])[0] or params.get("search", [""])[0]
+                        results: list[dict[str, str]] = []
+                        if q:
+                            for person_id, person in db_driver.search_persons(q, max_results=50):
+                                birth_text = geneweb_date_to_string(person.birth_date) if getattr(person, "birth_date", None) else ""
+                                death_text = ""
+                                # Compat: death_date peut exister en attribut direct
+                                if getattr(person, "death_date", None):
+                                    death_text = geneweb_date_to_string(person.death_date)  # type: ignore[arg-type]
+                                elif getattr(person, "death", None) and getattr(person.death, "date", None):
+                                    death_text = geneweb_date_to_string(person.death.date)
+
+                                results.append(
+                                    {
+                                        "id": str(person_id),
+                                        "first_name": str(getattr(person, "first_name", "")),
+                                        "surname": str(getattr(person, "surname", "")),
+                                        "occupation": str(getattr(person, "occupation", "")),
+                                        "sex": str(getattr(person, "sex", "")),
+                                        "birth_date": birth_text,
+                                        "death_date": death_text,
+                                    }
+                                )
+
+                        payload = {"base": base_name, "query": q, "results": results}
+                        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Cache-Control", "no-store")
+                        self.send_header("Content-Length", str(len(body)))
+                        self.end_headers()
+                        self.wfile.write(body)
+                        return
+
+                finally:
+                    db_driver.close_database()
+
+            # Endpoint non trouvé
+            self.send_error(404, "API endpoint not found")
+        except Exception as e:
+            logging.getLogger("geneweb.gwd").error(f"API error: {e}")
             self.send_error(500, "Internal Server Error")
 
     def handle_robots_txt(self):
@@ -343,7 +534,7 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                     <div class="card-header bg-primary text-white">
                         <h3 class="card-title mb-0">
                             <i class="fas fa-database me-2"></i>
-                            Bases de données disponibles
+                            Bases de données caca
                         </h3>
                     </div>
                     <div class="card-body p-4">"""
@@ -1118,6 +1309,14 @@ class GWDConfig:
         self.conn_timeout = 120
         self.max_pending_requests = 150
         self.n_workers = 20
+        # Frontend integration
+        self.frontend_dev = False
+        self.frontend_dist = None
+        self.frontend_dev_url = "http://localhost:5173"
+        self.frontend_dir = os.path.join(os.getcwd(), "src", "frontend")
+        self.frontend_dev_cmd = None
+        self.frontend_dev_autostart = True
+        self._vite_process = None
 
 
 def setup_logging():
@@ -1162,6 +1361,11 @@ The server will be accessible at:
     parser.add_argument("-auth", type=str, dest="auth_file", help="Authentication file")
     parser.add_argument("-trace_failed_passwd", action="store_true", help="Trace failed password attempts")
 
+    parser.add_argument("--frontend-dev", action="store_true", help="Proxy frontend to Vite dev server and auto-start it")
+    parser.add_argument("--frontend-dist", type=str, help="Path to React build directory (dist)")
+    parser.add_argument("--frontend-dev-url", type=str, default="http://localhost:5173", help="Vite dev server URL")
+    parser.add_argument("--frontend-dir", type=str, help="Path to frontend project root (for dev auto-start)")
+    parser.add_argument("--frontend-dev-cmd", type=str, help="Dev command to run (pnpm dev | npm run dev | yarn dev)")
     return parser.parse_args()
 
 
@@ -1223,6 +1427,28 @@ def main():
     config.auth_file = args.auth_file or ""
     config.trace_failed_passwd = args.trace_failed_passwd
 
+    # Frontend configuration
+    config.frontend_dev = args.frontend_dev
+    config.frontend_dist = args.frontend_dist
+    if args.frontend_dev_url:
+        config.frontend_dev_url = args.frontend_dev_url
+    if args.frontend_dir:
+        config.frontend_dir = args.frontend_dir
+    if args.frontend_dev_cmd:
+        config.frontend_dev_cmd = args.frontend_dev_cmd
+
+    # Auto-detect frontend dev command if not specified
+    if config.frontend_dev and not config.frontend_dev_cmd:
+        frontend_dir = config.frontend_dir
+        if os.path.exists(os.path.join(frontend_dir, "pnpm-lock.yaml")):
+            config.frontend_dev_cmd = "pnpm dev"
+        elif os.path.exists(os.path.join(frontend_dir, "yarn.lock")):
+            config.frontend_dev_cmd = "yarn dev"
+        elif os.path.exists(os.path.join(frontend_dir, "package-lock.json")):
+            config.frontend_dev_cmd = "npm run dev"
+        else:
+            config.frontend_dev_cmd = "npm run dev"  # fallback
+
     # Configurer les chemins
     if not config.gw_prefix:
         config.gw_prefix = os.getcwd()
@@ -1251,7 +1477,12 @@ def main():
 
     # Gestionnaire de signaux
     def signal_handler(signum, frame):
-        print(f"\\nReceived signal {signum}, shutting down...")
+        print(f"\nReceived signal {signum}, shutting down...")
+        try:
+            if getattr(config, "_vite_process", None) and config._vite_process.poll() is None:
+                config._vite_process.terminate()
+        except Exception:
+            pass
         sys.exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)

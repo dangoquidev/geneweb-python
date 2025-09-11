@@ -39,7 +39,7 @@ class ServerConfig:
     daemon: bool = False
     log_level: str = "INFO"
     static_files_dir: str = "static"
-    templates_dir: str = "templates"
+    templates_dir: str = "frontend"
     plugins_dir: str = "plugins"
 
 
