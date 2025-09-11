@@ -17,8 +17,15 @@ cd "$MAKE_TEST"
 eval $(opam env)
 ocaml ./configure.ml
 make build-geneweb
+
+echo "⏱ Attente de 3 secondes avant de lancer make test..."
+sleep 3
+
 make test
 echo "================================== End of the test execution of the old project =================================="
+
+echo "⏱ Attente de 3 secondes avant de lancer les tests python..."
+sleep 3
 
 cd "$CURRENT_DIR"
 
