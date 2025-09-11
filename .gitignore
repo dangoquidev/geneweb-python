@@ -1,19 +1,4 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
+bin/
 lib/
 lib64/
 parts/
@@ -242,3 +227,4 @@ __pycache__/
 genewebsample.ged
 data.json
 package-lock.json
+lib64
