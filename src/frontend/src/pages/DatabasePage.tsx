@@ -39,7 +39,7 @@ export default function DatabasePage() {
   // Search options
   const [oneFirstName, setOneFirstName] = useState(false);
   const [sameOrder, setSameOrder] = useState(false);
-  const [partial, setPartial] = useState(true);
+  const [partial, setPartial] = useState(false);
   
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(true);
