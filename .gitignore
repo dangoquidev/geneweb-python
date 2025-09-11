@@ -30,3 +30,6 @@ __pycache__/
 *.pyd
 *.pyw
 *.pyz
+
+genewebsample.ged
+data.json
