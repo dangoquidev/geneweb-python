@@ -7,7 +7,7 @@ import pytest
 import io
 import tempfile
 from unittest.mock import MagicMock
-from gwd_templates import GeneWebHTTPHandler, GWDConfig
+from src.backend.servers.gwd_templates import GeneWebHTTPHandler, GWDConfig
 
 class TestGeneWebHTTPHandler:
     @pytest.fixture

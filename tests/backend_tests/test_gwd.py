@@ -3,7 +3,7 @@ import sys
 import os
 import signal
 from unittest.mock import patch, MagicMock
-from gwd import parse_arguments, validate_arguments, setup_signal_handlers, main
+from src.backend.servers.gwd import parse_arguments, validate_arguments, setup_signal_handlers, main
 
 
 def test_parse_arguments_default():

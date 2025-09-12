@@ -221,7 +221,7 @@ opendoc: doc
 
 test: ## Run tests
 test: | $(GENERATED_FILES_DEP)
-	@$(call unpatch_after, dune build @runtest)
+	$(call unpatch_after, dune build @runtest)
 .PHONY: test
 
 bench: ## Run benchmarks
