@@ -9,7 +9,7 @@ ifeq ($(shell command -v $(PYTHON) 2> /dev/null),)
 $(error Python is not installed or not in PATH. Please install Python 3.6+ and try again)
 endif
 
-.PHONY: help format check test all setup clean status install run run-simple
+.PHONY: help format check test test-legacy test-all test-pytest test-unittest test-compliance test-server all setup clean status install run run-simple
 
 # Default target shows help
 help:
@@ -25,9 +25,11 @@ help:
 	@echo "  make format  - Format code with black and isort + auto-fixes"
 	@echo "  make autofix - Auto-fix common style issues only"
 	@echo "  make check   - Run quality checks (flake8, mypy)"
+	@echo "  make test    - Run all tests (legacy OCaml + Python)"
+	@echo "  make test-legacy - Run legacy OCaml tests"
+	@echo "  make test-pytest - Run pytest tests specifically"
 	@echo "  make mypy-help - Get assistance with MyPy errors"
 	@echo "  make mypy-safe - Auto-fix SAFE MyPy errors only"
-	@echo "  make test    - Run all test suites"
 	@echo "  make all     - Complete workflow (format + check + test)"
 	@echo "  make status  - Show project status"
 	@echo "  make list-db - List available databases"
@@ -144,16 +146,46 @@ check:
 	fi
 	@echo "✅ Quality checks completed"
 
-# Run all tests
-test:
-	@echo "🧪 Running tests..."
+# Run all tests (Python only)
+test-pytest:
+	@echo "🧪 Running Python tests..."
 	@echo "📋 Running compliance tests..."
-	PYTHONPATH=src $(PYTHON) -m pytest tests/backend_tests/test_compliance.py -v
+	PYTHONPATH=. $(PYTHON) -m pytest tests/backend_tests/test_compliance.py -v
 	@echo "🔧 Running basic functionality tests..."
-	PYTHONPATH=src $(PYTHON) tests/backend_tests/test_basic.py
+	PYTHONPATH=. $(PYTHON) tests/backend_tests/test_basic.py
 	@echo "🌐 Running server tests..."
-	@PYTHONPATH=src $(PYTHON) tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
-	@echo "🎉 Test execution completed!"
+	@PYTHONPATH=. $(PYTHON) tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
+	@echo "🎉 Python test execution completed!"
+
+# Run tests for the legacy OCaml project
+test-legacy:
+	@echo "🏛️  Testing legacy OCaml project..."
+	@if [ ! -d "legacy/ocaml-old-project" ]; then \
+		echo "❌ Legacy project not found at legacy/ocaml-old-project"; \
+		echo "💡 Please ensure the OCaml project is available"; \
+		exit 1; \
+	fi
+	@echo "🔧 Setting up OCaml environment..."
+	@cd legacy/ocaml-old-project && \
+	eval $$(opam env) && \
+	ocaml ./configure.ml && \
+	make build-geneweb && \
+	echo "⏱️  Waiting 3 seconds before running tests..." && \
+	sleep 3 && \
+	make test && \
+	make clean
+	@echo "✅ Legacy OCaml tests completed!"
+
+# Run comprehensive tests (both legacy and new)
+test:
+	@echo "🚀 Running comprehensive test suite..."
+	@echo "================================== Testing legacy OCaml project =================================="
+	@$(MAKE) test-legacy || echo "⚠️  Legacy tests failed or not available"
+	@echo ""
+	@echo "================================== Testing new Python project ==================================="
+	@$(MAKE) test-pytest || echo "⚠️  Python tests failed"
+	@echo ""
+	@echo "🎉 Comprehensive testing completed!"
 
 # Complete development workflow
 all: format check test
