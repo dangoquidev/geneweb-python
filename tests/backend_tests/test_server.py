@@ -8,7 +8,7 @@ Simple script pour tester la connexion HTTP
 import requests
 
 
-def test_server(url="http://localhost:8080"):
+def test_server(url="http://localhost:2317"):
     """Test la connexion au serveur GenEWeb"""
     print(f"Test de connexion à {url}...")
 
@@ -54,7 +54,7 @@ def test_database_pages():
     bases = ["sample_family", "ma_famille"]
 
     for base in bases:
-        url = f"http://localhost:8080/{base}"
+        url = f"http://localhost:2317/{base}"
         print(f"\nTest de {url}...")
 
         try:
@@ -84,10 +84,10 @@ if __name__ == "__main__":
         test_database_pages()
 
         print("\n🎉 Serveur fonctionne correctement !")
-        print("Vous pouvez ouvrir http://localhost:8080 dans votre navigateur.")
+        print("Vous pouvez ouvrir http://localhost:2317 dans votre navigateur.")
     else:
         print("\n❌ Le serveur ne répond pas correctement.")
         print("Vérifiez que le serveur est démarré avec:")
-        print("python -m geneweb.cli server --port 8080 --database-dir .")
+        print("python -m geneweb.cli server --port 2317 --database-dir .")
 
     print("\n" + "=" * 40)
