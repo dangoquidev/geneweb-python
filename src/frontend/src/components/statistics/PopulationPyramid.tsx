@@ -21,6 +21,10 @@ interface PopulationPyramidProps {
   resultsRef: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * PopulationPyramid renders a horizontal age pyramid from aggregated backend data.
+ * Expects pre-aggregated buckets with male/female counts and the computed current year.
+ */
 export const PopulationPyramid: React.FC<PopulationPyramidProps> = ({ 
   data, 
   resultsRef 

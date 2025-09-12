@@ -1,6 +1,10 @@
 import { useState, useRef } from 'react';
 import type { SearchResult, SearchFormData, SearchOptions } from '../types/database';
 
+/**
+ * Hook to perform free-text person search within a specific base.
+ * Builds a query from multiple form fields and returns matching people.
+ */
 export const useSearch = (baseName: string | undefined) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);

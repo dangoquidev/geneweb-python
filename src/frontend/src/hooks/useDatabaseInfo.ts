@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import type { DatabaseInfo } from '../types/database';
 
+/**
+ * Hook to fetch basic database metadata: persons, families, path, version.
+ * Fetches on base change and exposes loading/error states.
+ */
 export const useDatabaseInfo = (baseName: string | undefined) => {
   const [dbInfo, setDbInfo] = useState<DatabaseInfo | null>(null);
   const [loading, setLoading] = useState(true);

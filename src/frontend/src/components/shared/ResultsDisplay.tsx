@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { SearchResult, ViewType, MarriageEntry, OldestCoupleEntry, StatisticResult } from '../../types/database';
 import { STATISTIC_OPTIONS } from '../../constants/statistics';
@@ -12,6 +11,11 @@ interface ResultsDisplayProps {
   resultsRef: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * Generic results renderer for both search and statistics views.
+ * - Person results: shows identity + birth/death/occupation
+ * - Couple results: for latest-marriages and oldest-couples
+ */
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
   results, 
   viewType, 

@@ -1,6 +1,11 @@
 import { useState, useRef } from 'react';
 import type { StatisticResult, MarriageEntry, OldestCoupleEntry } from '../types/database';
 
+/**
+ * Hook to fetch and manage statistics for a database.
+ * - Supports list-based statistics (latest births/deaths/marriages, oldest people/couples, longest-lived)
+ * - Supports structured statistics like population pyramid
+ */
 export const useStatistics = (baseName: string | undefined) => {
   const [statisticsResults, setStatisticsResults] = useState<StatisticResult[]>([]);
   const [populationPyramidData, setPopulationPyramidData] = useState<any>(null);

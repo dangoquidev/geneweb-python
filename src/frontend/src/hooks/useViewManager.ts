@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { ViewType } from '../types/database';
 
+/**
+ * Small view-state helper to toggle between 'search' and 'statistics'.
+ */
 export const useViewManager = () => {
   const [currentView, setCurrentView] = useState<ViewType>('search');
 

@@ -87,7 +87,6 @@ export default function DatabasePage() {
   }
 
   // Get current results and refs based on view
-  console.log(statisticsResults)
   const currentResults = currentView === 'search' ? searchResults : statisticsResults;
   const currentResultsRef = currentView === 'search' ? searchResultsRef : statisticsResultsRef;
   const hasResults = currentResults.length > 0;

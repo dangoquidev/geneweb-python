@@ -8,6 +8,10 @@ interface StatisticsOptionsProps {
   loading: boolean;
 }
 
+/**
+ * Grid of available statistics to fetch for the selected base.
+ * Uses STATISTIC_OPTIONS for id/label/description and reports the selection upstream.
+ */
 export const StatisticsOptions: React.FC<StatisticsOptionsProps> = ({ 
   onSelectStatistic, 
   selectedStatistic, 
