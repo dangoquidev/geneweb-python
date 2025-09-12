@@ -146,13 +146,15 @@ check:
 	fi
 	@echo "✅ Quality checks completed"
 
-# Run all tests (Python only)
+# Run all tests (Python only) - Enhanced to match run-test.sh
 test-pytest:
 	@echo "🧪 Running Python tests..."
-	@echo "📋 Running compliance tests..."
-	PYTHONPATH=. $(PYTHON) -m pytest tests/backend_tests/test_compliance.py -v
+	@echo "� Running all tests with pytest..."
+	PYTHONPATH=. $(PYTHON) -m pytest tests/backend_tests -v
 	@echo "🔧 Running basic functionality tests..."
 	PYTHONPATH=. $(PYTHON) tests/backend_tests/test_basic.py
+	@echo "📋 Running compliance tests..."
+	PYTHONPATH=. $(PYTHON) tests/backend_tests/test_compliance.py
 	@echo "🌐 Running server tests..."
 	@PYTHONPATH=. $(PYTHON) tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
 	@echo "🎉 Python test execution completed!"
