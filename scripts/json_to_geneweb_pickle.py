@@ -25,11 +25,14 @@ from backend.geneweb.core.definitions import (
     DateMY,
     GeneDate,
     Person,
+    Family,
+    Descendants,
+    Union,
     Precision,
     Sex,
 )
 from backend.geneweb.core.definitions import Death, DeathStatus
-from backend.geneweb.db.driver import PersonId
+from backend.geneweb.db.driver import PersonId, FamilyId
 
 
 def to_text_or_gregorian_date(d: Dict[str, Any] | None) -> GeneDate | None:
@@ -78,6 +81,7 @@ def main() -> None:
     persons_json: Dict[str, Dict[str, Any]] = data.get("persons", {})
 
     persons: Dict[PersonId, Person] = {}
+    id_map: Dict[str, PersonId] = {}
     next_id = 1
 
     for pid_str, pj in persons_json.items():
@@ -112,17 +116,67 @@ def main() -> None:
         next_id += 1
         p.key_index = pid
         persons[pid] = p
+        id_map[pid_str] = pid
 
-    # For a minimal working pickle, families and other structures can be empty
+    # Families
+    families_json: Dict[str, Dict[str, Any]] = data.get("families", {})
+    families: Dict[FamilyId, Family] = {}
+    unions: Dict[PersonId, Union] = {}
+    descendants: Dict[FamilyId, Descendants] = {}
+    next_family_id = 1
+
+    for fid_str, fj in families_json.items():
+        fam = Family()
+
+        # Marriage info
+        marriage = fj.get("marriage")
+        if isinstance(marriage, dict):
+            fam.marriage_date = to_text_or_gregorian_date(marriage.get("date"))
+            fam.marriage_place = str(marriage.get("place", ""))
+
+        # Parents (store as dynamic attributes expected by API code)
+        husband_key = fj.get("husband")
+        wife_key = fj.get("wife")
+        husband_id = id_map.get(str(husband_key)) if husband_key else None
+        wife_id = id_map.get(str(wife_key)) if wife_key else None
+
+        if husband_id is not None:
+            setattr(fam, "father", husband_id)
+        if wife_id is not None:
+            setattr(fam, "mother", wife_id)
+
+        # Link unions (parents -> families they are part of)
+        if husband_id is not None:
+            u = unions.get(husband_id) or Union()
+            u.families.append(fam)
+            unions[husband_id] = u
+        if wife_id is not None:
+            u = unions.get(wife_id) or Union()
+            u.families.append(fam)
+            unions[wife_id] = u
+
+        # Children
+        child_objs = []
+        for child_key in fj.get("children", []) or []:
+            cid = id_map.get(str(child_key))
+            if cid is not None and cid in persons:
+                child_objs.append(persons[cid])
+
+        fam_id = FamilyId(next_family_id)
+        next_family_id += 1
+        fam.family_index = fam_id
+        families[fam_id] = fam
+        descendants[fam_id] = Descendants(children=child_objs)
+
     out = {
         "persons": persons,
-        "families": {},
+        "families": families,
         "ascendants": {},
-        "unions": {},
-        "descendants": {},
+        "unions": unions,
+        "descendants": descendants,
         "name_index": {},
         "next_person_id": next_id,
-        "next_family_id": 1,
+        "next_family_id": next_family_id,
         "update_history": [],
     }
 

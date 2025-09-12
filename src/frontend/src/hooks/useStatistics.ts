@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
-import type { SearchResult } from '../types/database';
+import type { StatisticResult, MarriageEntry, OldestCoupleEntry } from '../types/database';
 
 export const useStatistics = (baseName: string | undefined) => {
-  const [statisticsResults, setStatisticsResults] = useState<SearchResult[]>([]);
+  const [statisticsResults, setStatisticsResults] = useState<StatisticResult[]>([]);
   const [populationPyramidData, setPopulationPyramidData] = useState<any>(null);
   const [loadingStatistics, setLoadingStatistics] = useState(false);
   const [selectedStatistic, setSelectedStatistic] = useState<string | null>(null);
@@ -28,7 +28,8 @@ export const useStatistics = (baseName: string | undefined) => {
         setPopulationPyramidData(data.data || data.results);
         setStatisticsResults([]);
       } else {
-        setStatisticsResults(data.results || []);
+        const results = (data.results || []) as (MarriageEntry | OldestCoupleEntry | any)[];
+        setStatisticsResults(results);
         setPopulationPyramidData(null);
       }
       

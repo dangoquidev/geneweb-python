@@ -81,6 +81,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
             placeholder="Prénom(s)"
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
+            disabled={true}
           />
         </div>
         <div>
@@ -90,6 +91,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
             placeholder="Nom de famille"
             value={formData.surname}
             onChange={(e) => updateFormData('surname', e.target.value)}
+            disabled={true}
           />
         </div>
       </div>
@@ -103,6 +105,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
             placeholder="Titre (M., Mme, Dr...)"
             value={formData.title}
             onChange={(e) => updateFormData('title', e.target.value)}
+            disabled={true}
           />
         </div>
         <div>
@@ -112,6 +115,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
             placeholder="Profession, domaine..."
             value={formData.field}
             onChange={(e) => updateFormData('field', e.target.value)}
+            disabled={true}
           />
         </div>
       </div>
@@ -126,6 +130,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
                 <Checkbox
                   checked={options.oneFirstName}
                   onCheckedChange={(checked) => updateOptions('oneFirstName', checked === true)}
+                  disabled={true}
                 />
                 <span className="text-sm">Un seul prénom</span>
               </label>
@@ -133,6 +138,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
                 <Checkbox
                   checked={options.sameOrder}
                   onCheckedChange={(checked) => updateOptions('sameOrder', checked === true)}
+                  disabled={true}
                 />
                 <span className="text-sm">Même ordre</span>
               </label>
@@ -140,6 +146,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
                 <Checkbox
                   checked={options.partial}
                   onCheckedChange={(checked) => updateOptions('partial', checked === true)}
+                  disabled={true}
                 />
                 <span className="text-sm">Recherche partielle</span>
               </label>

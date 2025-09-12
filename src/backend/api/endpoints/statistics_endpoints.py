@@ -134,12 +134,14 @@ class StatisticsEndpoints:
     def _get_latest_marriages(self, db_driver, limit: int) -> List[Dict[str, Any]]:
         """Get the most recent marriages"""
         marriages = []
-        
+        print(db_driver.get_families())
         for family_id, family in db_driver.get_families():
             # Use direct attribute access like working search
             try:
                 marriage_date = getattr(family, "marriage_date", None)
+                print(marriage_date)
                 marriage_year = self._extract_year_from_date(marriage_date)
+                print(marriage_year)
                 
                 if marriage_year:
                     # Get spouse information using direct attribute access
