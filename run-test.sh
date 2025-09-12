@@ -7,7 +7,7 @@
 MAKE_TEST="$(pwd)/legacy/ocaml-old-project"
 
 # Script Python à exécuter
-PYTHON_TEST_SPECIFIC_TEST_WITH_PYTEST="python -m pytest python-geneweb-modernization/unit_tests/ -v"
+PYTHON_TEST_SPECIFIC_TEST_WITH_PYTEST="python -m pytest tests/backend_tests -v"
 
 # Sauvegarde du répertoire courant
 CURRENT_DIR=$(pwd)
@@ -24,8 +24,7 @@ sleep 3
 make test
 echo "================================== End of the test execution of the old project =================================="
 
-echo "⏱ Attente de 3 secondes avant de lancer les tests python..."
-sleep 3
+make clean
 
 cd "$CURRENT_DIR"
 
