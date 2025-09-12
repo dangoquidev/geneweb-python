@@ -7,6 +7,9 @@ type BaseLayoutProps = PropsWithChildren<{
   containerClassName?: string
 }>
 
+/**
+ * App shell with optional navbar and footer. Sets page <title>.
+ */
 export default function BaseLayout({
   title = "GenEWeb Server",
   showNavbar = true,
