@@ -9,7 +9,7 @@ ifeq ($(shell command -v $(PYTHON) 2> /dev/null),)
 $(error Python is not installed or not in PATH. Please install Python 3.6+ and try again)
 endif
 
-.PHONY: help format check test all setup clean status install run run-simple
+.PHONY: help format check test all setup clean status install run run-simple run-admin run-both run-admin-help
 
 # Default target shows help
 help:
@@ -18,6 +18,8 @@ help:
 	@echo ""
 	@echo "Available commands:"
 	@echo "  make run     - Start GenEWeb server (databases in data/)"
+	@echo "  make run-admin - Start GenEWeb admin panel (port 2316)"
+	@echo "  make run-both  - Start both server and admin panel"
 	@echo "  make run-simple - Start simple test server (databases in data/)"
 	@echo "  make setup   - Setup development environment"
 	@echo "  make setup-frontend - Install frontend dependencies"
@@ -31,10 +33,13 @@ help:
 	@echo "  make all     - Complete workflow (format + check + test)"
 	@echo "  make status  - Show project status"
 	@echo "  make list-db - List available databases"
+	@echo "  make run-help - Show server options"
+	@echo "  make run-admin-help - Show admin panel options"
 	@echo "  make clean   - Clean generated files and caches"
 	@echo "  make install - Install package in development mode"
 	@echo ""
 	@echo "Quick start: make setup && make run"
+	@echo "Admin panel: make run-admin (in separate terminal)"
 
 # Show project status (replaces ./dev.py status)
 status:
@@ -231,7 +236,46 @@ run-help:
 	@echo ""
 	cd src && $(PYTHON) -m backend.servers.gwd_simple --help
 
-.PHONY: run-prod build-frontend
+# Run the GenEWeb admin panel
+run-admin:
+	@echo "⚙️  Starting GenEWeb Admin Panel..."
+	@echo "💡 Use Ctrl+C to stop the admin server"
+	@echo "🌐 Admin panel will be available at: http://localhost:2316/"
+	$(PYTHON) -m src.backend.servers.admin.admin_main -p 2316 -gwd_p 2317 -bd data
+
+# Run both server and admin panel (requires terminal multiplexer or separate terminals)
+run-both:
+	@echo "🚀 Starting both GenEWeb server and admin panel..."
+	@echo ""
+	@echo "⚠️  This requires two separate terminals:"
+	@echo "   Terminal 1: make run"
+	@echo "   Terminal 2: make run-admin"
+	@echo ""
+	@echo "Or use a terminal multiplexer like tmux:"
+	@echo "   tmux new-session -d -s geneweb-server 'make run'"
+	@echo "   tmux new-session -d -s geneweb-admin 'make run-admin'"
+	@echo ""
+	@echo "Starting server first (you'll need to open another terminal for admin)..."
+	@$(MAKE) run
+
+# Show admin panel help
+run-admin-help:
+	@echo "⚙️  GenEWeb Admin Panel Options"
+	@echo "==============================="
+	@echo ""
+	$(PYTHON) -m src.backend.servers.admin.admin_main --help
+
+# Run admin panel with custom port
+run-admin-port:
+	@echo "⚙️  Starting GenEWeb admin panel on custom port..."
+	@read -p "Enter admin port number (default 2316): " port; \
+	@read -p "Enter main server port number (default 2317): " gwd_port; \
+	port=$${port:-2316}; \
+	gwd_port=$${gwd_port:-2317}; \
+	echo "Starting admin panel on port $$port (main server: $$gwd_port)..."; \
+	$(PYTHON) -m src.backend.servers.admin.admin_main -p $$port -gwd_p $$gwd_port -bd data
+
+.PHONY: run-prod build-frontend run-admin-port
 
 build-frontend:
 	cd src/frontend && pnpm build || npm run build
