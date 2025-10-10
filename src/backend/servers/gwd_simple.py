@@ -47,6 +47,14 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
         message = format_str % args
         logging.getLogger("geneweb.gwd").info(f"{remote_addr} - {message}")
 
+    def do_OPTIONS(self):
+        """Handle OPTIONS requests for CORS"""
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
         """Traiter les requêtes GET (équivalent à la fonction connection OCaml)"""
         self.handle_request()
@@ -206,6 +214,11 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
                 self.database_endpoints.handle_databases_list(self)
                 return
             
+            # Admin routes: GET /api/admin/{action}
+            if len(parts) >= 3 and parts[1] == "admin":
+                self.handle_admin_api(parts, query_string)
+                return
+            
             # Routes requiring base name
             if len(parts) >= 3:
                 base_name = parts[1]
@@ -238,6 +251,104 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
         except Exception as e:
             logging.getLogger("geneweb.gwd").error(f"API error: {e}")
             self.send_error(500, "Internal Server Error")
+
+    def handle_admin_api(self, parts: list, query_string: str) -> None:
+        """Handle admin API endpoints"""
+        import json
+        
+        try:
+            # Enable CORS for frontend requests
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+            
+            action = parts[2] if len(parts) > 2 else ""
+            
+            if action == "stats":
+                # Administrative statistics
+                databases = []
+                total_size = 0
+                
+                try:
+                    data_dir = self.gwd_config.database_dir
+                    for file in os.listdir(data_dir):
+                        if file.endswith(".pickle"):
+                            db_name = file[:-7]  # Remove .pickle
+                            file_path = os.path.join(data_dir, file)
+                            file_size = os.path.getsize(file_path)
+                            total_size += file_size
+                            
+                            databases.append({
+                                "name": db_name,
+                                "size": file_size,
+                                "formatted_size": self.format_bytes(file_size),
+                                "last_modified": os.path.getmtime(file_path)
+                            })
+                except Exception as e:
+                    logging.getLogger("geneweb.gwd").error(f"Error reading directory: {e}")
+                
+                stats = {
+                    "databases": {
+                        "count": len(databases),
+                        "total_size": total_size,
+                        "formatted_total_size": self.format_bytes(total_size),
+                        "list": databases
+                    },
+                    "system": {
+                        "python_version": sys.version.split()[0],
+                        "server_type": "gwd_simple",
+                        "data_directory": os.path.abspath(self.gwd_config.database_dir)
+                    }
+                }
+                
+                response = json.dumps(stats, indent=2, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+            elif action == "databases":
+                # Database list for admin
+                databases = []
+                
+                try:
+                    data_dir = self.gwd_config.database_dir
+                    for file in os.listdir(data_dir):
+                        if file.endswith(".pickle"):
+                            db_name = file[:-7]
+                            file_path = os.path.join(data_dir, file)
+                            
+                            databases.append({
+                                "name": db_name,
+                                "size": os.path.getsize(file_path),
+                                "last_modified": os.path.getmtime(file_path),
+                                "url": f"/{db_name}"
+                            })
+                except Exception as e:
+                    logging.getLogger("geneweb.gwd").error(f"Error reading databases: {e}")
+                
+                response = json.dumps({"databases": databases}, indent=2, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+            else:
+                # Endpoint not found
+                error_response = {"error": "Admin endpoint not found", "action": action}
+                response = json.dumps(error_response, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+        except Exception as e:
+            logging.getLogger("geneweb.gwd").error(f"Admin API error: {e}")
+            error_response = {"error": f"Server error: {e}"}
+            response = json.dumps(error_response, ensure_ascii=False)
+            self.wfile.write(response.encode("utf-8"))
+
+    def format_bytes(self, bytes_size: int) -> str:
+        """Format bytes in a human-readable way"""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if bytes_size < 1024.0:
+                return f"{bytes_size:.1f} {unit}"
+            bytes_size /= 1024.0
+        return f"{bytes_size:.1f} TB"
 
     def handle_robots_txt(self):
         """Traiter robots.txt (exactement comme l'original OCaml)"""

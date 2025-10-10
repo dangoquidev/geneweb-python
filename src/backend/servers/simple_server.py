@@ -19,6 +19,14 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
         self.database_dir = database_dir
         super().__init__(*args, **kwargs)
 
+    def do_OPTIONS(self):
+        """Gérer les requêtes OPTIONS pour CORS"""
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
         """Gérer les requêtes GET"""
         try:
@@ -30,6 +38,9 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
             if path == "/":
                 self.send_main_page()
+            elif path.startswith("/api/admin/"):
+                # Endpoints API pour l'administration
+                self.handle_admin_api(path, query)
             elif path.startswith("/") and len(path) > 1:
                 # Page de base de données
                 db_name = path[1:]  # Enlever le "/"
@@ -195,6 +206,100 @@ class GeneWebHTTPHandler(http.server.BaseHTTPRequestHandler):
 
         except Exception as e:
             self.send_error(500, f"Erreur base de données: {e}")
+
+    def handle_admin_api(self, path: str, query: dict):
+        """Gérer les endpoints API d'administration"""
+        import json
+        
+        try:
+            # Activer CORS pour les requêtes depuis le frontend
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+            
+            if path == "/api/admin/stats":
+                # Statistiques administratives
+                databases = []
+                total_size = 0
+                
+                try:
+                    for file in os.listdir(self.database_dir):
+                        if file.endswith(".pickle"):
+                            db_name = file[:-7]  # Enlever .pickle
+                            file_path = os.path.join(self.database_dir, file)
+                            file_size = os.path.getsize(file_path)
+                            total_size += file_size
+                            
+                            databases.append({
+                                "name": db_name,
+                                "size": file_size,
+                                "formatted_size": self.format_bytes(file_size),
+                                "last_modified": os.path.getmtime(file_path)
+                            })
+                except Exception as e:
+                    print(f"Erreur lecture répertoire: {e}")
+                
+                stats = {
+                    "databases": {
+                        "count": len(databases),
+                        "total_size": total_size,
+                        "formatted_total_size": self.format_bytes(total_size),
+                        "list": databases
+                    },
+                    "system": {
+                        "python_version": "3.x",
+                        "server_type": "simple_server",
+                        "data_directory": os.path.abspath(self.database_dir)
+                    }
+                }
+                
+                response = json.dumps(stats, indent=2, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+            elif path == "/api/admin/databases":
+                # Liste des bases de données
+                databases = []
+                
+                try:
+                    for file in os.listdir(self.database_dir):
+                        if file.endswith(".pickle"):
+                            db_name = file[:-7]
+                            file_path = os.path.join(self.database_dir, file)
+                            
+                            databases.append({
+                                "name": db_name,
+                                "size": os.path.getsize(file_path),
+                                "last_modified": os.path.getmtime(file_path),
+                                "url": f"/{db_name}"
+                            })
+                except Exception as e:
+                    print(f"Erreur lecture bases de données: {e}")
+                
+                response = json.dumps({"databases": databases}, indent=2, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+            else:
+                # Endpoint non trouvé
+                error_response = {"error": "Endpoint non trouvé", "path": path}
+                response = json.dumps(error_response, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+                
+        except Exception as e:
+            print(f"Erreur API admin: {e}")
+            error_response = {"error": f"Erreur serveur: {e}"}
+            response = json.dumps(error_response, ensure_ascii=False)
+            self.wfile.write(response.encode("utf-8"))
+
+    def format_bytes(self, bytes_size: int) -> str:
+        """Formatter la taille en octets de manière lisible"""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if bytes_size < 1024.0:
+                return f"{bytes_size:.1f} {unit}"
+            bytes_size /= 1024.0
+        return f"{bytes_size:.1f} TB"
 
     def send_404(self):
         """Envoyer une page 404"""
