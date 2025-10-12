@@ -17,37 +17,84 @@ type DatabaseInfo = {
  */
 export default function AdminConsultPage() {
   const [databases, setDatabases] = useState<DatabaseInfo[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
   const { announce } = useLiveRegion()
 
+  // Gérer l'hydratation côté client
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    // Ne faire l'appel API qu'après le montage côté client
+    if (!mounted) return
+    
     const fetchDatabases = async () => {
       try {
         setLoading(true)
+        setError(null)
         announce('Chargement de la liste des bases de données')
         
         const response = await fetch('/api/admin/databases')
+        
         if (!response.ok) {
-          throw new Error('Erreur lors du chargement des bases de données')
+          const errorData = await response.json().catch(() => ({}))
+          
+          // Gestion spécifique des erreurs selon le code HTTP
+          switch (response.status) {
+            case 403:
+              throw new Error('Accès refusé - Permissions insuffisantes')
+            case 404:
+              throw new Error('Répertoire des bases de données non trouvé')
+            case 503:
+              const resourceError = errorData.code === 'ERR_INSUFFICIENT_RESOURCES' 
+                ? 'Ressources système insuffisantes - Veuillez réessayer plus tard'
+                : 'Service temporairement indisponible'
+              throw new Error(resourceError)
+            case 500:
+              throw new Error('Erreur interne du serveur')
+            default:
+              throw new Error(errorData.message || `Erreur HTTP ${response.status}`)
+          }
         }
 
         const data = await response.json()
         const dbList = data.databases || []
         
         setDatabases(dbList)
-        announce(`${dbList.length} base${dbList.length !== 1 ? 's' : ''} de données trouvée${dbList.length !== 1 ? 's' : ''}`)
+        
+        if (dbList.length === 0) {
+          announce('Aucune base de données trouvée')
+        } else {
+          announce(`${dbList.length} base${dbList.length !== 1 ? 's' : ''} de données trouvée${dbList.length !== 1 ? 's' : ''}`)
+        }
+        
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue'
+        let errorMsg = 'Erreur inconnue'
+        
+        if (err instanceof Error) {
+          errorMsg = err.message
+        } else if (typeof err === 'string') {
+          errorMsg = err
+        }
+        
+        // Gestion des erreurs réseau
+        if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+          errorMsg = 'Impossible de se connecter au serveur - Vérifiez votre connexion'
+        }
+        
         setError(errorMsg)
         announce(`Erreur: ${errorMsg}`)
+        console.error('Erreur lors du chargement des bases de données:', err)
       } finally {
         setLoading(false)
       }
     }
 
     fetchDatabases()
-  }, [announce])
+  }, [mounted]) // Déclencher après le montage côté client
 
   return (
     <BaseLayout title="Bases de données - GenEWeb">

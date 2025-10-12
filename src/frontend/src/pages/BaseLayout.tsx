@@ -31,31 +31,19 @@ export default function BaseLayout({
     }
   }, [skipLinkTarget, title])
 
-  // Mise à jour du titre de page pour les lecteurs d'écran
+  // Mise à jour du titre de page et métadonnées
   useEffect(() => {
     document.title = title
-    // Annoncer le changement de page
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'polite')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
-    announcement.textContent = `Page chargée: ${title}`
-    document.body.appendChild(announcement)
     
-    setTimeout(() => {
-      document.body.removeChild(announcement)
-    }, 1000)
+    // Mise à jour de la description si nécessaire
+    const descriptionMeta = document.querySelector('meta[name="description"]')
+    if (descriptionMeta) {
+      descriptionMeta.setAttribute('content', 'GenEWeb - Serveur de généalogie moderne et accessible')
+    }
   }, [title])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <head>
-        <title>{title}</title>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="GenEWeb - Serveur de généalogie moderne et accessible" />
-        <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC7klEQVR4Ae2XA7BjQRCF..." />
-      </head>
 
       {/* Skip link - Premier élément focusable */}
       <a 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 type LiveRegionType = 'polite' | 'assertive' | 'off'
 
@@ -25,7 +25,7 @@ const LiveRegionContext = createContext<LiveRegionContextType | null>(null)
 export function LiveRegionProvider({ children }: { children: React.ReactNode }) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
 
-  const announce = (message: string, type: LiveRegionType = 'polite') => {
+  const announce = useCallback((message: string, type: LiveRegionType = 'polite') => {
     const id = `announcement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     const announcement: Announcement = {
       id,
@@ -40,19 +40,19 @@ export function LiveRegionProvider({ children }: { children: React.ReactNode }) 
     setTimeout(() => {
       setAnnouncements(prev => prev.filter(a => a.id !== id))
     }, 5000)
-  }
+  }, [])
 
-  const announceError = (message: string) => {
+  const announceError = useCallback((message: string) => {
     announce(`Erreur: ${message}`, 'assertive')
-  }
+  }, [announce])
 
-  const announceSuccess = (message: string) => {
+  const announceSuccess = useCallback((message: string) => {
     announce(`Succès: ${message}`, 'polite')
-  }
+  }, [announce])
 
-  const clearAnnouncements = () => {
+  const clearAnnouncements = useCallback(() => {
     setAnnouncements([])
-  }
+  }, [])
 
   const contextValue: LiveRegionContextType = {
     announce,
@@ -130,7 +130,7 @@ export function StatusMessage({
         announce(message, type === 'warning' ? 'assertive' : 'polite')
       }
     }
-  }, [visible, message, type, announceToSR, announce, announceError])
+  }, [visible, message, type, announceToSR]) // Retiré announce et announceError des dépendances
 
   if (!visible) return null
 

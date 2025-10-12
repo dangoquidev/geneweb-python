@@ -16,9 +16,20 @@ type RouterProps = {
  * Utilisé pour la navigation entre les pages admin
  */
 export function Router({ routes, defaultPath = '/' }: RouterProps) {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+  const [currentPath, setCurrentPath] = useState(() => {
+    // Initialisation sécurisée pour éviter les erreurs d'hydratation
+    if (typeof window !== 'undefined') {
+      return window.location.pathname
+    }
+    return defaultPath
+  })
 
   useEffect(() => {
+    // Synchroniser avec le pathname réel après le montage côté client
+    if (typeof window !== 'undefined' && window.location.pathname !== currentPath) {
+      setCurrentPath(window.location.pathname)
+    }
+    
     const handlePopState = () => {
       setCurrentPath(window.location.pathname)
     }
