@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "GenEWeb Server",
+    "loading": "Loading...",
+    "error": "Error",
+    "language": "Language",
+    "french": "French",
+    "english": "English"
+  },
+  "home": {
+    "welcome": "Welcome to GenEWeb",
+    "description": "Modern and accessible genealogy server"
+  },
+  "database": {
+    "loading": "Loading database...",
+    "search": "Search",
+    "statistics": "Statistics",
+    "no_results": "No results found",
+    "population_pyramid": "Population pyramid"
+  },
+  "admin": {
+    "admin": "Administration",
+    "create_import": "Create / Import",
+    "consult": "Consult",
+    "created_success": "Database \"{{name}}\" created successfully!",
+    "enter_name": "Please enter a database name",
+    "creation_error": "Creation error"
+  }
+}

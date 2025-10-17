@@ -20,6 +20,7 @@ const Fieldset = ({ legend, children }: Fieldset) => (
 )
 
 export default function AdminCreateImportPage() {
+  const { t } = useTranslation('common')
   const [searchParams] = useSearchParams()
   const activeTabParam = searchParams.get('tab') || 'simple'
   const [activeTab, setActiveTab] = useState<'simple' | 'gedcom' | 'geneweb'>(
@@ -48,7 +49,7 @@ export default function AdminCreateImportPage() {
   const handleSimpleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!simpleName.trim()) {
-      setMessage({ type: 'error', text: 'Veuillez saisir un nom pour la base' })
+      setMessage({ type: 'error', text: t('admin.enter_name') })
       return
     }
 
@@ -77,7 +78,7 @@ export default function AdminCreateImportPage() {
       }
 
       setMessage({ type: 'error', text: errorMsg })
-      announce(`Erreur: ${errorMsg}`)
+      announce(`${t('app.error')}: ${errorMsg}`)
     } finally {
       setIsProcessing(false)
     }
@@ -138,11 +139,11 @@ export default function AdminCreateImportPage() {
   }
 
   return (
-    <BaseLayout title="Créer / Importer - GenEWeb">
+    <BaseLayout title={`${t('admin.create_import')} - GenEWeb`}>
       <div className="space-y-8">
         {/* En-tête */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Créer / Importer</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('admin.create_import')}</h1>
           <p className="text-muted-foreground">
             Création et importation d'arbres généalogiques
           </p>

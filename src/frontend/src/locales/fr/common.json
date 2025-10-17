@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "GenEWeb Server",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "language": "Langue",
+    "french": "Français",
+    "english": "Anglais"
+  },
+  "home": {
+    "welcome": "Bienvenue sur GenEWeb",
+    "description": "Serveur de généalogie moderne et accessible"
+  },
+  "database": {
+    "loading": "Chargement de la base de données...",
+    "search": "Recherche",
+    "statistics": "Statistiques",
+    "no_results": "Aucun résultat",
+    "population_pyramid": "Pyramide des âges"
+  },
+  "admin": {
+    "admin": "Administration",
+    "create_import": "Créer / Importer",
+    "consult": "Consulter",
+    "created_success": "Base \"{{name}}\" créée avec succès !",
+    "enter_name": "Veuillez saisir un nom pour la base",
+    "creation_error": "Erreur de création"
+  }
+}
