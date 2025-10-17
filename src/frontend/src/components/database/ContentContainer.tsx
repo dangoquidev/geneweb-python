@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SearchForm } from '../search/SearchForm';
 import { StatisticsOptions } from '../statistics/StatisticsOptions';
 import type { ViewType, SearchFormData, SearchOptions } from '../../types/database';
+import { useTranslation } from 'react-i18next';
 
 interface ContentContainerProps {
   currentView: ViewType;
@@ -23,15 +24,17 @@ export const ContentContainer: React.FC<ContentContainerProps> = ({
   selectedStatistic,
   loadingStatistics
 }) => {
+  const { t } = useTranslation('common');
+
   return (
     <div className="flex justify-center mb-6">
       <div className="w-full max-w-5xl">
         <Card>
           <CardHeader className="border-b border-border">
             <CardTitle className="text-center">
-              {currentView === 'search' 
-                ? '🔍 Recherche avancée dans la base' 
-                : '📊 Statistiques détaillées'
+              {currentView === 'search'
+                ? `🔍 ${t('database.search')}`
+                : `📊 ${t('admin.detailed_stats')}`
               }
             </CardTitle>
           </CardHeader>

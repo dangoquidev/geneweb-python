@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { SearchFormData, SearchOptions } from '../../types/database';
+import { useTranslation } from 'react-i18next';
 
 interface SearchFormProps {
   onSearch: (formData: SearchFormData, options: SearchOptions) => void;
@@ -11,6 +12,8 @@ interface SearchFormProps {
 }
 
 export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searching }) => {
+  const { t } = useTranslation('common');
+
   // Search form fields
   const [formData, setFormData] = useState<SearchFormData>({
     globalSearch: '',
@@ -60,13 +63,13 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
     <form onSubmit={handleSubmit} className="space-y-4" aria-labelledby="search-form-title">
       {/* Global search field */}
       <div>
-        <h3 id="search-form-title" className="sr-only">Formulaire de recherche</h3>
+        <h3 id="search-form-title" className="sr-only">{t('search.form_title')}</h3>
         <label className="block text-sm font-medium mb-2" htmlFor="global-search">
-          Recherche globale (individu, nom, nom public, alias, clé)
+          {t('search.global_search')}
         </label>
         <Input
           type="search"
-          placeholder="Recherche dans tous les champs..."
+          placeholder={t('search.search_all_fields')}
           value={formData.globalSearch}
           onChange={(e) => updateFormData('globalSearch', e.target.value)}
           autoFocus
@@ -77,10 +80,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
       {/* Name fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2" htmlFor="first-name">Prénom</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="first-name">{t('search.first_name')}</label>
           <Input
             type="text"
-            placeholder="Prénom(s)"
+            placeholder={t('search.first_names_placeholder')}
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
             disabled={true}
@@ -89,10 +92,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2" htmlFor="surname">Nom de famille</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="surname">{t('search.surname')}</label>
           <Input
             type="text"
-            placeholder="Nom de famille"
+            placeholder={t('search.surname_placeholder')}
             value={formData.surname}
             onChange={(e) => updateFormData('surname', e.target.value)}
             disabled={true}
@@ -105,10 +108,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
       {/* Title and field */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2" htmlFor="title">Titre</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="title">{t('search.title')}</label>
           <Input
             type="text"
-            placeholder="Titre (M., Mme, Dr...)"
+            placeholder={t('search.title_placeholder')}
             value={formData.title}
             onChange={(e) => updateFormData('title', e.target.value)}
             disabled={true}
@@ -117,10 +120,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2" htmlFor="field">Domaine</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="field">{t('search.field')}</label>
           <Input
             type="text"
-            placeholder="Profession, domaine..."
+            placeholder={t('search.field_placeholder')}
             value={formData.field}
             onChange={(e) => updateFormData('field', e.target.value)}
             disabled={true}
@@ -134,16 +137,16 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
       <div className="border-t pt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">Options de recherche</h4>
+            <h4 className="text-sm font-medium">{t('search.search_options')}</h4>
             <div className="space-y-2" role="group" aria-labelledby="search-options-heading">
-              <h4 id="search-options-heading" className="sr-only">Options de recherche</h4>
+              <h4 id="search-options-heading" className="sr-only">{t('search.search_options')}</h4>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <Checkbox
                   checked={options.oneFirstName}
                   onCheckedChange={(checked) => updateOptions('oneFirstName', checked === true)}
                   disabled={true}
                 />
-                <span className="text-sm">Un seul prénom</span>
+                <span className="text-sm">{t('search.one_first_name')}</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <Checkbox
@@ -151,7 +154,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
                   onCheckedChange={(checked) => updateOptions('sameOrder', checked === true)}
                   disabled={true}
                 />
-                <span className="text-sm">Même ordre</span>
+                <span className="text-sm">{t('search.same_order')}</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <Checkbox
@@ -159,23 +162,23 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
                   onCheckedChange={(checked) => updateOptions('partial', checked === true)}
                   disabled={true}
                 />
-                <span className="text-sm">Recherche partielle</span>
+                <span className="text-sm">{t('search.partial_search')}</span>
               </label>
             </div>
           </div>
           <div className="flex flex-col justify-end space-y-2">
             <Button type="submit" disabled={searching} className="w-full" aria-busy={searching} aria-live="polite">
-              {searching ? "Recherche en cours..." : "🔍 Rechercher"}
+              {searching ? t('search.searching') : `🔍 ${t('search.search_button')}`}
             </Button>
             <Button type="button" variant="outline" onClick={handleClear} className="w-full">
-              🗑️ Effacer
+              🗑️ {t('search.clear')}
             </Button>
           </div>
         </div>
       </div>
 
       <div className="text-center text-xs text-muted-foreground">
-        Remplissez un ou plusieurs champs pour effectuer une recherche
+        {t('search.fill_fields_hint')}
       </div>
     </form>
   );
