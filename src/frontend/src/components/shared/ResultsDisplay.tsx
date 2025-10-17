@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { SearchResult, ViewType, MarriageEntry, OldestCoupleEntry, StatisticResult } from '../../types/database';
 import { STATISTIC_OPTIONS } from '../../constants/statistics';
+import { useTranslation } from 'react-i18next'
 
 interface ResultsDisplayProps {
   results: StatisticResult[];
@@ -22,13 +23,14 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
   selectedStatistic,
   resultsRef
 }) => {
+  const { t } = useTranslation('common')
   const getTitle = () => {
     if (viewType === 'search') {
-      return `📋 Résultats de recherche (${results.length})`;
+      return `📋 ${t('database.results_count', { count: results.length })}`;
     }
 
     const selectedOption = STATISTIC_OPTIONS.find(opt => opt.id === selectedStatistic);
-    return `📊 ${selectedOption?.label || 'Statistiques'} (${results.length})`;
+    return `📊 ${(selectedOption?.label || t('database.statistics'))} (${results.length})`;
   };
 
   const showLimitMessage = results.length >= 50;
@@ -51,13 +53,13 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
                 {person.birth_date && (
                   <div className="flex items-center gap-1">
                     <span>🎂</span>
-                    <span>Né{person.sex === 'F' ? 'e' : ''} le {person.birth_date}</span>
+                    <span>{t('database.born_on', { date: person.birth_date })}</span>
                   </div>
                 )}
                 {person.death_date && (
                   <div className="flex items-center gap-1">
                     <span>✝️</span>
-                    <span>Décédé{person.sex === 'F' ? 'e' : ''} le {person.death_date}</span>
+                    <span>{t('database.died_on', { date: person.death_date })}</span>
                   </div>
                 )}
                 {person.occupation && (
@@ -106,7 +108,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
                   {isOldest && (
                     <div className="flex items-center gap-1">
                       <span>🎂</span>
-                      <span>Âges: {(entry as OldestCoupleEntry).husband.age} + {(entry as OldestCoupleEntry).wife.age} = {(entry as OldestCoupleEntry).combined_age}</span>
+                      <span>{t('database.ages_sum', { husband: (entry as OldestCoupleEntry).husband.age, wife: (entry as OldestCoupleEntry).wife.age, sum: (entry as OldestCoupleEntry).combined_age })}</span>
                     </div>
                   )}
                 </div>
@@ -133,7 +135,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
               {getTitle()}
             </CardTitle>
             <div className="text-center text-sm text-muted-foreground">
-              {showLimitMessage && "Seuls les 50 premiers résultats sont affichés"}
+              {showLimitMessage && t('database.only_first_50')}
             </div>
           </CardHeader>
           <CardContent className="p-4">
@@ -148,8 +150,8 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
             {showLimitMessage && (
               <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center text-sm">
                 <div className="text-blue-700 dark:text-blue-300">
-                  ℹ️ Seuls les 50 premiers résultats sont affichés.
-                  {viewType === 'search' ? 'Affinez votre recherche pour des résultats plus précis.' : ''}
+                  ℹ️ {t('database.only_first_50')}
+                  {viewType === 'search' ? t('database.refine_search') : ''}
                 </div>
               </div>
             )}
