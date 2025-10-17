@@ -22,7 +22,7 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
       <div className="w-full max-w-5xl">
         <Card role="region" aria-labelledby="nav-tools-heading">
           <CardHeader className="border-b border-border">
-            <CardTitle className="text-center" id="nav-tools-heading">🛠️ {t('admin.nav_tools')}</CardTitle>
+            <CardTitle className="text-center" id="nav-tools-heading">{t('admin.nav_tools')}</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
@@ -31,17 +31,17 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
                 onClick={onShowSearch}
                 aria-pressed={currentView === 'search'}
               >
-                🔍 {t('database.search')}
+                {t('database.search')}
               </Button>
               <Button
                 variant={currentView === 'statistics' ? 'default' : 'outline'}
                 onClick={onShowStatistics}
                 aria-pressed={currentView === 'statistics'}
               >
-                📊 {t('admin.detailed_stats')}
+                {t('admin.detailed_stats')}
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/">🏠 {t('admin.back_to_bases')}</Link>
+                <Link to="/">{t('admin.back_to_bases')}</Link>
               </Button>
             </div>
             <hr className="my-4 border-border" />
