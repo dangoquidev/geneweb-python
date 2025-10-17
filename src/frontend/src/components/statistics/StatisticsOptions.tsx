@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { STATISTIC_OPTIONS } from '../../constants/statistics';
+import { useTranslation } from 'react-i18next'
 
 interface StatisticsOptionsProps {
   onSelectStatistic: (statisticId: string) => void;
@@ -17,10 +18,11 @@ export const StatisticsOptions: React.FC<StatisticsOptionsProps> = ({
   selectedStatistic,
   loading
 }) => {
+  const { t } = useTranslation('common')
   return (
     <div className="space-y-4" role="region" aria-labelledby="stats-heading">
       <div className="text-center text-sm text-muted-foreground mb-6">
-        <span id="stats-heading">Sélectionnez une statistique pour afficher les données correspondantes</span>
+        <span id="stats-heading">{t('admin.select_stat')}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4" role="list">
@@ -54,7 +56,7 @@ export const StatisticsOptions: React.FC<StatisticsOptionsProps> = ({
       {loading && (
         <div className="text-center py-4" role="status" aria-live="polite">
           <div className="text-2xl mb-2">⏳</div>
-          <div className="text-sm text-muted-foreground">Chargement des statistiques...</div>
+          <div className="text-sm text-muted-foreground">{t('admin.loading_stats')}</div>
         </div>
       )}
     </div>

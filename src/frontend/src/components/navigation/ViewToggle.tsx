@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { ViewType } from '../../types/database';
+import { useTranslation } from 'react-i18next'
 
 interface ViewToggleProps {
   currentView: ViewType;
@@ -15,12 +16,13 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
   onShowSearch,
   onShowStatistics
 }) => {
+  const { t } = useTranslation('common')
   return (
     <div className="flex justify-center mb-6">
       <div className="w-full max-w-5xl">
         <Card role="region" aria-labelledby="nav-tools-heading">
           <CardHeader className="border-b border-border">
-            <CardTitle className="text-center" id="nav-tools-heading">🛠️ Outils de navigation</CardTitle>
+            <CardTitle className="text-center" id="nav-tools-heading">🛠️ {t('admin.nav_tools')}</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
@@ -29,17 +31,17 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
                 onClick={onShowSearch}
                 aria-pressed={currentView === 'search'}
               >
-                🔍 Nouvelle recherche
+                🔍 {t('database.search')}
               </Button>
               <Button
                 variant={currentView === 'statistics' ? 'default' : 'outline'}
                 onClick={onShowStatistics}
                 aria-pressed={currentView === 'statistics'}
               >
-                📊 Statistiques détaillées
+                📊 {t('admin.detailed_stats')}
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/">🏠 Retour aux bases</Link>
+                <Link to="/">🏠 {t('admin.back_to_bases')}</Link>
               </Button>
             </div>
             <hr className="my-4 border-border" />
@@ -50,7 +52,7 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
               <Button variant="outline" size="sm" disabled aria-disabled="true">⚙️ Configuration</Button>
             </div>
             <div className="text-center text-sm text-muted-foreground mt-3">
-              Certaines fonctionnalités sont en cours de développement
+              {t('admin.in_progress')}
             </div>
           </CardContent>
         </Card>
