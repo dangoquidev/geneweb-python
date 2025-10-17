@@ -26,8 +26,9 @@ export default function BaseLayout({
 }: BaseLayoutProps) {
   const { announce } = useLiveRegion();
   const { t } = useTranslation('common')
-  // Gestion du focus sur changement de route
   useEffect(() => {
+    window.scrollTo(0, 0)
+
     // Mettre le focus sur le contenu principal lors du changement de page
     const mainContent = document.querySelector(skipLinkTarget) as HTMLElement
     if (mainContent) {
