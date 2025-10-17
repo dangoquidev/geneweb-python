@@ -24,6 +24,27 @@
     "died_on": "Died on {{date}}",
     "ages_sum": "Ages: {{husband}} + {{wife}} = {{sum}}"
   },
+  "search": {
+    "form_title": "Search form",
+    "global_search": "Global search (individual, name, public name, alias, key)",
+    "search_all_fields": "Search in all fields...",
+    "first_name": "First name",
+    "first_names_placeholder": "First name(s)",
+    "surname": "Surname",
+    "surname_placeholder": "Surname",
+    "title": "Title",
+    "title_placeholder": "Title (Mr., Mrs., Dr...)",
+    "field": "Field",
+    "field_placeholder": "Occupation, field...",
+    "search_options": "Search options",
+    "one_first_name": "One first name",
+    "same_order": "Same order",
+    "partial_search": "Partial search",
+    "searching": "Searching...",
+    "search_button": "Search",
+    "clear": "Clear",
+    "fill_fields_hint": "Fill one or more fields to search"
+  },
   "admin": {
     "admin": "Administration",
     "admin_panel_title": "GenEWeb Administration Panel",
@@ -66,5 +87,28 @@
     "db_settings": "Database settings (.gwf)",
     "gwd_settings": "gwd service settings (gwd)",
     "docs_prompt": "You can also read the full GenEWeb documentation"
+  },
+  "tools": {
+    "title": "Tools",
+    "add_notes": "Add notes",
+    "anniversaries": "Anniversaries",
+    "places_surname": "Places/surname",
+    "calendars": "Calendars",
+    "configuration": "Configuration",
+    "add_note": "Add note",
+    "add_family": "Add family"
+  },
+  "books": {
+    "title": "Books",
+    "first_names": "First names",
+    "surnames": "Surnames",
+    "public_names": "Public names",
+    "qualifiers": "Qualifiers",
+    "aliases": "Aliases",
+    "occupations": "Occupations",
+    "places": "Places",
+    "sources": "Sources",
+    "titles": "Titles",
+    "domains": "Domains"
   }
 }

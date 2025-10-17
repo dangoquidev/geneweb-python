@@ -45,12 +45,40 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
               </Button>
             </div>
             <hr className="my-4 border-border" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Button variant="outline" size="sm" disabled aria-disabled="true">📅 Calendrier</Button>
-              <Button variant="outline" size="sm" disabled aria-disabled="true">🎂 Anniversaires</Button>
-              <Button variant="outline" size="sm" disabled aria-disabled="true">🗺️ Lieux</Button>
-              <Button variant="outline" size="sm" disabled aria-disabled="true">⚙️ Configuration</Button>
+
+            {/* Tools section */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-center mb-3">{t('tools.title')}</h3>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => alert('Add notes')}>{t('tools.add_notes')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Anniversaries')}>{t('tools.anniversaries')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Places/surname')}>{t('tools.places_surname')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Calendars')}>{t('tools.calendars')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Configuration')}>{t('tools.configuration')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Add note')}>{t('tools.add_note')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Add family')}>{t('tools.add_family')}</Button>
+              </div>
             </div>
+
+            <hr className="my-4 border-border" />
+
+            {/* Books section */}
+            <div>
+              <h3 className="text-sm font-medium text-center mb-3">{t('books.title')}</h3>
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                <Button variant="outline" size="sm" onClick={() => alert('First names')}>{t('books.first_names')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Surnames')}>{t('books.surnames')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Public names')}>{t('books.public_names')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Qualifiers')}>{t('books.qualifiers')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Aliases')}>{t('books.aliases')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Occupations')}>{t('books.occupations')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Places')}>{t('books.places')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Sources')}>{t('books.sources')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Titles')}>{t('books.titles')}</Button>
+                <Button variant="outline" size="sm" onClick={() => alert('Domains')}>{t('books.domains')}</Button>
+              </div>
+            </div>
+
             <div className="text-center text-sm text-muted-foreground mt-3">
               {t('admin.in_progress')}
             </div>

@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLiveRegion } from "@/components/shared/LiveRegion";
 import { useTranslation } from 'react-i18next'
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function HomePage() {
   const { t } = useTranslation('common')
@@ -38,7 +40,7 @@ export default function HomePage() {
   }, [announce, t]);
   return (
     <BaseLayout title={t('app.title')}>
-      {/* Header avec logo et titre */}
+      {/* Header */}
       <div className="grid md:grid-cols-3 items-center py-6 gap-4">
         <div className="text-center">
           <svg className="mx-auto h-24 w-40" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -64,23 +66,58 @@ export default function HomePage() {
             <text x="100" y="110" textAnchor="middle" fontFamily="serif" fontSize="16" fontWeight="bold" fill="#2f6400">GeneWeb</text>
           </svg>
         </div>
-        <div className="text-center">
-          <h1 className="text-3xl font-semibold mb-1">{t('home.welcome')}</h1>
-          <p className="text-muted-foreground">{t('home.description')}</p>
-        </div>
       </div>
 
-      {/* Section des bases de données */}
+      {/* Search module */}
       <div className="flex justify-center mb-6">
         <div className="w-full max-w-6xl">
           <Card className="border-0 shadow-sm" role="region" aria-labelledby="bases-heading">
             <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
               <CardTitle className="flex items-center gap-2" id="bases-heading">
                 <span className="i-fa6-solid:database" />
-                {t('database.search')}
+                Search
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
+              {/* Free-form search */}
+              <form
+                onSubmit={(e) => { e.preventDefault(); alert('Search not implemented'); }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium mb-2" htmlFor="q">Free-form search</label>
+                  <Input id="q" placeholder="individual, surname, alias, key" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="firstName">First name</label>
+                    <Input id="firstName" placeholder="First name" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="surname">Surname</label>
+                    <Input id="surname" placeholder="Surname" />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-6">
+                  <label className="flex items-center gap-2">
+                    <Checkbox id="one-first-name" />
+                    <span className="text-sm">One first name</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <Checkbox id="same-order" />
+                    <span className="text-sm">Same order</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <Checkbox id="partial" />
+                    <span className="text-sm">Partial</span>
+                  </label>
+                </div>
+                <div>
+                  <Button type="submit">Search</Button>
+                </div>
+              </form>
+
+              {/* Existing DB list presentation */}
               {loading ? (
                 <div className="text-center py-10" role="status" aria-live="polite">
                   <div className="text-blue-500 text-3xl mb-2">⏳</div>
@@ -108,7 +145,7 @@ export default function HomePage() {
                           <CardContent className="p-6 text-center">
                             <div className="text-green-500 text-2xl mb-2" aria-hidden="true">🌳</div>
                             <div className="font-medium">{db}</div>
-                            <div className="text-muted-foreground text-xs">{t('database.search')}</div>
+                            <div className="text-muted-foreground text-xs">Open</div>
                           </CardContent>
                         </Card>
                       </Link>
@@ -155,24 +192,48 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Outils */}
-      <div className="flex justify-center">
+      {/* Tools */}
+      <div className="flex justify-center mb-6">
         <div className="w-full max-w-3xl">
           <Card className="border-0 shadow-sm" role="region" aria-labelledby="tools-heading">
             <CardHeader className="bg-secondary text-secondary-foreground rounded-t-lg">
-              <CardTitle className="text-base" id="tools-heading">Tools</CardTitle>
+              <CardTitle className="text-base" id="tools-heading">{t('tools.title')}</CardTitle>
             </CardHeader>
             <CardContent className="p-4">
               <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="outline" asChild>
-                  <a href="/admin" title="Administration" aria-label="Open admin">⚙️ {t('admin.admin')}</a>
-                </Button>
-                <Button variant="outline" onClick={() => alert('In progress')}>
-                  <span aria-hidden="true">📊</span> <span className="sr-only">Show</span> {t('database.statistics')}
-                </Button>
-                <Button variant="outline" onClick={() => alert('Docs on GitHub')}>
-                  <span aria-hidden="true">❓</span> <span className="sr-only">Open</span> Help
-                </Button>
+                <Button variant="outline" onClick={() => alert('Add notes')}>{t('tools.add_notes')}</Button>
+                <Button variant="outline" onClick={() => alert('Statistics')}>{t('database.statistics')}</Button>
+                <Button variant="outline" onClick={() => alert('Anniversaries')}>{t('tools.anniversaries')}</Button>
+                <Button variant="outline" onClick={() => alert('Places/surname')}>{t('tools.places_surname')}</Button>
+                <Button variant="outline" onClick={() => alert('Calendars')}>{t('tools.calendars')}</Button>
+                <Button variant="outline" onClick={() => alert('Configuration')}>{t('tools.configuration')}</Button>
+                <Button variant="outline" onClick={() => alert('Add note')}>{t('tools.add_note')}</Button>
+                <Button variant="outline" onClick={() => alert('Add family')}>{t('tools.add_family')}</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Books section */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-5xl">
+          <Card className="border-0 shadow-sm" role="region" aria-labelledby="books-heading">
+            <CardHeader className="bg-muted text-foreground rounded-t-lg">
+              <CardTitle className="text-base" id="books-heading">{t('books.title')}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                <Button variant="outline" onClick={() => alert('First names')}>{t('books.first_names')}</Button>
+                <Button variant="outline" onClick={() => alert('Surnames')}>{t('books.surnames')}</Button>
+                <Button variant="outline" onClick={() => alert('Public names')}>{t('books.public_names')}</Button>
+                <Button variant="outline" onClick={() => alert('Qualifiers')}>{t('books.qualifiers')}</Button>
+                <Button variant="outline" onClick={() => alert('Aliases')}>{t('books.aliases')}</Button>
+                <Button variant="outline" onClick={() => alert('Occupations')}>{t('books.occupations')}</Button>
+                <Button variant="outline" onClick={() => alert('Places')}>{t('books.places')}</Button>
+                <Button variant="outline" onClick={() => alert('Sources')}>{t('books.sources')}</Button>
+                <Button variant="outline" onClick={() => alert('Titles')}>{t('books.titles')}</Button>
+                <Button variant="outline" onClick={() => alert('Domains')}>{t('books.domains')}</Button>
               </div>
             </CardContent>
           </Card>
