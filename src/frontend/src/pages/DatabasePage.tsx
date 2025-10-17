@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import BaseLayout from "./BaseLayout";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLiveRegion } from "@/components/shared/LiveRegion";
 
 // Import custom hooks
 import { useDatabaseInfo, useSearch, useStatistics, useViewManager } from '../hooks';
@@ -18,11 +20,12 @@ import {
 
 export default function DatabasePage() {
   const { baseName } = useParams<{ baseName: string }>();
-  
+  const { announce } = useLiveRegion();
+
   // Custom hooks
   const { dbInfo, loading, error } = useDatabaseInfo(baseName);
   const { currentView, showSearchView, showStatisticsView } = useViewManager();
-  
+
   const {
     searchResults,
     searching,
@@ -31,7 +34,7 @@ export default function DatabasePage() {
     performSearch,
     clearSearch
   } = useSearch(baseName);
-  
+
   const {
     statisticsResults,
     populationPyramidData,
@@ -59,7 +62,7 @@ export default function DatabasePage() {
   if (loading) {
     return (
       <BaseLayout title="GenEWeb - Chargement...">
-        <div className="flex justify-center items-center min-h-[400px]">
+        <div className="flex justify-center items-center min-h-[400px]" role="status" aria-live="polite">
           <div className="text-center">
             <div className="text-4xl mb-4">⏳</div>
             <h2 className="text-xl">Chargement de la base de données...</h2>
@@ -72,7 +75,7 @@ export default function DatabasePage() {
   if (currentError || !dbInfo) {
     return (
       <BaseLayout title="GenEWeb - Erreur">
-        <div className="flex justify-center items-center min-h-[400px]">
+        <div className="flex justify-center items-center min-h-[400px]" role="alert">
           <div className="text-center">
             <div className="text-4xl mb-4">❌</div>
             <h2 className="text-xl mb-2">Erreur de chargement</h2>
@@ -91,9 +94,9 @@ export default function DatabasePage() {
   const currentResultsRef = currentView === 'search' ? searchResultsRef : statisticsResultsRef;
   const hasResults = currentResults.length > 0;
   const hasPopulationPyramid = populationPyramidData && selectedStatistic === 'population-pyramid';
-  
+
   // Check if we should show "no results" message
-  const shouldShowNoResults = currentView === 'search' 
+  const shouldShowNoResults = currentView === 'search'
     ? (searchResults.length === 0 && !searching)
     : (statisticsResults.length === 0 && !populationPyramidData && !loadingStatistics && selectedStatistic);
 
@@ -108,8 +111,10 @@ export default function DatabasePage() {
         </div>
       }
     >
+      {/* Announce page/context */}
+      <PageAnnouncer baseName={baseName!} onAnnounce={announce} />
       <DatabaseInfo dbInfo={dbInfo} baseName={baseName!} />
-      
+
       <ViewToggle
         currentView={currentView}
         onShowSearch={handleShowSearchView}
@@ -154,4 +159,11 @@ export default function DatabasePage() {
       )}
     </BaseLayout>
   );
+}
+
+function PageAnnouncer({ baseName, onAnnounce }: { baseName: string; onAnnounce: (m: string) => void }) {
+  useEffect(() => {
+    onAnnounce(`Base ${baseName} ouverte`);
+  }, [baseName, onAnnounce]);
+  return null;
 }

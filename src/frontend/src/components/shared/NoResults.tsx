@@ -9,24 +9,24 @@ interface NoResultsProps {
   onNewStatistic: () => void;
 }
 
-export const NoResults: React.FC<NoResultsProps> = ({ 
-  viewType, 
-  onNewSearch, 
-  onNewStatistic 
+export const NoResults: React.FC<NoResultsProps> = ({
+  viewType,
+  onNewSearch,
+  onNewStatistic
 }) => {
   const isSearch = viewType === 'search';
 
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex justify-center mb-6" role="status" aria-live="polite">
       <div className="w-full max-w-3xl">
-        <Card>
+        <Card role="region" aria-labelledby="noresults-heading">
           <CardContent className="p-8 text-center">
             <div className="text-4xl mb-4">{isSearch ? '🔍' : '📊'}</div>
-            <h3 className="text-lg font-medium mb-2">
+            <h3 id="noresults-heading" className="text-lg font-medium mb-2">
               {isSearch ? 'Aucun résultat trouvé' : 'Aucune donnée disponible'}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {isSearch 
+              {isSearch
                 ? 'Votre recherche n\'a donné aucun résultat. Essayez de :'
                 : 'Cette statistique n\'a retourné aucune donnée pour cette base.'
               }
@@ -39,9 +39,10 @@ export const NoResults: React.FC<NoResultsProps> = ({
                 <div>• Activer la recherche partielle</div>
               </div>
             )}
-            <Button 
-              className="mt-4" 
+            <Button
+              className="mt-4"
               onClick={isSearch ? onNewSearch : onNewStatistic}
+              aria-label={isSearch ? 'Lancer une nouvelle recherche' : 'Choisir une autre statistique'}
             >
               {isSearch ? '🗑️ Nouvelle recherche' : '📊 Choisir une autre statistique'}
             </Button>

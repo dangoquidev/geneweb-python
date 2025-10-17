@@ -16,17 +16,17 @@ interface ResultsDisplayProps {
  * - Person results: shows identity + birth/death/occupation
  * - Couple results: for latest-marriages and oldest-couples
  */
-export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
-  results, 
-  viewType, 
+export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
+  results,
+  viewType,
   selectedStatistic,
-  resultsRef 
+  resultsRef
 }) => {
   const getTitle = () => {
     if (viewType === 'search') {
       return `📋 Résultats de recherche (${results.length})`;
     }
-    
+
     const selectedOption = STATISTIC_OPTIONS.find(opt => opt.id === selectedStatistic);
     return `📊 ${selectedOption?.label || 'Statistiques'} (${results.length})`;
   };
@@ -125,11 +125,11 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
   };
 
   return (
-    <div ref={resultsRef} className="flex justify-center mb-6">
+    <div ref={resultsRef} className="flex justify-center mb-6" aria-live="polite">
       <div className="w-full max-w-5xl">
-        <Card>
+        <Card role="region" aria-labelledby="results-heading">
           <CardHeader className="border-b border-border">
-            <CardTitle className="text-center">
+            <CardTitle className="text-center" id="results-heading">
               {getTitle()}
             </CardTitle>
             <div className="text-center text-sm text-muted-foreground">
@@ -137,18 +137,18 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
             </div>
           </CardHeader>
           <CardContent className="p-4">
-            <div className="space-y-3">
+            <div className="space-y-3" role="list">
               {results.map((item, idx) =>
                 isCoupleStat
-                  ? renderCouple(item as MarriageEntry | OldestCoupleEntry, idx)
-                  : renderPerson(item as SearchResult)
+                  ? <div role="listitem" key={`c-${idx}`}>{renderCouple(item as MarriageEntry | OldestCoupleEntry, idx)}</div>
+                  : <div role="listitem" key={`p-${idx}`}>{renderPerson(item as SearchResult)}</div>
               )}
             </div>
-            
+
             {showLimitMessage && (
               <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center text-sm">
                 <div className="text-blue-700 dark:text-blue-300">
-                  ℹ️ Seuls les 50 premiers résultats sont affichés. 
+                  ℹ️ Seuls les 50 premiers résultats sont affichés.
                   {viewType === 'search' ? 'Affinez votre recherche pour des résultats plus précis.' : ''}
                 </div>
               </div>
