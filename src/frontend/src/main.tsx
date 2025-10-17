@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
+import './i18n'
+import i18next from 'i18next'
 import HomePage from './pages/HomePage'
 import DatabasePage from './pages/DatabasePage'
 import AdminHomePage from './pages/AdminHomePage'
@@ -26,3 +28,9 @@ createRoot(document.getElementById('root')!).render(
     </LiveRegionProvider>
   </StrictMode>,
 )
+
+// Keep <html lang> in sync with current language
+document.documentElement.lang = i18next.language || 'fr'
+i18next.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng
+})

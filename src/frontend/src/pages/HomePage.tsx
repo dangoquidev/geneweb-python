@@ -4,8 +4,10 @@ import BaseLayout from "./BaseLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLiveRegion } from "@/components/shared/LiveRegion";
+import { useTranslation } from 'react-i18next'
 
 export default function HomePage() {
+  const { t } = useTranslation('common')
   const [databases, setDatabases] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,10 +34,10 @@ export default function HomePage() {
 
   // Announce page on mount
   useEffect(() => {
-    announce('Accueil GenEWeb ouvert');
-  }, [announce]);
+    announce(t('home.welcome'));
+  }, [announce, t]);
   return (
-    <BaseLayout title="GenEWeb Server">
+    <BaseLayout title={t('app.title')}>
       {/* Header avec logo et titre */}
       <div className="grid md:grid-cols-3 items-center py-6 gap-4">
         <div className="text-center">
@@ -63,8 +65,8 @@ export default function HomePage() {
           </svg>
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-semibold mb-1">Serveur Généalogique</h1>
-          <p className="text-muted-foreground">Base de données généalogiques en ligne</p>
+          <h1 className="text-3xl font-semibold mb-1">{t('home.welcome')}</h1>
+          <p className="text-muted-foreground">{t('home.description')}</p>
         </div>
       </div>
 
@@ -75,38 +77,38 @@ export default function HomePage() {
             <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
               <CardTitle className="flex items-center gap-2" id="bases-heading">
                 <span className="i-fa6-solid:database" />
-                Bases de données disponibles
+                {t('database.search')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
               {loading ? (
                 <div className="text-center py-10" role="status" aria-live="polite">
                   <div className="text-blue-500 text-3xl mb-2">⏳</div>
-                  <h4 className="text-muted-foreground">Chargement des bases de données...</h4>
+                  <h4 className="text-muted-foreground">{t('database.loading')}</h4>
                 </div>
               ) : error ? (
                 <div className="text-center py-10" role="alert">
                   <div className="text-red-500 text-3xl mb-2">❌</div>
-                  <h4 className="text-muted-foreground">Erreur de connexion</h4>
+                  <h4 className="text-muted-foreground">{t('app.error')}</h4>
                   <p className="text-muted-foreground text-sm">{error}</p>
                   <Button
                     className="mt-2"
                     onClick={() => window.location.reload()}
-                    aria-label="Réessayer de charger les bases"
+                    aria-label="Reload"
                   >
-                    Réessayer
+                    Reload
                   </Button>
                 </div>
               ) : databases.length > 0 ? (
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3" role="list">
                   {databases.map((db) => (
                     <div key={db} role="listitem">
-                      <Link to={`/database/${db}`} className="block" aria-label={`Ouvrir la base ${db}`}>
+                      <Link to={`/database/${db}`} className="block" aria-label={`Open database ${db}`}>
                         <Card className="h-full hover:opacity-90 transition">
                           <CardContent className="p-6 text-center">
                             <div className="text-green-500 text-2xl mb-2" aria-hidden="true">🌳</div>
                             <div className="font-medium">{db}</div>
-                            <div className="text-muted-foreground text-xs">Cliquez pour accéder</div>
+                            <div className="text-muted-foreground text-xs">{t('database.search')}</div>
                           </CardContent>
                         </Card>
                       </Link>
@@ -116,8 +118,8 @@ export default function HomePage() {
               ) : (
                 <div className="text-center py-10">
                   <div className="text-yellow-400 text-3xl mb-2">⚠️</div>
-                  <h4 className="text-muted-foreground">Aucune base de données trouvée</h4>
-                  <p className="text-muted-foreground text-sm">Placez vos fichiers .pickle dans le répertoire des bases.</p>
+                  <h4 className="text-muted-foreground">{t('database.no_results')}</h4>
+                  <p className="text-muted-foreground text-sm">{t('home.description')}</p>
                 </div>
               )}
             </CardContent>
@@ -130,7 +132,7 @@ export default function HomePage() {
         <div className="w-full max-w-3xl">
           <Card role="region" aria-labelledby="server-info-heading">
             <CardContent className="p-6">
-              <h2 id="server-info-heading" className="font-medium mb-3">Informations du serveur</h2>
+              <h2 id="server-info-heading" className="font-medium mb-3">GenEWeb</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-2xl">🔌</div>
@@ -139,8 +141,8 @@ export default function HomePage() {
                 </div>
                 <div>
                   <div className="text-2xl">📁</div>
-                  <div className="text-sm opacity-90">Bases</div>
-                  <div className="text-xs text-muted-foreground">{databases.length} disponible{databases.length !== 1 ? 's' : ''}</div>
+                  <div className="text-sm opacity-90">DB</div>
+                  <div className="text-xs text-muted-foreground">{databases.length}</div>
                 </div>
                 <div>
                   <div className="text-2xl">🐍</div>
@@ -158,18 +160,18 @@ export default function HomePage() {
         <div className="w-full max-w-3xl">
           <Card className="border-0 shadow-sm" role="region" aria-labelledby="tools-heading">
             <CardHeader className="bg-secondary text-secondary-foreground rounded-t-lg">
-              <CardTitle className="text-base" id="tools-heading">Outils</CardTitle>
+              <CardTitle className="text-base" id="tools-heading">Tools</CardTitle>
             </CardHeader>
             <CardContent className="p-4">
               <div className="flex flex-wrap justify-center gap-2">
                 <Button variant="outline" asChild>
-                  <a href="/admin" title="Administration" aria-label="Ouvrir l'administration">⚙️ Administration</a>
+                  <a href="/admin" title="Administration" aria-label="Open admin">⚙️ {t('admin.admin')}</a>
                 </Button>
-                <Button variant="outline" onClick={() => alert('Fonctionnalité en développement')}>
-                  <span aria-hidden="true">📊</span> <span className="sr-only">Afficher</span> Statistiques globales
+                <Button variant="outline" onClick={() => alert('In progress')}>
+                  <span aria-hidden="true">📊</span> <span className="sr-only">Show</span> {t('database.statistics')}
                 </Button>
-                <Button variant="outline" onClick={() => alert('Documentation disponible sur GitHub')}>
-                  <span aria-hidden="true">❓</span> <span className="sr-only">Ouvrir</span> Aide
+                <Button variant="outline" onClick={() => alert('Docs on GitHub')}>
+                  <span aria-hidden="true">❓</span> <span className="sr-only">Open</span> Help
                 </Button>
               </div>
             </CardContent>

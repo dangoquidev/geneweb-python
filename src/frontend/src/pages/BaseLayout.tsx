@@ -1,6 +1,8 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { useEffect } from "react";
 import { useLiveRegion } from "@/components/shared/LiveRegion";
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher'
 
 type BaseLayoutProps = PropsWithChildren<{
   title?: string
@@ -23,6 +25,7 @@ export default function BaseLayout({
   children,
 }: BaseLayoutProps) {
   const { announce } = useLiveRegion();
+  const { t } = useTranslation('common')
   // Gestion du focus sur changement de route
   useEffect(() => {
     // Mettre le focus sur le contenu principal lors du changement de page
@@ -53,7 +56,7 @@ export default function BaseLayout({
         href={skipLinkTarget}
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50 focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
-        Aller au contenu principal
+        {t('app.title')}
       </a>
 
       {showNavbar && (
@@ -66,19 +69,12 @@ export default function BaseLayout({
               <a
                 className="font-semibold focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1"
                 href="/"
-                aria-label="GenEWeb - Retour à l'accueil"
+                aria-label="GenEWeb"
               >
                 GenEWeb
               </a>
               <div className="flex items-center gap-4" role="navigation" aria-label="Menu utilisateur">
-                {navbarItems ?? (
-                  <a
-                    className="text-sm opacity-90 hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1"
-                    href="/"
-                  >
-                    Accueil
-                  </a>
-                )}
+                <LanguageSwitcher />
               </div>
             </div>
           </nav>
@@ -101,14 +97,14 @@ export default function BaseLayout({
         <div className="container mx-auto px-4 py-6 text-center text-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <strong>GenEWeb</strong> - Serveur de généalogie
+              <strong>GenEWeb</strong>
               <br />
-              Copyright © 1998-2007 INRIA
+              © 1998-2007 INRIA
             </div>
             <div>
-              Version Python modernisée
+              GenEWeb Python
               <br />
-              Compatible avec GenEWeb original
+              Compatible
             </div>
           </div>
         </div>
