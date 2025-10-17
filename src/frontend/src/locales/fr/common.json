@@ -5,11 +5,16 @@
     "error": "Erreur",
     "language": "Langue",
     "french": "Français",
-    "english": "Anglais"
+    "english": "Anglais",
+    "skip_to_main": "Aller au contenu principal",
+    "main_nav": "Navigation principale",
+    "user_menu": "Menu utilisateur",
+    "home_link": "GenEWeb - Retour à l'accueil"
   },
   "home": {
     "welcome": "Bienvenue sur GenEWeb",
-    "description": "Serveur de généalogie moderne et accessible"
+    "description": "Serveur de généalogie moderne et accessible",
+    "reload": "Recharger la page"
   },
   "database": {
     "loading": "Chargement de la base de données...",
@@ -49,7 +54,10 @@
     "admin": "Administration",
     "admin_panel_title": "Panel d'Administration GenEWeb",
     "create_import": "Créer / Importer",
+    "creation_options": "Options de création",
     "consult": "Consulter",
+    "new_search": "Nouvelle recherche",
+    "choose_other_stat": "Choisir une autre statistique",
     "created_success": "Base \"{{name}}\" créée avec succès !",
     "enter_name": "Veuillez saisir un nom pour la base",
     "creation_error": "Erreur de création",
