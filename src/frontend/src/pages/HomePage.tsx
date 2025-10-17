@@ -79,43 +79,6 @@ export default function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              {/* Free-form search */}
-              <form
-                onSubmit={(e) => { e.preventDefault(); alert('Search not implemented'); }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium mb-2" htmlFor="q">Free-form search</label>
-                  <Input id="q" placeholder="individual, surname, alias, key" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="firstName">First name</label>
-                    <Input id="firstName" placeholder="First name" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="surname">Surname</label>
-                    <Input id="surname" placeholder="Surname" />
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-6">
-                  <label className="flex items-center gap-2">
-                    <Checkbox id="one-first-name" />
-                    <span className="text-sm">One first name</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <Checkbox id="same-order" />
-                    <span className="text-sm">Same order</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <Checkbox id="partial" />
-                    <span className="text-sm">Partial</span>
-                  </label>
-                </div>
-                <div>
-                  <Button type="submit">Search</Button>
-                </div>
-              </form>
 
               {/* Existing DB list presentation */}
               {loading ? (
@@ -131,7 +94,7 @@ export default function HomePage() {
                   <Button
                     className="mt-2"
                     onClick={() => window.location.reload()}
-                    aria-label="Reload"
+                    aria-label={t('home.reload')}
                   >
                     Reload
                   </Button>
@@ -186,54 +149,6 @@ export default function HomePage() {
                   <div className="text-sm opacity-90">Version</div>
                   <div className="text-xs">GenEWeb Python</div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Tools */}
-      <div className="flex justify-center mb-6">
-        <div className="w-full max-w-3xl">
-          <Card className="border-0 shadow-sm" role="region" aria-labelledby="tools-heading">
-            <CardHeader className="bg-secondary text-secondary-foreground rounded-t-lg">
-              <CardTitle className="text-base" id="tools-heading">{t('tools.title')}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="outline" onClick={() => alert('Add notes')}>{t('tools.add_notes')}</Button>
-                <Button variant="outline" onClick={() => alert('Statistics')}>{t('database.statistics')}</Button>
-                <Button variant="outline" onClick={() => alert('Anniversaries')}>{t('tools.anniversaries')}</Button>
-                <Button variant="outline" onClick={() => alert('Places/surname')}>{t('tools.places_surname')}</Button>
-                <Button variant="outline" onClick={() => alert('Calendars')}>{t('tools.calendars')}</Button>
-                <Button variant="outline" onClick={() => alert('Configuration')}>{t('tools.configuration')}</Button>
-                <Button variant="outline" onClick={() => alert('Add note')}>{t('tools.add_note')}</Button>
-                <Button variant="outline" onClick={() => alert('Add family')}>{t('tools.add_family')}</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Books section */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-5xl">
-          <Card className="border-0 shadow-sm" role="region" aria-labelledby="books-heading">
-            <CardHeader className="bg-muted text-foreground rounded-t-lg">
-              <CardTitle className="text-base" id="books-heading">{t('books.title')}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                <Button variant="outline" onClick={() => alert('First names')}>{t('books.first_names')}</Button>
-                <Button variant="outline" onClick={() => alert('Surnames')}>{t('books.surnames')}</Button>
-                <Button variant="outline" onClick={() => alert('Public names')}>{t('books.public_names')}</Button>
-                <Button variant="outline" onClick={() => alert('Qualifiers')}>{t('books.qualifiers')}</Button>
-                <Button variant="outline" onClick={() => alert('Aliases')}>{t('books.aliases')}</Button>
-                <Button variant="outline" onClick={() => alert('Occupations')}>{t('books.occupations')}</Button>
-                <Button variant="outline" onClick={() => alert('Places')}>{t('books.places')}</Button>
-                <Button variant="outline" onClick={() => alert('Sources')}>{t('books.sources')}</Button>
-                <Button variant="outline" onClick={() => alert('Titles')}>{t('books.titles')}</Button>
-                <Button variant="outline" onClick={() => alert('Domains')}>{t('books.domains')}</Button>
               </div>
             </CardContent>
           </Card>

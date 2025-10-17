@@ -5,11 +5,16 @@
     "error": "Error",
     "language": "Language",
     "french": "French",
-    "english": "English"
+    "english": "English",
+    "skip_to_main": "Skip to main content",
+    "main_nav": "Main navigation",
+    "user_menu": "User menu",
+    "home_link": "GenEWeb - Back to home"
   },
   "home": {
     "welcome": "Welcome to GenEWeb",
-    "description": "Modern and accessible genealogy server"
+    "description": "Modern and accessible genealogy server",
+    "reload": "Reload page"
   },
   "database": {
     "loading": "Loading database...",
@@ -49,7 +54,10 @@
     "admin": "Administration",
     "admin_panel_title": "GenEWeb Administration Panel",
     "create_import": "Create / Import",
+    "creation_options": "Creation options",
     "consult": "Consult",
+    "new_search": "New search",
+    "choose_other_stat": "Choose another statistic",
     "created_success": "Database \"{{name}}\" created successfully!",
     "enter_name": "Please enter a database name",
     "creation_error": "Creation error",

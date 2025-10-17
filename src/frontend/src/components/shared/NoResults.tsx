@@ -36,7 +36,7 @@ export const NoResults: React.FC<NoResultsProps> = ({
             <Button
               className="mt-4"
               onClick={isSearch ? onNewSearch : onNewStatistic}
-              aria-label={isSearch ? 'New search' : 'Choose another statistic'}
+              aria-label={isSearch ? t('admin.new_search') : t('admin.choose_other_stat')}
             >
               {isSearch ? '🔁' : '📊'}
             </Button>

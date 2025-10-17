@@ -141,7 +141,7 @@ export default function AdminCreateImportPage() {
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           {/* Onglets */}
           <div className="border-b border-border">
-            <nav className="flex" role="tablist" aria-label="Options de création">
+            <nav className="flex" role="tablist" aria-label={t('admin.creation_options')}>
               <button
                 role="tab"
                 aria-selected={activeTab === 'simple'}
