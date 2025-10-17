@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { useEffect } from "react";
+import { useLiveRegion } from "@/components/shared/LiveRegion";
 
 type BaseLayoutProps = PropsWithChildren<{
   title?: string
@@ -21,7 +22,7 @@ export default function BaseLayout({
   skipLinkTarget = "#main-content",
   children,
 }: BaseLayoutProps) {
-  
+  const { announce } = useLiveRegion();
   // Gestion du focus sur changement de route
   useEffect(() => {
     // Mettre le focus sur le contenu principal lors du changement de page
@@ -34,19 +35,21 @@ export default function BaseLayout({
   // Mise à jour du titre de page et métadonnées
   useEffect(() => {
     document.title = title
-    
+
     // Mise à jour de la description si nécessaire
     const descriptionMeta = document.querySelector('meta[name="description"]')
     if (descriptionMeta) {
       descriptionMeta.setAttribute('content', 'GenEWeb - Serveur de généalogie moderne et accessible')
     }
+    // Annonce du changement de page
+    announce(title)
   }, [title])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
 
       {/* Skip link - Premier élément focusable */}
-      <a 
+      <a
         href={skipLinkTarget}
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50 focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
@@ -55,13 +58,13 @@ export default function BaseLayout({
 
       {showNavbar && (
         <header role="banner">
-          <nav 
+          <nav
             className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur"
             aria-label="Navigation principale"
           >
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-              <a 
-                className="font-semibold focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1" 
+              <a
+                className="font-semibold focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1"
                 href="/"
                 aria-label="GenEWeb - Retour à l'accueil"
               >
@@ -69,8 +72,8 @@ export default function BaseLayout({
               </a>
               <div className="flex items-center gap-4" role="navigation" aria-label="Menu utilisateur">
                 {navbarItems ?? (
-                  <a 
-                    className="text-sm opacity-90 hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1" 
+                  <a
+                    className="text-sm opacity-90 hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1"
                     href="/"
                   >
                     Accueil
@@ -82,7 +85,7 @@ export default function BaseLayout({
         </header>
       )}
 
-      <main 
+      <main
         id="main-content"
         className={containerClassName ?? "container mx-auto flex-1 w-full px-4 py-4"}
         tabIndex={-1}
@@ -91,7 +94,7 @@ export default function BaseLayout({
         {children}
       </main>
 
-      <footer 
+      <footer
         className="mt-6 border-t border-border"
         role="contentinfo"
       >
@@ -113,5 +116,3 @@ export default function BaseLayout({
     </div>
   )
 }
-
-

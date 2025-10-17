@@ -162,7 +162,7 @@ body {
     --border: oklch(0.3 0 0);
     --ring: oklch(0.2 0 0);
   }
-  
+
   .dark {
     --border: oklch(0.7 0 0);
     --ring: oklch(0.8 0 0);
@@ -179,11 +179,11 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .animate-spin {
     animation: none;
   }
-  
+
   .animate-spin::before {
     content: "⋯";
     display: inline-block;
@@ -204,6 +204,20 @@ select:focus-visible {
   outline-offset: 1px;
 }
 
+/* Links and generic focusable elements */
+a:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+[tabindex]:not([tabindex="-1"]):focus-visible,
+summary:focus-visible,
+details:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
 /* Touch target minimum size */
 .touch-target {
   min-height: 44px;
@@ -214,5 +228,16 @@ select:focus-visible {
 @media print {
   .no-print {
     display: none !important;
+  }
+}
+
+/* High Contrast (Windows forced colors) support */
+@media (forced-colors: active) {
+  :focus {
+    outline: 2px solid CanvasText !important;
+    outline-offset: 2px !important;
+  }
+  a:focus {
+    text-decoration: underline;
   }
 }

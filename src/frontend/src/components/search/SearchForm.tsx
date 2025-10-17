@@ -19,7 +19,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
     title: '',
     field: ''
   });
-  
+
   // Search options
   const [options, setOptions] = useState<SearchOptions>({
     oneFirstName: false,
@@ -57,10 +57,11 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" aria-labelledby="search-form-title">
       {/* Global search field */}
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <h3 id="search-form-title" className="sr-only">Formulaire de recherche</h3>
+        <label className="block text-sm font-medium mb-2" htmlFor="global-search">
           Recherche globale (individu, nom, nom public, alias, clé)
         </label>
         <Input
@@ -69,29 +70,34 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
           value={formData.globalSearch}
           onChange={(e) => updateFormData('globalSearch', e.target.value)}
           autoFocus
+          id="global-search"
         />
       </div>
 
       {/* Name fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Prénom</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="first-name">Prénom</label>
           <Input
             type="text"
             placeholder="Prénom(s)"
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
             disabled={true}
+            id="first-name"
+            aria-disabled="true"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Nom de famille</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="surname">Nom de famille</label>
           <Input
             type="text"
             placeholder="Nom de famille"
             value={formData.surname}
             onChange={(e) => updateFormData('surname', e.target.value)}
             disabled={true}
+            id="surname"
+            aria-disabled="true"
           />
         </div>
       </div>
@@ -99,23 +105,27 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
       {/* Title and field */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Titre</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="title">Titre</label>
           <Input
             type="text"
             placeholder="Titre (M., Mme, Dr...)"
             value={formData.title}
             onChange={(e) => updateFormData('title', e.target.value)}
             disabled={true}
+            id="title"
+            aria-disabled="true"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Domaine</label>
+          <label className="block text-sm font-medium mb-2" htmlFor="field">Domaine</label>
           <Input
             type="text"
             placeholder="Profession, domaine..."
             value={formData.field}
             onChange={(e) => updateFormData('field', e.target.value)}
             disabled={true}
+            id="field"
+            aria-disabled="true"
           />
         </div>
       </div>
@@ -125,7 +135,8 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
             <h4 className="text-sm font-medium">Options de recherche</h4>
-            <div className="space-y-2">
+            <div className="space-y-2" role="group" aria-labelledby="search-options-heading">
+              <h4 id="search-options-heading" className="sr-only">Options de recherche</h4>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <Checkbox
                   checked={options.oneFirstName}
@@ -153,7 +164,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, onClear, searc
             </div>
           </div>
           <div className="flex flex-col justify-end space-y-2">
-            <Button type="submit" disabled={searching} className="w-full">
+            <Button type="submit" disabled={searching} className="w-full" aria-busy={searching} aria-live="polite">
               {searching ? "Recherche en cours..." : "🔍 Rechercher"}
             </Button>
             <Button type="button" variant="outline" onClick={handleClear} className="w-full">

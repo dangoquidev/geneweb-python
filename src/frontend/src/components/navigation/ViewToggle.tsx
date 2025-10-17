@@ -10,29 +10,31 @@ interface ViewToggleProps {
   onShowStatistics: () => void;
 }
 
-export const ViewToggle: React.FC<ViewToggleProps> = ({ 
-  currentView, 
-  onShowSearch, 
-  onShowStatistics 
+export const ViewToggle: React.FC<ViewToggleProps> = ({
+  currentView,
+  onShowSearch,
+  onShowStatistics
 }) => {
   return (
     <div className="flex justify-center mb-6">
       <div className="w-full max-w-5xl">
-        <Card>
+        <Card role="region" aria-labelledby="nav-tools-heading">
           <CardHeader className="border-b border-border">
-            <CardTitle className="text-center">🛠️ Outils de navigation</CardTitle>
+            <CardTitle className="text-center" id="nav-tools-heading">🛠️ Outils de navigation</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-              <Button 
-                variant={currentView === 'search' ? 'default' : 'outline'} 
+              <Button
+                variant={currentView === 'search' ? 'default' : 'outline'}
                 onClick={onShowSearch}
+                aria-pressed={currentView === 'search'}
               >
                 🔍 Nouvelle recherche
               </Button>
-              <Button 
-                variant={currentView === 'statistics' ? 'default' : 'outline'} 
+              <Button
+                variant={currentView === 'statistics' ? 'default' : 'outline'}
                 onClick={onShowStatistics}
+                aria-pressed={currentView === 'statistics'}
               >
                 📊 Statistiques détaillées
               </Button>
@@ -42,10 +44,10 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
             </div>
             <hr className="my-4 border-border" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Button variant="outline" size="sm" disabled>📅 Calendrier</Button>
-              <Button variant="outline" size="sm" disabled>🎂 Anniversaires</Button>
-              <Button variant="outline" size="sm" disabled>🗺️ Lieux</Button>
-              <Button variant="outline" size="sm" disabled>⚙️ Configuration</Button>
+              <Button variant="outline" size="sm" disabled aria-disabled="true">📅 Calendrier</Button>
+              <Button variant="outline" size="sm" disabled aria-disabled="true">🎂 Anniversaires</Button>
+              <Button variant="outline" size="sm" disabled aria-disabled="true">🗺️ Lieux</Button>
+              <Button variant="outline" size="sm" disabled aria-disabled="true">⚙️ Configuration</Button>
             </div>
             <div className="text-center text-sm text-muted-foreground mt-3">
               Certaines fonctionnalités sont en cours de développement
