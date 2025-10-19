@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
-import { Database, FileUp, Save, Settings, Trash2, RefreshCw } from 'lucide-react'
+import {
+  Database, FileUp, Save, Settings, Trash2, RefreshCw,
+  Merge, Archive, GitBranch, Diff, Wrench, Users
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -112,12 +115,12 @@ export default function AdminHomePage() {
 
           <hr className="my-8 border-border" />
 
-          {/* Options avancées - Structure originale */}
-          <div className="grid md:grid-cols-2 gap-8">
+          {/* Outils avancés - Structure étendue */}
+          <div className="grid md:grid-cols-3 gap-8">
 
-            {/* Options avancées */}
+            {/* Gestion des bases */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">{t('admin.advanced_options')}</h3>
+              <h3 className="text-lg font-semibold mb-4">Gestion des bases</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
@@ -125,7 +128,7 @@ export default function AdminHomePage() {
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <RefreshCw className="h-3 w-3" />
-                    {t('admin.cleanup')}
+                    Nettoyage
                   </Link>
                 </li>
                 <li>
@@ -134,7 +137,7 @@ export default function AdminHomePage() {
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <Settings className="h-3 w-3" />
-                    {t('admin.rename')}
+                    Renommage
                   </Link>
                 </li>
                 <li>
@@ -143,7 +146,77 @@ export default function AdminHomePage() {
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <Trash2 className="h-3 w-3" />
-                    {t('admin.delete')}
+                    Suppression
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/merge"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <Merge className="h-3 w-3" />
+                    Fusion de bases
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/gwu"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <Archive className="h-3 w-3" />
+                    Sauvegarde et restauration (gwu)
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Outils d'analyse */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Outils d'analyse</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    to="/admin/consang"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <Users className="h-3 w-3" />
+                    Initialisation des consanguinités
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/update-nldb"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Mise à jour des liens
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/connex"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <GitBranch className="h-3 w-3" />
+                    Composants connexes
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/gwdiff"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <Diff className="h-3 w-3" />
+                    Comparaison de bases
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/gwfixbase"
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    <Wrench className="h-3 w-3" />
+                    Réparation de bases
                   </Link>
                 </li>
               </ul>
@@ -151,7 +224,7 @@ export default function AdminHomePage() {
 
             {/* Configuration */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">{t('admin.configure')}</h3>
+              <h3 className="text-lg font-semibold mb-4">Configuration</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
@@ -159,7 +232,7 @@ export default function AdminHomePage() {
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <Settings className="h-3 w-3" />
-                    {t('admin.db_settings')}
+                    Paramètres de base
                   </Link>
                 </li>
                 <li>
@@ -168,7 +241,7 @@ export default function AdminHomePage() {
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <Settings className="h-3 w-3" />
-                    {t('admin.gwd_settings')}
+                    Paramètres GWD
                   </Link>
                 </li>
               </ul>
