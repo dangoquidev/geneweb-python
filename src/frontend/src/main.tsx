@@ -10,6 +10,7 @@ import AdminHomePage from './pages/AdminHomePage'
 import AdminCreateImportPage from './pages/AdminCreateImportPage'
 import AdminConsultPage from './pages/AdminConsultPage'
 import AdminExportPage from './pages/AdminExportPage'
+import AdminBackupPage from './pages/AdminBackupPage'
 import AdminRenamePage from './pages/AdminRenamePage'
 import AdminDeletePage from './pages/AdminDeletePage'
 import AdminCleanupPage from './pages/AdminCleanupPage'
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
   { path: '/admin/create-import', element: <AdminCreateImportPage /> },
   { path: '/admin/consult', element: <AdminConsultPage /> },
   { path: '/admin/export', element: <AdminExportPage /> },
+  { path: '/admin/backup', element: <AdminBackupPage /> },
   { path: '/admin/rename', element: <AdminRenamePage /> },
   { path: '/admin/delete', element: <AdminDeletePage /> },
   { path: '/admin/cleanup', element: <AdminCleanupPage /> },

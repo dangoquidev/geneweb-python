@@ -160,11 +160,11 @@ export default function AdminHomePage() {
                 </li>
                 <li>
                   <Link
-                    to="/admin/gwu"
+                    to="/admin/backup"
                     className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                   >
                     <Archive className="h-3 w-3" />
-                    Sauvegarde et restauration (gwu)
+                    Sauvegarde et restauration
                   </Link>
                 </li>
               </ul>
