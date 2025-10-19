@@ -9,7 +9,7 @@ ifeq ($(shell command -v $(PYTHON) 2> /dev/null),)
 $(error Python is not installed or not in PATH. Please install Python 3.6+ and try again)
 endif
 
-.PHONY: help format check test all setup clean status install run run-simple run-admin run-both run-admin-help
+.PHONY: help format check test all setup clean status install run run-dev run-api run-legacy run-simple run-admin run-both run-admin-help run-fullstack run-fullstack-tmux stop-fullstack
 
 # Default target shows help
 help:
@@ -17,29 +17,40 @@ help:
 	@echo "=============================="
 	@echo ""
 	@echo "Available commands:"
-	@echo "  make run     - Start GenEWeb server (databases in data/)"
-	@echo "  make run-admin - Start GenEWeb admin panel (port 2316)"
-	@echo "  make run-both  - Start both server and admin panel"
-	@echo "  make run-simple - Start simple test server (databases in data/)"
-	@echo "  make setup   - Setup development environment"
-	@echo "  make setup-frontend - Install frontend dependencies"
+	@echo "  make run             - Start REST API server (port 8000)"
+	@echo "  make run-dev         - Start REST API with auto-reload"
+	@echo "  make run-fullstack   - Start API + Frontend (manual)"
+	@echo "  make run-fullstack-tmux - Start API + Frontend (tmux)"
+	@echo "  make stop-fullstack  - Stop all tmux sessions"
+	@echo "  make run-api         - Start REST API with custom port/database"
+	@echo "  make run-legacy      - Start legacy daemon server (port 2317)"
+	@echo "  make run-admin       - Start GenEWeb admin panel (port 2316)"
+	@echo "  make run-both        - Start both server and admin panel"
+	@echo "  make run-simple      - Start simple test server (databases in data/)"
+	@echo "  make setup           - Setup development environment"
+	@echo "  make setup-frontend  - Install frontend dependencies"
 	@echo "  make create-frontend - Create new React frontend project"
-	@echo "  make format  - Format code with black and isort + auto-fixes"
-	@echo "  make autofix - Auto-fix common style issues only"
-	@echo "  make check   - Run quality checks (flake8, mypy)"
-	@echo "  make mypy-help - Get assistance with MyPy errors"
-	@echo "  make mypy-safe - Auto-fix SAFE MyPy errors only"
-	@echo "  make test    - Run all test suites"
-	@echo "  make all     - Complete workflow (format + check + test)"
-	@echo "  make status  - Show project status"
-	@echo "  make list-db - List available databases"
-	@echo "  make run-help - Show server options"
-	@echo "  make run-admin-help - Show admin panel options"
-	@echo "  make clean   - Clean generated files and caches"
-	@echo "  make install - Install package in development mode"
+	@echo "  make format          - Format code with black and isort + auto-fixes"
+	@echo "  make autofix         - Auto-fix common style issues only"
+	@echo "  make check           - Run quality checks (flake8, mypy)"
+	@echo "  make mypy-help       - Get assistance with MyPy errors"
+	@echo "  make mypy-safe       - Auto-fix SAFE MyPy errors only"
+	@echo "  make test            - Run all test suites"
+	@echo "  make all             - Complete workflow (format + check + test)"
+	@echo "  make status          - Show project status"
+	@echo "  make list-db         - List available databases"
+	@echo "  make run-help        - Show server options"
+	@echo "  make run-admin-help  - Show admin panel options"
+	@echo "  make clean           - Clean generated files and caches"
+	@echo "  make install         - Install package in development mode"
+	@echo ""
+	@echo "🆕 Modern REST API:"
+	@echo "  make run             → API only: http://127.0.0.1:8000/api/docs"
+	@echo "  make run-fullstack   → API + Frontend React (2 terminals needed)"
+	@echo "  make run-fullstack-tmux → API + Frontend (automatic with tmux)"
 	@echo ""
 	@echo "Quick start: make setup && make run"
-	@echo "Admin panel: make run-admin (in separate terminal)"
+	@echo "Full-stack: make run-fullstack-tmux (requires tmux)"
 
 # Show project status (replaces ./dev.py status)
 status:
@@ -152,12 +163,8 @@ check:
 # Run all tests
 test:
 	@echo "🧪 Running tests..."
-	@echo "📋 Running compliance tests..."
-	PYTHONPATH=src $(PYTHON) -m pytest tests/backend_tests/test_compliance.py -v
-	@echo "🔧 Running basic functionality tests..."
-	PYTHONPATH=src $(PYTHON) tests/backend_tests/test_basic.py
-	@echo "🌐 Running server tests..."
-	@PYTHONPATH=src $(PYTHON) tests/backend_tests/test_server.py || echo "ℹ️  Server tests require running server"
+	@echo "📋 Running backend tests..."
+	PYTHONPATH=src $(PYTHON) -m pytest tests/backend_tests/ -v
 	@echo "🎉 Test execution completed!"
 
 # Complete development workflow
@@ -204,11 +211,78 @@ quick-check:
 	@flake8 --max-line-length=120 . --select=E9,F63,F7,F82 || echo "⚠️  Critical issues found"
 	@echo "✅ Quick check completed"
 
-# Run the main GenEWeb daemon server
-run:
-	@echo "🚀 Starting GenEWeb daemon server..."
+# Run the main GenEWeb daemon server (legacy)
+run-legacy:
+	@echo "🚀 Starting GenEWeb daemon server (legacy)..."
 	@echo "💡 Use Ctrl+C to stop the server"
 	cd src && $(PYTHON) -m backend.servers.gwd_simple --frontend-dev --frontend-dir ./frontend -p 2317 -hd ../data
+
+# Run the modern REST API server (recommended)
+run:
+	@echo "🚀 Starting GenEWeb..."
+	@echo ""
+	$(PYTHON) run_api.py --port 8000 --db data/showcase.pickle --debug
+
+# Run the REST API with auto-reload (development)
+run-dev:
+	@echo "🚀 Starting GenEWeb with auto-reload..."
+	@echo ""
+	$(PYTHON) run_api.py --port 8000 --db data/showcase.pickle --debug --reload
+
+# Run API + Frontend React (full-stack)
+run-fullstack:
+	@echo "🚀 Starting GenEWeb Full-Stack (API + Frontend)..."
+	@echo ""
+	@echo "⚠️  This requires two terminals:"
+	@echo "   Terminal 1: API Server (starting now...)"
+	@echo "   Terminal 2: Frontend Dev Server"
+	@echo ""
+	@echo "To start frontend manually, run in another terminal:"
+	@echo "   cd src/frontend && pnpm dev"
+	@echo ""
+	@echo "Or use tmux/screen to run both:"
+	@echo "   make run-fullstack-tmux"
+	@echo ""
+	@$(PYTHON) run_api.py --port 8000 --db data/showcase.pickle --debug
+
+# Run full-stack with tmux (API + Frontend)
+run-fullstack-tmux:
+	@echo "� Starting GenEWeb Full-Stack with tmux..."
+	@command -v tmux >/dev/null 2>&1 || { echo "❌ tmux not installed. Install with: sudo apt install tmux"; exit 1; }
+	@tmux new-session -d -s geneweb-api "cd $(PWD) && $(PYTHON) run_api.py --port 8000 --db data/showcase.pickle --debug"
+	@if [ -d "src/frontend" ] && [ -f "src/frontend/package.json" ]; then \
+		tmux new-session -d -s geneweb-frontend "cd $(PWD)/src/frontend && pnpm dev"; \
+		echo "✅ Started API (port 8000) and Frontend in tmux sessions"; \
+		echo ""; \
+		echo "� Commands:"; \
+		echo "   tmux attach -t geneweb-api      # View API logs"; \
+		echo "   tmux attach -t geneweb-frontend # View Frontend logs"; \
+		echo "   tmux kill-session -t geneweb-api"; \
+		echo "   tmux kill-session -t geneweb-frontend"; \
+		echo ""; \
+		echo "🌐 Access:"; \
+		echo "   API: http://127.0.0.1:8000/api/docs"; \
+		echo "   Frontend: http://localhost:5173 (or 3000)"; \
+	else \
+		echo "⚠️  Frontend not found in src/frontend"; \
+		echo "   API started at http://127.0.0.1:8000/api/docs"; \
+	fi
+
+# Stop all tmux sessions
+stop-fullstack:
+	@echo "🛑 Stopping GenEWeb sessions..."
+	@tmux kill-session -t geneweb-api 2>/dev/null || true
+	@tmux kill-session -t geneweb-frontend 2>/dev/null || true
+	@echo "✅ All sessions stopped"
+
+# Run the REST API on custom port and database
+run-api:
+	@read -p "Enter port number (default 8000): " port; \
+	read -p "Enter database path (default data/showcase.pickle): " db; \
+	port=$${port:-8000}; \
+	db=$${db:-data/showcase.pickle}; \
+	echo "🚀 Starting API on port $$port with database $$db..."; \
+	$(PYTHON) run_api.py --port $$port --db $$db --debug
 
 # Run the simple test server (for development)
 run-simple:

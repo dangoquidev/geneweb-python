@@ -5,6 +5,7 @@ import { AccessibleInput } from '../components/shared/AccessibleForm'
 import { AccessibleButton } from '../components/shared/AccessibleButton'
 import { useLiveRegion } from '../components/shared/LiveRegion'
 import { Database, FileUp, Upload, CheckCircle, AlertCircle } from 'lucide-react'
+import { createDatabase, ApiError } from '../services/api'
 
 interface Fieldset {
   legend: string
@@ -33,10 +34,10 @@ export default function AdminCreateImportPage() {
   const [outputName, setOutputName] = useState('')
   const [genewebFile, setGenewebFile] = useState<File | null>(null)
   const [gweOutput, setGweOutput] = useState('')
-  
+
   const [isProcessing, setIsProcessing] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+
   const { announce } = useLiveRegion()
 
   const handleTabChange = (tab: 'simple' | 'gedcom' | 'geneweb') => {
@@ -53,17 +54,28 @@ export default function AdminCreateImportPage() {
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
-      // Simulation de la création
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      setMessage({ type: 'success', text: `Base "${simpleName}" créée avec succès !` })
-      announce(`Base ${simpleName} créée avec succès`)
+      // Appel API réel pour créer la base
+      const result = await createDatabase({
+        name: simpleName,
+        db_type: 'pickle',
+      })
+
+      setMessage({ type: 'success', text: result.message })
+      announce(`Base ${result.database_name} créée avec succès`)
       setSimpleName('')
-      
+
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Erreur de création'
+      let errorMsg = 'Erreur de création de la base'
+
+      if (error instanceof ApiError) {
+        // Extraire le message d'erreur de l'API
+        errorMsg = error.details?.detail || error.details?.message || error.statusText
+      } else if (error instanceof Error) {
+        errorMsg = error.message
+      }
+
       setMessage({ type: 'error', text: errorMsg })
       announce(`Erreur: ${errorMsg}`)
     } finally {
@@ -80,15 +92,15 @@ export default function AdminCreateImportPage() {
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
       // Simulation de l'import GEDCOM
       await new Promise(resolve => setTimeout(resolve, 3000))
-      
+
       const baseName = outputName || gedcomFile.name.replace('.ged', '')
       setMessage({ type: 'success', text: `Import GEDCOM réussi ! Base "${baseName}" créée.` })
       announce(`Import GEDCOM réussi, base ${baseName} créée`)
-      
+
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Erreur d\'import GEDCOM'
       setMessage({ type: 'error', text: errorMsg })
@@ -107,15 +119,15 @@ export default function AdminCreateImportPage() {
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
       // Simulation de l'import GeneWeb
       await new Promise(resolve => setTimeout(resolve, 2500))
-      
+
       const baseName = gweOutput || genewebFile.name.replace(/\.(gw|txt)$/, '')
       setMessage({ type: 'success', text: `Import GeneWeb réussi ! Base "${baseName}" créée.` })
       announce(`Import GeneWeb réussi, base ${baseName} créée`)
-      
+
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Erreur d\'import GeneWeb'
       setMessage({ type: 'error', text: errorMsg })
@@ -209,14 +221,14 @@ export default function AdminCreateImportPage() {
 
           {/* Contenu des onglets */}
           <div className="p-8">
-            
+
             {/* Onglet Méthode simple */}
             {activeTab === 'simple' && (
               <div id="simple-panel" role="tabpanel" aria-labelledby="simple-tab">
                 <h2 className="text-xl font-semibold mb-6">
                   Méthode simple
                 </h2>
-                
+
                 <form onSubmit={handleSimpleSubmit} className="space-y-6">
                   <Fieldset legend="Création d'une base vide">
                     <div className="space-y-4">
@@ -269,9 +281,9 @@ export default function AdminCreateImportPage() {
             {activeTab === 'gedcom' && (
               <div id="gedcom-panel" role="tabpanel" aria-labelledby="gedcom-tab">
                 <h2 className="text-xl font-semibold mb-6">
-                  Importer un fichier GEDCOM  
+                  Importer un fichier GEDCOM
                 </h2>
-                
+
                 <form onSubmit={handleGedcomSubmit} className="space-y-6">
                   <Fieldset legend="Sélection du fichier GEDCOM">
                     <div className="space-y-4">
@@ -339,7 +351,7 @@ export default function AdminCreateImportPage() {
                 <h2 className="text-xl font-semibold mb-6">
                   Importer un fichier source GeneWeb
                 </h2>
-                
+
                 <form onSubmit={handleGenewebSubmit} className="space-y-6">
                   <Fieldset legend="Sélection du fichier GeneWeb">
                     <div className="space-y-4">
