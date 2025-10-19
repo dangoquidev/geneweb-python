@@ -55,7 +55,7 @@ export default function AdminHomePage() {
                   <ul className="space-y-3">
                     <li>
                       <Link
-                        to="/admin/export/gedcom"
+                        to="/admin/export?tab=gedcom"
                         className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                       >
                         <Save className="h-4 w-4" />
@@ -64,7 +64,7 @@ export default function AdminHomePage() {
                     </li>
                     <li>
                       <Link
-                        to="/admin/export/geneweb"
+                        to="/admin/export?tab=geneweb"
                         className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                       >
                         <Save className="h-4 w-4" />

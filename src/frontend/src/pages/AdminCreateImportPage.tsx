@@ -6,6 +6,7 @@ import { AccessibleButton } from '../components/shared/AccessibleButton'
 import { useLiveRegion } from '../components/shared/LiveRegion'
 import { Database, FileUp, Upload, CheckCircle, AlertCircle } from 'lucide-react'
 import { createDatabase, ApiError } from '../services/api'
+import { useTranslation } from 'react-i18next'
 
 interface Fieldset {
   legend: string
@@ -253,7 +254,7 @@ export default function AdminCreateImportPage() {
                           id="reorg-mode"
                           checked={reorgMode}
                           onChange={(e) => setReorgMode(e.target.checked)}
-                          className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+                          className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 border-border rounded"
                         />
                         <label htmlFor="reorg-mode" className="text-sm text-muted-foreground">
                           Mode Reorg.
