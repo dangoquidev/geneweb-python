@@ -285,6 +285,9 @@ class Family:
     divorce_place: Optional[str] = None
     divorce_type: DivorceType = DivorceType.NOT_DIVORCED
 
+    # Notes et sources
+    notes: Optional[str] = None
+
     # Témoins et relations
     witnesses: List[str] = field(default_factory=list)
 

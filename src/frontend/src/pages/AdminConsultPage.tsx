@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
 import { Database, AlertCircle, Activity } from 'lucide-react'
 import { useLiveRegion } from '../components/shared/LiveRegion'
+import { listDatabases, ApiError } from '../services/api'
 
 type DatabaseInfo = {
   name: string
   url: string
-  last_modified?: string
-  size?: string
 }
 
 /**
@@ -30,61 +29,45 @@ export default function AdminConsultPage() {
   useEffect(() => {
     // Ne faire l'appel API qu'après le montage côté client
     if (!mounted) return
-    
+
     const fetchDatabases = async () => {
       try {
         setLoading(true)
         setError(null)
         announce('Chargement de la liste des bases de données')
-        
-        const response = await fetch('/api/admin/databases')
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          
-          // Gestion spécifique des erreurs selon le code HTTP
-          switch (response.status) {
-            case 403:
-              throw new Error('Accès refusé - Permissions insuffisantes')
-            case 404:
-              throw new Error('Répertoire des bases de données non trouvé')
-            case 503:
-              const resourceError = errorData.code === 'ERR_INSUFFICIENT_RESOURCES' 
-                ? 'Ressources système insuffisantes - Veuillez réessayer plus tard'
-                : 'Service temporairement indisponible'
-              throw new Error(resourceError)
-            case 500:
-              throw new Error('Erreur interne du serveur')
-            default:
-              throw new Error(errorData.message || `Erreur HTTP ${response.status}`)
-          }
-        }
 
-        const data = await response.json()
-        const dbList = data.databases || []
-        
+        const result = await listDatabases()
+
+        // Transform database names to DatabaseInfo objects
+        const dbList: DatabaseInfo[] = result.databases.map(name => ({
+          name,
+          url: `/${name}` // URL format pour consulter la base
+        }))
+
         setDatabases(dbList)
-        
+
         if (dbList.length === 0) {
           announce('Aucune base de données trouvée')
         } else {
           announce(`${dbList.length} base${dbList.length !== 1 ? 's' : ''} de données trouvée${dbList.length !== 1 ? 's' : ''}`)
         }
-        
+
       } catch (err) {
         let errorMsg = 'Erreur inconnue'
-        
-        if (err instanceof Error) {
+
+        if (err instanceof ApiError) {
+          errorMsg = err.details?.detail || err.details?.message || err.statusText
+        } else if (err instanceof Error) {
           errorMsg = err.message
         } else if (typeof err === 'string') {
           errorMsg = err
         }
-        
+
         // Gestion des erreurs réseau
         if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
           errorMsg = 'Impossible de se connecter au serveur - Vérifiez votre connexion'
         }
-        
+
         setError(errorMsg)
         announce(`Erreur: ${errorMsg}`)
         console.error('Erreur lors du chargement des bases de données:', err)
@@ -108,12 +91,12 @@ export default function AdminConsultPage() {
         </div>
 
         <div className="bg-card border border-border rounded-lg p-8">
-            
+
           {/* Information sur le service gwd */}
           <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg">
             <p className="text-sm">
               Pour consulter une base de données, le service gwd doit avoir été lancé.{' '}
-              <Link 
+              <Link
                 to="/admin/gwd-info"
                 className="text-primary hover:text-primary/80 underline hover:no-underline font-medium"
               >
@@ -178,13 +161,6 @@ export default function AdminConsultPage() {
                             <div className="font-medium">
                               {db.name}
                             </div>
-                            {(db.size || db.last_modified) && (
-                              <div className="text-sm text-muted-foreground mt-1">
-                                {db.size && <span>Taille: {db.size}</span>}
-                                {db.size && db.last_modified && <span className="mx-2">•</span>}
-                                {db.last_modified && <span>Modifié: {new Date(Number(db.last_modified) * 1000).toLocaleDateString()}</span>}
-                              </div>
-                            )}
                           </div>
                         </div>
                         <a

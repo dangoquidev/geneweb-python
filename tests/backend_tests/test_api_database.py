@@ -68,28 +68,28 @@ class TestDatabaseCreateEndpoint:
         """Test successful database creation."""
         response = client.post(
             "/api/databases",
-            json={"name": "my_family", "db_type": "pickle"},
+            json={"name": "my-family", "db_type": "pickle"},
         )
         assert response.status_code == 201
         data = response.json()
         assert data["success"] is True
-        assert data["database_name"] == "my_family"
-        assert "my_family.pickle" in data["path"]
+        assert data["database_name"] == "my-family"
+        assert "my-family.pickle" in data["path"]
         assert "created successfully" in data["message"]
 
         # Verify file was created
-        assert (test_db_dir / "my_family.pickle").exists()
+        assert (test_db_dir / "my-family.pickle").exists()
 
     def test_create_database_default_type(self, client: TestClient, test_db_dir: Path):
         """Test database creation with default type."""
         response = client.post(
             "/api/databases",
-            json={"name": "test_default"},
+            json={"name": "test-default"},
         )
         assert response.status_code == 201
         data = response.json()
         assert data["success"] is True
-        assert (test_db_dir / "test_default.pickle").exists()
+        assert (test_db_dir / "test-default.pickle").exists()
 
     def test_create_database_invalid_name_special_chars(self, client: TestClient):
         """Test creation with invalid characters in name."""
@@ -150,13 +150,13 @@ class TestDatabaseCreateEndpoint:
         assert response.status_code == 422
 
     def test_create_database_valid_names(self, client: TestClient, test_db_dir: Path):
-        """Test creation with various valid names."""
+        """Test creation with various valid names (GenEWeb OCaml rules: alphanumerics + hyphen only)."""
         valid_names = [
             "simple",
-            "with_underscore",
             "with-hyphen",
             "MixedCase123",
             "test2024",
+            "my-family-tree",
         ]
 
         for name in valid_names:
@@ -176,15 +176,15 @@ class TestDatabaseInfoEndpoint:
         # Create database first
         create_response = client.post(
             "/api/databases",
-            json={"name": "info_test", "db_type": "pickle"},
+            json={"name": "info-test", "db_type": "pickle"},
         )
         assert create_response.status_code == 201
 
         # Get info
-        response = client.get("/api/databases/info_test")
+        response = client.get("/api/databases/info-test")
         assert response.status_code == 200
         data = response.json()
-        assert data["base_name"] == "info_test"
+        assert data["base_name"] == "info-test"
         assert "persons" in data
         assert "families" in data
         assert data["persons"] == 0  # Empty database
@@ -206,15 +206,15 @@ class TestDatabaseDeleteEndpoint:
         # Create database first
         create_response = client.post(
             "/api/databases",
-            json={"name": "to_delete", "db_type": "pickle"},
+            json={"name": "to-delete", "db_type": "pickle"},
         )
         assert create_response.status_code == 201
-        assert (test_db_dir / "to_delete.pickle").exists()
+        assert (test_db_dir / "to-delete.pickle").exists()
 
         # Delete database
-        response = client.delete("/api/databases/to_delete")
+        response = client.delete("/api/databases/to-delete")
         assert response.status_code == 204
-        assert not (test_db_dir / "to_delete.pickle").exists()
+        assert not (test_db_dir / "to-delete.pickle").exists()
 
     def test_delete_database_not_found(self, client: TestClient):
         """Test deleting non-existent database."""
@@ -234,7 +234,7 @@ class TestDatabaseWorkflow:
         # 2. Create database
         create_response = client.post(
             "/api/databases",
-            json={"name": "lifecycle_test", "db_type": "pickle"},
+            json={"name": "lifecycle-test", "db_type": "pickle"},
         )
         assert create_response.status_code == 201
 
@@ -242,15 +242,15 @@ class TestDatabaseWorkflow:
         list_response = client.get("/api/databases")
         data = list_response.json()
         assert data["count"] == 1
-        assert "lifecycle_test" in data["databases"]
+        assert "lifecycle-test" in data["databases"]
 
         # 4. Get info
-        info_response = client.get("/api/databases/lifecycle_test")
+        info_response = client.get("/api/databases/lifecycle-test")
         assert info_response.status_code == 200
-        assert info_response.json()["base_name"] == "lifecycle_test"
+        assert info_response.json()["base_name"] == "lifecycle-test"
 
         # 5. Delete database
-        delete_response = client.delete("/api/databases/lifecycle_test")
+        delete_response = client.delete("/api/databases/lifecycle-test")
         assert delete_response.status_code == 204
 
         # 6. List should be empty again

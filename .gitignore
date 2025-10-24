@@ -228,3 +228,5 @@ genewebsample.ged
 data.json
 package-lock.json
 lib64
+
+data/

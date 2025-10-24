@@ -65,6 +65,37 @@ class DatabaseService:
         db_path = self.database_dir / f"{name}.pickle"
         return db_path.exists()
 
+    @staticmethod
+    def validate_database_name(name: str) -> None:
+        """
+        Validate database name according to GenEWeb OCaml rules.
+
+        Only allows: a-z, A-Z, 0-9, and hyphen (-).
+        No spaces or special characters allowed.
+
+        Args:
+            name: Database name to validate.
+
+        Raises:
+            ValidationError: If name contains invalid characters.
+
+        Examples:
+            >>> DatabaseService.validate_database_name("my_family")  # raises ValidationError
+            >>> DatabaseService.validate_database_name("my-family")  # OK
+            >>> DatabaseService.validate_database_name("MyFamily2024")  # OK
+            >>> DatabaseService.validate_database_name("my family")  # raises ValidationError
+        """
+        if not name:
+            raise ValidationError("Database name cannot be empty")
+
+        # GenEWeb OCaml rule: only alphanumerics and hyphen
+        for i, char in enumerate(name):
+            if not (char.isalnum() or char == "-"):
+                raise ValidationError(
+                    f"Database name '{name}' contains invalid character '{char}' at position {i}. "
+                    f"Only alphanumerics (a-z, A-Z, 0-9) and hyphen (-) are allowed."
+                )
+
     def create_database(self, name: str, db_type: str = "pickle") -> Tuple[bool, str, str]:
         """
         Create a new database.
@@ -80,6 +111,9 @@ class DatabaseService:
             ValidationError: If database name is invalid or already exists.
             DatabaseError: If database creation fails.
         """
+        # Validate database name format (GenEWeb OCaml compatibility)
+        self.validate_database_name(name)
+
         # Validate database doesn't already exist
         if self.database_exists(name):
             raise ValidationError(f"Database '{name}' already exists")

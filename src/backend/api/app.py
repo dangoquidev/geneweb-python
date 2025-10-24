@@ -213,13 +213,16 @@ def register_routes(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance.
     """
-    from backend.api.routes import databases, families, health, persons, search
+    from backend.api.routes import databases, families, health, import_routes, persons, search
 
     # Health check
     app.include_router(health.router, prefix="/api", tags=["Health"])
 
     # Database management
     app.include_router(databases.router, prefix="/api", tags=["Database Management"])
+
+    # Import routes (GEDCOM, GeneWeb, etc.)
+    app.include_router(import_routes.router, prefix="/api", tags=["Import"])
 
     # Main API routes
     app.include_router(persons.router, prefix="/api/persons", tags=["Persons"])
