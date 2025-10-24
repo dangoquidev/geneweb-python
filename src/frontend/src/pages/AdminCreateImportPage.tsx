@@ -7,6 +7,7 @@ import { useLiveRegion } from '../components/shared/LiveRegion'
 import { Database, FileUp, Upload, CheckCircle, AlertCircle } from 'lucide-react'
 import { createDatabase, ApiError } from '../services/api'
 import DatabaseList from '../components/admin/DatabaseList'
+import { useTranslation } from 'react-i18next'
 
 interface Fieldset {
   legend: string
@@ -21,6 +22,7 @@ const Fieldset = ({ legend, children }: Fieldset) => (
 )
 
 export default function AdminCreateImportPage() {
+  const { t } = useTranslation('common')
   const [searchParams] = useSearchParams()
   const activeTabParam = searchParams.get('tab') || 'simple'
   const [activeTab, setActiveTab] = useState<'simple' | 'gedcom' | 'geneweb'>(
@@ -106,7 +108,7 @@ export default function AdminCreateImportPage() {
       }
 
       setMessage({ type: 'error', text: errorMsg })
-      announce(`Erreur: ${errorMsg}`)
+      announce(`${t('app.error')}: ${errorMsg}`)
     } finally {
       setIsProcessing(false)
     }
@@ -221,11 +223,11 @@ export default function AdminCreateImportPage() {
   }
 
   return (
-    <BaseLayout title="Créer / Importer - GenEWeb">
+    <BaseLayout title={`${t('admin.create_import')} - GenEWeb`}>
       <div className="space-y-8">
         {/* En-tête */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Créer / Importer</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('admin.create_import')}</h1>
           <p className="text-muted-foreground">
             Création et importation d'arbres généalogiques
           </p>
@@ -234,7 +236,7 @@ export default function AdminCreateImportPage() {
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           {/* Onglets */}
           <div className="border-b border-border">
-            <nav className="flex" role="tablist" aria-label="Options de création">
+            <nav className="flex" role="tablist" aria-label={t('admin.creation_options')}>
               <button
                 role="tab"
                 aria-selected={activeTab === 'simple'}

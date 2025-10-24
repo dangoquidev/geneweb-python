@@ -1,5 +1,6 @@
 import { Shield, Home, FileUp, Search, Settings, BarChart3 } from 'lucide-react'
 import { Link } from '../Router'
+import { useTranslation } from 'react-i18next'
 
 type AdminNavProps = {
   currentPath?: string
@@ -9,36 +10,37 @@ type AdminNavProps = {
  * Navigation pour le panel d'administration
  */
 export default function AdminNav({ currentPath }: AdminNavProps) {
+  const { t } = useTranslation('common')
   const navItems = [
     {
       path: '/admin',
       icon: Home,
-      label: 'Accueil',
-      description: 'Vue d\'ensemble'
+      label: t('home.welcome'),
+      description: ''
     },
     {
       path: '/admin/create-import',
       icon: FileUp,
-      label: 'Créer / Importer',
-      description: 'Nouvelles bases'
+      label: t('admin.create_import'),
+      description: ''
     },
     {
       path: '/admin/consult',
       icon: Search,
-      label: 'Consulter',
-      description: 'Parcourir les données'
+      label: t('admin.consult'),
+      description: ''
     },
     {
       path: '/admin/settings',
       icon: Settings,
-      label: 'Configuration',
-      description: 'Paramètres système'
+      label: 'Settings',
+      description: ''
     },
     {
       path: '/admin/statistics',
       icon: BarChart3,
-      label: 'Statistiques',
-      description: 'Rapports et métriques'
+      label: t('database.statistics'),
+      description: ''
     }
   ]
 
@@ -50,9 +52,9 @@ export default function AdminNav({ currentPath }: AdminNavProps) {
     <nav className="bg-card border border-border rounded-lg p-4">
       <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border">
         <Shield className="h-5 w-5 text-primary" />
-        <h2 className="font-semibold">Administration</h2>
+        <h2 className="font-semibold">{t('admin.admin')}</h2>
       </div>
-      
+
       <div className="space-y-1">
         {navItems.map((item) => (
           <Link
@@ -68,8 +70,8 @@ export default function AdminNav({ currentPath }: AdminNavProps) {
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm">{item.label}</div>
               <div className={`text-xs ${
-                isActive(item.path) 
-                  ? 'text-primary-foreground/80' 
+                isActive(item.path)
+                  ? 'text-primary-foreground/80'
                   : 'text-muted-foreground'
               }`}>
                 {item.description}
@@ -78,13 +80,13 @@ export default function AdminNav({ currentPath }: AdminNavProps) {
           </Link>
         ))}
       </div>
-      
+
       <div className="mt-6 pt-4 border-t border-border">
         <Link
           to="/"
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          ← Retour à l'accueil
+          ← {t('admin.back_to_bases')}
         </Link>
       </div>
     </nav>

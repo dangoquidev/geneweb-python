@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import BaseLayout from "./BaseLayout";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLiveRegion } from "@/components/shared/LiveRegion";
+import { useTranslation } from 'react-i18next'
 
 // Import custom hooks
 import { useDatabaseInfo, useSearch, useStatistics, useViewManager } from '../hooks';
@@ -18,11 +21,13 @@ import {
 
 export default function DatabasePage() {
   const { baseName } = useParams<{ baseName: string }>();
-  
+  const { announce } = useLiveRegion();
+  const { t } = useTranslation('common')
+
   // Custom hooks
   const { dbInfo, loading, error } = useDatabaseInfo(baseName);
   const { currentView, showSearchView, showStatisticsView } = useViewManager();
-  
+
   const {
     searchResults,
     searching,
@@ -31,7 +36,7 @@ export default function DatabasePage() {
     performSearch,
     clearSearch
   } = useSearch(baseName);
-  
+
   const {
     statisticsResults,
     populationPyramidData,
@@ -58,11 +63,11 @@ export default function DatabasePage() {
 
   if (loading) {
     return (
-      <BaseLayout title="GenEWeb - Chargement...">
-        <div className="flex justify-center items-center min-h-[400px]">
+      <BaseLayout title={`GenEWeb - ${t('database.loading')}`}>
+        <div className="flex justify-center items-center min-h-[400px]" role="status" aria-live="polite">
           <div className="text-center">
             <div className="text-4xl mb-4">⏳</div>
-            <h2 className="text-xl">Chargement de la base de données...</h2>
+            <h2 className="text-xl">{t('database.loading')}</h2>
           </div>
         </div>
       </BaseLayout>
@@ -71,14 +76,14 @@ export default function DatabasePage() {
 
   if (currentError || !dbInfo) {
     return (
-      <BaseLayout title="GenEWeb - Erreur">
-        <div className="flex justify-center items-center min-h-[400px]">
+      <BaseLayout title={`GenEWeb - ${t('app.error')}`}>
+        <div className="flex justify-center items-center min-h-[400px]" role="alert">
           <div className="text-center">
             <div className="text-4xl mb-4">❌</div>
-            <h2 className="text-xl mb-2">Erreur de chargement</h2>
-            <p className="text-muted-foreground mb-4">{currentError || 'Base de données introuvable'}</p>
+            <h2 className="text-xl mb-2">{t('app.error')}</h2>
+            <p className="text-muted-foreground mb-4">{currentError || ''}</p>
             <Button asChild>
-              <Link to="/">Retour à l'accueil</Link>
+              <Link to="/">{t('home.welcome')}</Link>
             </Button>
           </div>
         </div>
@@ -91,9 +96,9 @@ export default function DatabasePage() {
   const currentResultsRef = currentView === 'search' ? searchResultsRef : statisticsResultsRef;
   const hasResults = currentResults.length > 0;
   const hasPopulationPyramid = populationPyramidData && selectedStatistic === 'population-pyramid';
-  
+
   // Check if we should show "no results" message
-  const shouldShowNoResults = currentView === 'search' 
+  const shouldShowNoResults = currentView === 'search'
     ? (searchResults.length === 0 && !searching)
     : (statisticsResults.length === 0 && !populationPyramidData && !loadingStatistics && selectedStatistic);
 
@@ -104,12 +109,14 @@ export default function DatabasePage() {
       navbarItems={
         <div className="flex items-center gap-4">
           <span className="text-sm opacity-90">{baseName}</span>
-          <Link className="text-sm opacity-90 hover:opacity-100" to="/">Accueil</Link>
+          <Link className="text-sm opacity-90 hover:opacity-100" to="/">{t('home.welcome')}</Link>
         </div>
       }
     >
+      {/* Announce page/context */}
+      <PageAnnouncer baseName={baseName!} onAnnounce={announce} />
       <DatabaseInfo dbInfo={dbInfo} baseName={baseName!} />
-      
+
       <ViewToggle
         currentView={currentView}
         onShowSearch={handleShowSearchView}
@@ -154,4 +161,11 @@ export default function DatabasePage() {
       )}
     </BaseLayout>
   );
+}
+
+function PageAnnouncer({ baseName, onAnnounce }: { baseName: string; onAnnounce: (m: string) => void }) {
+  useEffect(() => {
+    onAnnounce(`Base ${baseName}`);
+  }, [baseName, onAnnounce]);
+  return null;
 }
