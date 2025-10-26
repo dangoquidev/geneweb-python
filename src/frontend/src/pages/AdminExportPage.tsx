@@ -82,51 +82,62 @@ export default function AdminExportPage() {
         setMessage(null)
 
         try {
-            const exportData = {
-                database: selectedDatabase,
-                type: activeTab,
-                output_name: outputName || `${selectedDatabase}_export`,
-                include_images: includeImages,
-                include_notes: includeNotes,
-                format: activeTab === 'gedcom' ? 'gedcom' : 'geneweb'
-            }
+            if (activeTab === 'gedcom') {
+                // Export GEDCOM via la vraie API avec options
+                const params = new URLSearchParams({
+                    include_notes: includeNotes.toString(),
+                    include_images: includeImages.toString(),
+                })
+                const response = await fetch(`/api/export/${selectedDatabase}/gedcom?${params}`)
 
-            const response = await fetch('/api/admin/export', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(exportData)
-            })
-
-            if (response.ok) {
-                const result = await response.json()
-
-                if (result.download_url) {
-                    // Déclencher le téléchargement
-                    const link = document.createElement('a')
-                    link.href = result.download_url
-                    link.download = result.filename || `${exportData.output_name}.${activeTab}`
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-
-                    setMessage({
-                        type: 'success',
-                        text: `Export ${activeTab.toUpperCase()} réussi ! Téléchargement lancé.`
-                    })
-                    announce(`Export réussi, téléchargement de ${result.filename} lancé`)
-                } else {
-                    setMessage({
-                        type: 'success',
-                        text: `Export ${activeTab.toUpperCase()} généré avec succès : ${result.filename}`
-                    })
-                    announce(`Export généré: ${result.filename}`)
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP ${response.status}`)
                 }
 
+                // Télécharger le fichier
+                const blob = await response.blob()
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = `${outputName || selectedDatabase}.ged`
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                window.URL.revokeObjectURL(url)
+
+                setMessage({
+                    type: 'success',
+                    text: `Export GEDCOM réussi ! Téléchargement de ${link.download} lancé.`
+                })
+                announce(`Export GEDCOM réussi, téléchargement de ${link.download} lancé`)
+
             } else {
-                const errorData = await response.json().catch(() => ({}))
-                throw new Error(errorData.message || `Erreur lors de l'export ${activeTab}`)
+                // Export GeneWeb via la vraie API avec options
+                const params = new URLSearchParams({
+                    include_notes: includeNotes.toString(),
+                })
+                const response = await fetch(`/api/export/${selectedDatabase}/geneweb?${params}`)
+
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP ${response.status}`)
+                }
+
+                // Télécharger le fichier
+                const blob = await response.blob()
+                const url = window.URL.createObjectURL(blob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = `${outputName || selectedDatabase}.gw`
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                window.URL.revokeObjectURL(url)
+
+                setMessage({
+                    type: 'success',
+                    text: `Export GeneWeb réussi ! Téléchargement de ${link.download} lancé.`
+                })
+                announce(`Export GeneWeb réussi, téléchargement de ${link.download} lancé`)
             }
 
         } catch (error) {

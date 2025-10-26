@@ -206,15 +206,69 @@ export default function AdminCreateImportPage() {
     setMessage(null)
 
     try {
-      // Simulation de l'import GeneWeb
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      // Préparer les données du formulaire
+      const formData = new FormData()
+      formData.append('file', genewebFile)
 
-      const baseName = gweOutput || genewebFile.name.replace(/\.(gw|txt)$/, '')
-      setMessage({ type: 'success', text: `Import GeneWeb réussi ! Base "${baseName}" créée.` })
-      announce(`Import GeneWeb réussi, base ${baseName} créée`)
+      // Nom de la base (gweOutput ou dérivé du fichier)
+      const baseName = gweOutput || genewebFile.name.replace(/\.(gw|txt)$/i, '').replace(/[^a-zA-Z0-9-]/g, '-')
+      formData.append('database_name', baseName)
+      formData.append('overwrite', 'false')
+      formData.append('lenient', 'true')
+
+      // Appel API réel pour importer le GeneWeb
+      const response = await fetch('/api/import/geneweb', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        // Essayer de lire le corps de la réponse
+        let errorMessage = `Erreur HTTP ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.detail || errorData.message || errorMessage
+        } catch {
+          // Si ce n'est pas du JSON, lire comme texte
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = errorText.substring(0, 200) // Limiter la longueur
+          }
+        }
+        throw new Error(errorMessage)
+      }
+
+      // Vérifier que la réponse contient du JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Response is not JSON:', text)
+        throw new Error(`Réponse invalide du serveur (expected JSON, got ${contentType})`)
+      }
+
+      const result = await response.json()
+
+      setMessage({
+        type: 'success',
+        text: `Import GeneWeb réussi ! ${result.persons_count} personnes et ${result.families_count} familles importées dans "${result.database_name}".`
+      })
+      announce(`Import GeneWeb réussi : ${result.persons_count} personnes, ${result.families_count} familles`)
+
+      // Réinitialiser le formulaire et rafraîchir la liste
+      setGenewebFile(null)
+      setGweOutput('')
+      if (genewebFileInputRef.current) {
+        genewebFileInputRef.current.value = ''
+      }
+      refreshDatabaseList()
 
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Erreur d\'import GeneWeb'
+      let errorMsg = 'Erreur d\'import GeneWeb'
+
+      if (error instanceof Error) {
+        errorMsg = error.message
+      }
+
       setMessage({ type: 'error', text: errorMsg })
       announce(`Erreur: ${errorMsg}`)
     } finally {

@@ -1,0 +1,54 @@
+encoding: utf-8
+gwplus
+
+fam Dupont Jean 0 1950 + Martin Marie 0 1952
+fevt
+#marr 15/6/1975
+end fevt
+beg
+- h Pierre 10/3/1976
+- f Sophie 22/8/1978
+- h Luc 5/12/1980
+end
+
+notes Dupont Jean
+beg
+Agriculteur de profession.
+Né à Lyon.
+end notes
+
+notes Martin Marie
+beg
+Institutrice.
+Originaire de Marseille.
+end notes
+
+notes Dupont Pierre
+beg
+L'aîné de la famille.
+end notes
+
+pevt Dupont Jean
+#birt 1950 #p Lyon,69,Rhône,Auvergne-Rhône-Alpes,France
+#deat
+end pevt
+
+pevt Martin Marie
+#birt 1952 #p Marseille,13,Bouches-du-Rhône,Provence-Alpes-Côte_d'Azur,France
+#deat
+end pevt
+
+pevt Dupont Pierre
+#birt 10/3/1976 #p Lyon,69,Rhône,Auvergne-Rhône-Alpes,France
+#deat
+end pevt
+
+pevt Dupont Sophie
+#birt 22/8/1978 #p Lyon,69,Rhône,Auvergne-Rhône-Alpes,France
+#deat
+end pevt
+
+pevt Dupont Luc
+#birt 5/12/1980 #p Lyon,69,Rhône,Auvergne-Rhône-Alpes,France
+#deat
+end pevt

@@ -6,6 +6,7 @@ import './i18n'
 import i18next from 'i18next'
 import HomePage from './pages/HomePage'
 import DatabasePage from './pages/DatabasePage'
+import DatabaseViewPage from './pages/DatabaseViewPage'
 import AdminHomePage from './pages/AdminHomePage'
 import AdminCreateImportPage from './pages/AdminCreateImportPage'
 import AdminConsultPage from './pages/AdminConsultPage'
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
   { path: '/admin', element: <AdminHomePage /> },
   { path: '/admin/create-import', element: <AdminCreateImportPage /> },
   { path: '/admin/consult', element: <AdminConsultPage /> },
+  { path: '/admin/databases/:databaseName', element: <DatabaseViewPage /> },
   { path: '/debug/database-creation', element: <DebugDatabaseCreation /> },
   { path: '/admin/export', element: <AdminExportPage /> },
   { path: '/admin/backup', element: <AdminBackupPage /> },

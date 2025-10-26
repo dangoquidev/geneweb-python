@@ -43,7 +43,7 @@ export default function AdminConsultPage() {
         // Transform database names to DatabaseInfo objects
         const dbList: DatabaseInfo[] = result.databases.map(name => ({
           name,
-          url: `/${name}` // URL format pour consulter la base
+          url: `/admin/databases/${encodeURIComponent(name)}` // Route vers la page de consultation
         }))
 
         setDatabases(dbList)
@@ -165,15 +165,13 @@ export default function AdminConsultPage() {
                             </div>
                           </div>
                         </div>
-                        <a
-                          href={db.url}
+                        <Link
+                          to={db.url}
                           className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium hover:underline transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1"
-                          target="_blank"
-                          rel="noopener noreferrer"
                         >
                           {t('admin.consult')}
                           <span className="sr-only">{db.name}</span>
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
