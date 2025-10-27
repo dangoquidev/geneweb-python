@@ -44,6 +44,17 @@ help:
 	@echo "  make clean           - Clean generated files and caches"
 	@echo "  make install         - Install package in development mode"
 	@echo ""
+	@echo "🐳 Docker commands:"
+	@echo "  make docker-build    - Build Docker image"
+	@echo "  make docker-start    - Start GenEWeb with Docker (API only)"
+	@echo "  make docker-dev      - Start in dev mode (API + Frontend)"
+	@echo "  make docker-fullstack- Start fullstack mode (tmux)"
+	@echo "  make docker-stop     - Stop all Docker services"
+	@echo "  make docker-logs     - Show Docker logs"
+	@echo "  make docker-shell    - Open shell in container"
+	@echo "  make docker-clean    - Clean Docker resources"
+	@echo "  make docker-status   - Show Docker status"
+	@echo ""
 	@echo "🆕 Modern REST API:"
 	@echo "  make run             → API only: http://127.0.0.1:8000/api/docs"
 	@echo "  make run-fullstack   → API + Frontend React (2 terminals needed)"
@@ -349,7 +360,7 @@ run-admin-port:
 	echo "Starting admin panel on port $$port (main server: $$gwd_port)..."; \
 	$(PYTHON) -m src.backend.servers.admin.admin_main -p $$port -gwd_p $$gwd_port -bd data
 
-.PHONY: run-prod build-frontend run-admin-port
+.PHONY: run-prod build-frontend run-admin-port docker-build docker-start docker-dev docker-fullstack docker-stop docker-logs docker-shell docker-clean docker-status
 
 build-frontend:
 	cd src/frontend && pnpm build || npm run build
@@ -357,3 +368,40 @@ build-frontend:
 run-prod: build-frontend
 	@echo "🚀 Starting GenEWeb in production mode (serving React build)..."
 	cd src && $(PYTHON) -m backend.servers.gwd_simple --frontend-dist ../src/frontend/dist -p 2317 -hd ../data
+
+# Docker targets
+docker-build:
+	@echo "🐳 Building GenEWeb Docker image..."
+	./docker-run.sh build
+
+docker-start:
+	@echo "🐳 Starting GenEWeb with Docker (API only)..."
+	./docker-run.sh start
+
+docker-dev:
+	@echo "🐳 Starting GenEWeb in development mode with Docker (API + Frontend)..."
+	./docker-run.sh dev
+
+docker-fullstack:
+	@echo "🐳 Starting GenEWeb fullstack mode with Docker (tmux)..."
+	./docker-run.sh fullstack
+
+docker-stop:
+	@echo "🐳 Stopping all GenEWeb Docker services..."
+	./docker-run.sh stop
+
+docker-logs:
+	@echo "🐳 Showing GenEWeb Docker logs..."
+	./docker-run.sh logs
+
+docker-shell:
+	@echo "🐳 Opening shell in GenEWeb Docker container..."
+	./docker-run.sh shell
+
+docker-clean:
+	@echo "🐳 Cleaning GenEWeb Docker resources..."
+	./docker-run.sh clean
+
+docker-status:
+	@echo "🐳 Showing GenEWeb Docker status..."
+	./docker-run.sh status

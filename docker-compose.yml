@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # Service principal GenEWeb (API + Frontend intégré)
+  geneweb-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geneweb-app
+    ports:
+      - "8000:8000"  # API FastAPI
+    environment:
+      - GENEWEB_DATABASE_PATH=/app/data/showcase.pickle
+      - GENEWEB_DEBUG=true
+      - PYTHONPATH=/app/src
+    volumes:
+      # Persistance des données
+      - ./data:/app/data:rw
+      - ./logs:/app/logs:rw
+      # Volume pour le développement (optionnel)
+      - ./src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - geneweb-network
+
+  # Service de développement frontend (pour le dev en mode watch)
+  geneweb-frontend-dev:
+    image: node:18-alpine
+    container_name: geneweb-frontend-dev
+    ports:
+      - "5173:5173"  # Vite dev server
+    environment:
+      - NODE_ENV=development
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install -g pnpm &&
+        pnpm install &&
+        pnpm dev --host 0.0.0.0
+      "
+    volumes:
+      - ./src/frontend:/app:rw
+      - frontend-node-modules:/app/node_modules  # Volume nommé pour node_modules
+    depends_on:
+      - geneweb-app
+    profiles:
+      - dev  # Ce service ne démarre que avec --profile dev
+    networks:
+      - geneweb-network
+
+  # Service admin legacy (optionnel)
+  geneweb-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geneweb-admin
+    ports:
+      - "2316:2316"  # Admin panel
+    environment:
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    command: ["python", "-m", "src.backend.servers.admin.admin_main", "-p", "2316", "-gwd_p", "8000", "-bd", "/app/data"]
+    volumes:
+      - ./data:/app/data:rw
+      - ./src:/app/src:ro
+    depends_on:
+      - geneweb-app
+    profiles:
+      - admin  # Ce service ne démarre que avec --profile admin
+    networks:
+      - geneweb-network
+
+  # Service de développement complet avec tmux (équivalent make run-fullstack-tmux)
+  geneweb-fullstack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geneweb-fullstack
+    ports:
+      - "8001:8000"  # API
+      - "5174:5173"  # Frontend dev
+      - "2317:2316"  # Admin (optionnel)
+    environment:
+      - GENEWEB_DATABASE_PATH=/app/data/showcase.pickle
+      - GENEWEB_DEBUG=true
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    command: ["make", "run-fullstack-tmux"]
+    volumes:
+      - ./data:/app/data:rw
+      - ./logs:/app/logs:rw
+      - ./src:/app/src:rw
+    profiles:
+      - fullstack  # Ce service ne démarre que avec --profile fullstack
+    tty: true  # Nécessaire pour tmux
+    stdin_open: true
+    networks:
+      - geneweb-network
+
+networks:
+  geneweb-network:
+    driver: bridge
+
+volumes:
+  frontend-node-modules:  # Volume pour les dépendances Node.js
