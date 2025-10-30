@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
 import { Database, AlertCircle, Activity } from 'lucide-react'
 import { useLiveRegion } from '../components/shared/LiveRegion'
+import { listDatabases, ApiError } from '../services/api'
+import { useTranslation } from 'react-i18next'
 
 type DatabaseInfo = {
   name: string
   url: string
-  last_modified?: string
-  size?: string
 }
 
 /**
@@ -16,6 +16,7 @@ type DatabaseInfo = {
  * Reproduction fidèle du template list.htm original
  */
 export default function AdminConsultPage() {
+  const { t } = useTranslation('common')
   const [databases, setDatabases] = useState<DatabaseInfo[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,64 +31,48 @@ export default function AdminConsultPage() {
   useEffect(() => {
     // Ne faire l'appel API qu'après le montage côté client
     if (!mounted) return
-    
+
     const fetchDatabases = async () => {
       try {
         setLoading(true)
         setError(null)
         announce('Chargement de la liste des bases de données')
-        
-        const response = await fetch('/api/admin/databases')
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          
-          // Gestion spécifique des erreurs selon le code HTTP
-          switch (response.status) {
-            case 403:
-              throw new Error('Accès refusé - Permissions insuffisantes')
-            case 404:
-              throw new Error('Répertoire des bases de données non trouvé')
-            case 503:
-              const resourceError = errorData.code === 'ERR_INSUFFICIENT_RESOURCES' 
-                ? 'Ressources système insuffisantes - Veuillez réessayer plus tard'
-                : 'Service temporairement indisponible'
-              throw new Error(resourceError)
-            case 500:
-              throw new Error('Erreur interne du serveur')
-            default:
-              throw new Error(errorData.message || `Erreur HTTP ${response.status}`)
-          }
+
+        const result = await listDatabases()
+
+        // Transform database names to DatabaseInfo objects
+        const dbList: DatabaseInfo[] = result.databases.map(name => ({
+          name,
+          url: `/admin/databases/${encodeURIComponent(name)}` // Route vers la page de consultation
+        }))
+
+        setDatabases(dbList)
+
+        if (dbList.length === 0) {
+          announce(t('admin.none_found'))
+        } else {
+          announce(`${dbList.length} ${t('admin.databases')}`)
         }
 
-        const data = await response.json()
-        const dbList = data.databases || []
-        
-        setDatabases(dbList)
-        
-        if (dbList.length === 0) {
-          announce('Aucune base de données trouvée')
-        } else {
-          announce(`${dbList.length} base${dbList.length !== 1 ? 's' : ''} de données trouvée${dbList.length !== 1 ? 's' : ''}`)
-        }
-        
       } catch (err) {
         let errorMsg = 'Erreur inconnue'
-        
-        if (err instanceof Error) {
+
+        if (err instanceof ApiError) {
+          errorMsg = err.details?.detail || err.details?.message || err.statusText
+        } else if (err instanceof Error) {
           errorMsg = err.message
         } else if (typeof err === 'string') {
           errorMsg = err
         }
-        
+
         // Gestion des erreurs réseau
         if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-          errorMsg = 'Impossible de se connecter au serveur - Vérifiez votre connexion'
+          errorMsg = 'Unable to connect to server - Check your connection'
         }
-        
+
         setError(errorMsg)
-        announce(`Erreur: ${errorMsg}`)
-        console.error('Erreur lors du chargement des bases de données:', err)
+        announce(`${t('app.error')}: ${errorMsg}`)
+        console.error('Error while loading databases:', err)
       } finally {
         setLoading(false)
       }
@@ -97,23 +82,23 @@ export default function AdminConsultPage() {
   }, [mounted]) // Déclencher après le montage côté client
 
   return (
-    <BaseLayout title="Bases de données - GenEWeb">
+    <BaseLayout title={`${t('admin.databases')} - GenEWeb`}>
       <div className="space-y-8">
         {/* En-tête */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Bases de données</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('admin.databases')}</h1>
           <p className="text-muted-foreground">
             Consultation des arbres généalogiques disponibles
           </p>
         </div>
 
         <div className="bg-card border border-border rounded-lg p-8">
-            
+
           {/* Information sur le service gwd */}
           <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg">
             <p className="text-sm">
               Pour consulter une base de données, le service gwd doit avoir été lancé.{' '}
-              <Link 
+              <Link
                 to="/admin/gwd-info"
                 className="text-primary hover:text-primary/80 underline hover:no-underline font-medium"
               >
@@ -123,21 +108,21 @@ export default function AdminConsultPage() {
           </div>
 
           {/* État de chargement */}
-          {loading && (
+            {loading && (
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Activity className="h-5 w-5 animate-spin" aria-hidden="true" />
-                <span>Chargement des bases de données...</span>
+                  <span>{t('database.loading')}</span>
               </div>
             </div>
           )}
 
           {/* Gestion d'erreur */}
           {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                <span className="font-medium">Erreur :</span>
+                  <span className="font-medium">{t('app.error')}:</span>
                 <span>{error}</span>
               </div>
             </div>
@@ -147,24 +132,24 @@ export default function AdminConsultPage() {
             {!loading && !error && (
             <>
               <h2 className="text-xl font-semibold mb-6">
-                Bases de données disponibles
+                {t('admin.available_databases')}
               </h2>
 
               {databases.length === 0 ? (
                 <div className="text-center py-12">
                   <Database className="h-16 w-16 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
                   <p className="text-lg mb-2">
-                    Il n'y a pas de base de données actuellement
+                    {t('admin.none_found')}
                   </p>
                   <p className="text-muted-foreground text-sm mb-6">
-                    Créez votre première base de données pour commencer
+                    {t('admin.create_first')}
                   </p>
                   <Link
                     to="/admin/create-import"
                     className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-md font-medium transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
                     <Database className="h-4 w-4" aria-hidden="true" />
-                    Créer une base de données
+                    {t('admin.create_database')}
                   </Link>
                 </div>
               ) : (
@@ -178,24 +163,15 @@ export default function AdminConsultPage() {
                             <div className="font-medium">
                               {db.name}
                             </div>
-                            {(db.size || db.last_modified) && (
-                              <div className="text-sm text-muted-foreground mt-1">
-                                {db.size && <span>Taille: {db.size}</span>}
-                                {db.size && db.last_modified && <span className="mx-2">•</span>}
-                                {db.last_modified && <span>Modifié: {new Date(Number(db.last_modified) * 1000).toLocaleDateString()}</span>}
-                              </div>
-                            )}
                           </div>
                         </div>
-                        <a
-                          href={db.url}
+                        <Link
+                          to={db.url}
                           className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium hover:underline transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1"
-                          target="_blank"
-                          rel="noopener noreferrer"
                         >
-                          Consulter
-                          <span className="sr-only">la base {db.name} dans un nouvel onglet</span>
-                        </a>
+                          {t('admin.consult')}
+                          <span className="sr-only">{db.name}</span>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -203,7 +179,7 @@ export default function AdminConsultPage() {
                   {/* Statistiques */}
                   <div className="mt-8 pt-6 border-t border-border">
                     <p className="text-sm text-muted-foreground text-center">
-                      {databases.length} base{databases.length !== 1 ? 's' : ''} de données disponible{databases.length !== 1 ? 's' : ''}
+                      {databases.length} {t('admin.databases')}
                     </p>
                   </div>
                 </div>
@@ -217,7 +193,7 @@ export default function AdminConsultPage() {
               to="/admin"
               className="text-primary hover:text-primary/80 hover:underline transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1"
             >
-              ← Retour au menu principal
+              ← {t('admin.back_to_menu')}
             </Link>
           </div>
         </div>

@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
 import { AccessibleInput } from '../components/shared/AccessibleForm'
 import { AccessibleButton } from '../components/shared/AccessibleButton'
 import { useLiveRegion } from '../components/shared/LiveRegion'
 import { Database, FileUp, Upload, CheckCircle, AlertCircle } from 'lucide-react'
+import { createDatabase, ApiError } from '../services/api'
+import DatabaseList from '../components/admin/DatabaseList'
+import { useTranslation } from 'react-i18next'
 
 interface Fieldset {
   legend: string
@@ -19,6 +22,7 @@ const Fieldset = ({ legend, children }: Fieldset) => (
 )
 
 export default function AdminCreateImportPage() {
+  const { t } = useTranslation('common')
   const [searchParams] = useSearchParams()
   const activeTabParam = searchParams.get('tab') || 'simple'
   const [activeTab, setActiveTab] = useState<'simple' | 'gedcom' | 'geneweb'>(
@@ -27,16 +31,17 @@ export default function AdminCreateImportPage() {
 
   // États des formulaires
   const [simpleName, setSimpleName] = useState('')
-  const [reorgMode, setReorgMode] = useState(false)
   const [gedcomFile, setGedcomFile] = useState<File | null>(null)
-  const [databaseDir, setDatabaseDir] = useState('')
+  const gedcomFileInputRef = useRef<HTMLInputElement>(null)
   const [outputName, setOutputName] = useState('')
   const [genewebFile, setGenewebFile] = useState<File | null>(null)
+  const genewebFileInputRef = useRef<HTMLInputElement>(null)
   const [gweOutput, setGweOutput] = useState('')
-  
+
   const [isProcessing, setIsProcessing] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [refreshKey, setRefreshKey] = useState(0)
+
   const { announce } = useLiveRegion()
 
   const handleTabChange = (tab: 'simple' | 'gedcom' | 'geneweb') => {
@@ -44,28 +49,66 @@ export default function AdminCreateImportPage() {
     setMessage(null)
   }
 
+  const refreshDatabaseList = () => {
+    setRefreshKey(prev => prev + 1)
+  }
+
+  // Validation du nom de base (règles GenEWeb OCaml)
+  const validateDatabaseName = (name: string): { valid: boolean; error?: string } => {
+    if (!name.trim()) {
+      return { valid: false, error: 'Veuillez saisir un nom pour la base' }
+    }
+
+    // GenEWeb n'autorise que : a-z, A-Z, 0-9, et tiret (-)
+    const invalidChar = name.split('').find(c => !(/[a-zA-Z0-9-]/.test(c)))
+    if (invalidChar) {
+      return {
+        valid: false,
+        error: `Le caractère "${invalidChar}" n'est pas autorisé. Seuls les caractères alphanumériques (a-z, A-Z, 0-9) et le tiret (-) sont acceptés.`
+      }
+    }
+
+    return { valid: true }
+  }
+
   const handleSimpleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!simpleName.trim()) {
-      setMessage({ type: 'error', text: 'Veuillez saisir un nom pour la base' })
+
+    // Valider le nom avant d'envoyer
+    const validation = validateDatabaseName(simpleName)
+    if (!validation.valid) {
+      setMessage({ type: 'error', text: validation.error! })
+      announce(`Erreur: ${validation.error}`)
       return
     }
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
-      // Simulation de la création
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      setMessage({ type: 'success', text: `Base "${simpleName}" créée avec succès !` })
-      announce(`Base ${simpleName} créée avec succès`)
+      // Appel API réel pour créer la base
+      const result = await createDatabase({
+        name: simpleName,
+        db_type: 'pickle',
+      })
+
+      setMessage({ type: 'success', text: result.message })
+      announce(`Base ${result.database_name} créée avec succès`)
       setSimpleName('')
-      
+      refreshDatabaseList()
+
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Erreur de création'
+      let errorMsg = 'Erreur de création de la base'
+
+      if (error instanceof ApiError) {
+        // Extraire le message d'erreur de l'API
+        errorMsg = error.details?.detail || error.details?.message || error.statusText
+      } else if (error instanceof Error) {
+        errorMsg = error.message
+      }
+
       setMessage({ type: 'error', text: errorMsg })
-      announce(`Erreur: ${errorMsg}`)
+      announce(`${t('app.error')}: ${errorMsg}`)
     } finally {
       setIsProcessing(false)
     }
@@ -80,17 +123,71 @@ export default function AdminCreateImportPage() {
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
-      // Simulation de l'import GEDCOM
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      const baseName = outputName || gedcomFile.name.replace('.ged', '')
-      setMessage({ type: 'success', text: `Import GEDCOM réussi ! Base "${baseName}" créée.` })
-      announce(`Import GEDCOM réussi, base ${baseName} créée`)
-      
+      // Préparer les données du formulaire
+      const formData = new FormData()
+      formData.append('file', gedcomFile)
+
+      // Nom de la base (outputName ou dérivé du fichier)
+      const baseName = outputName || gedcomFile.name.replace(/\.(ged|gedcom)$/i, '').replace(/[^a-zA-Z0-9-]/g, '-')
+      formData.append('database_name', baseName)
+      formData.append('overwrite', 'false')
+      formData.append('lenient', 'true')
+
+      // Appel API réel pour importer le GEDCOM
+      const response = await fetch('/api/import/gedcom', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        // Essayer de lire le corps de la réponse
+        let errorMessage = `Erreur HTTP ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.detail || errorData.message || errorMessage
+        } catch {
+          // Si ce n'est pas du JSON, lire comme texte
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = errorText.substring(0, 200) // Limiter la longueur
+          }
+        }
+        throw new Error(errorMessage)
+      }
+
+      // Vérifier que la réponse contient du JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Response is not JSON:', text)
+        throw new Error(`Réponse invalide du serveur (expected JSON, got ${contentType})`)
+      }
+
+      const result = await response.json()
+
+      setMessage({
+        type: 'success',
+        text: `Import GEDCOM réussi ! ${result.persons_count} personnes et ${result.families_count} familles importées dans "${result.database_name}".`
+      })
+      announce(`Import GEDCOM réussi : ${result.persons_count} personnes, ${result.families_count} familles`)
+
+      // Réinitialiser le formulaire et rafraîchir la liste
+      setGedcomFile(null)
+      setOutputName('')
+      if (gedcomFileInputRef.current) {
+        gedcomFileInputRef.current.value = ''
+      }
+      refreshDatabaseList()
+
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Erreur d\'import GEDCOM'
+      let errorMsg = 'Erreur d\'import GEDCOM'
+
+      if (error instanceof Error) {
+        errorMsg = error.message
+      }
+
       setMessage({ type: 'error', text: errorMsg })
       announce(`Erreur: ${errorMsg}`)
     } finally {
@@ -107,17 +204,71 @@ export default function AdminCreateImportPage() {
 
     setIsProcessing(true)
     setMessage(null)
-    
+
     try {
-      // Simulation de l'import GeneWeb
-      await new Promise(resolve => setTimeout(resolve, 2500))
-      
-      const baseName = gweOutput || genewebFile.name.replace(/\.(gw|txt)$/, '')
-      setMessage({ type: 'success', text: `Import GeneWeb réussi ! Base "${baseName}" créée.` })
-      announce(`Import GeneWeb réussi, base ${baseName} créée`)
-      
+      // Préparer les données du formulaire
+      const formData = new FormData()
+      formData.append('file', genewebFile)
+
+      // Nom de la base (gweOutput ou dérivé du fichier)
+      const baseName = gweOutput || genewebFile.name.replace(/\.(gw|txt)$/i, '').replace(/[^a-zA-Z0-9-]/g, '-')
+      formData.append('database_name', baseName)
+      formData.append('overwrite', 'false')
+      formData.append('lenient', 'true')
+
+      // Appel API réel pour importer le GeneWeb
+      const response = await fetch('/api/import/geneweb', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        // Essayer de lire le corps de la réponse
+        let errorMessage = `Erreur HTTP ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.detail || errorData.message || errorMessage
+        } catch {
+          // Si ce n'est pas du JSON, lire comme texte
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = errorText.substring(0, 200) // Limiter la longueur
+          }
+        }
+        throw new Error(errorMessage)
+      }
+
+      // Vérifier que la réponse contient du JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Response is not JSON:', text)
+        throw new Error(`Réponse invalide du serveur (expected JSON, got ${contentType})`)
+      }
+
+      const result = await response.json()
+
+      setMessage({
+        type: 'success',
+        text: `Import GeneWeb réussi ! ${result.persons_count} personnes et ${result.families_count} familles importées dans "${result.database_name}".`
+      })
+      announce(`Import GeneWeb réussi : ${result.persons_count} personnes, ${result.families_count} familles`)
+
+      // Réinitialiser le formulaire et rafraîchir la liste
+      setGenewebFile(null)
+      setGweOutput('')
+      if (genewebFileInputRef.current) {
+        genewebFileInputRef.current.value = ''
+      }
+      refreshDatabaseList()
+
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Erreur d\'import GeneWeb'
+      let errorMsg = 'Erreur d\'import GeneWeb'
+
+      if (error instanceof Error) {
+        errorMsg = error.message
+      }
+
       setMessage({ type: 'error', text: errorMsg })
       announce(`Erreur: ${errorMsg}`)
     } finally {
@@ -126,11 +277,11 @@ export default function AdminCreateImportPage() {
   }
 
   return (
-    <BaseLayout title="Créer / Importer - GenEWeb">
+    <BaseLayout title={`${t('admin.create_import')} - GenEWeb`}>
       <div className="space-y-8">
         {/* En-tête */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Créer / Importer</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('admin.create_import')}</h1>
           <p className="text-muted-foreground">
             Création et importation d'arbres généalogiques
           </p>
@@ -139,7 +290,7 @@ export default function AdminCreateImportPage() {
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           {/* Onglets */}
           <div className="border-b border-border">
-            <nav className="flex" role="tablist" aria-label="Options de création">
+            <nav className="flex" role="tablist" aria-label={t('admin.creation_options')}>
               <button
                 role="tab"
                 aria-selected={activeTab === 'simple'}
@@ -209,14 +360,14 @@ export default function AdminCreateImportPage() {
 
           {/* Contenu des onglets */}
           <div className="p-8">
-            
+
             {/* Onglet Méthode simple */}
             {activeTab === 'simple' && (
               <div id="simple-panel" role="tabpanel" aria-labelledby="simple-tab">
                 <h2 className="text-xl font-semibold mb-6">
                   Méthode simple
                 </h2>
-                
+
                 <form onSubmit={handleSimpleSubmit} className="space-y-6">
                   <Fieldset legend="Création d'une base vide">
                     <div className="space-y-4">
@@ -227,24 +378,11 @@ export default function AdminCreateImportPage() {
                           type="text"
                           value={simpleName}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSimpleName(e.target.value)}
-                          placeholder="base"
+                          placeholder="ma-famille"
                           required
                           className="w-full max-w-md"
-                          help="Nom de fichier sans extension (ex: ma_famille)"
+                          help="Caractères autorisés : lettres (a-z, A-Z), chiffres (0-9) et tiret (-). Les espaces ne sont pas autorisés."
                         />
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          id="reorg-mode"
-                          checked={reorgMode}
-                          onChange={(e) => setReorgMode(e.target.checked)}
-                          className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
-                        />
-                        <label htmlFor="reorg-mode" className="text-sm text-muted-foreground">
-                          Mode Reorg.
-                        </label>
                       </div>
 
                       <div>
@@ -269,9 +407,9 @@ export default function AdminCreateImportPage() {
             {activeTab === 'gedcom' && (
               <div id="gedcom-panel" role="tabpanel" aria-labelledby="gedcom-tab">
                 <h2 className="text-xl font-semibold mb-6">
-                  Importer un fichier GEDCOM  
+                  Importer un fichier GEDCOM
                 </h2>
-                
+
                 <form onSubmit={handleGedcomSubmit} className="space-y-6">
                   <Fieldset legend="Sélection du fichier GEDCOM">
                     <div className="space-y-4">
@@ -280,6 +418,7 @@ export default function AdminCreateImportPage() {
                           Sélectionnez votre fichier GEDCOM :
                         </label>
                         <input
+                          ref={gedcomFileInputRef}
                           type="file"
                           accept=".ged,.gedcom"
                           onChange={(e) => setGedcomFile(e.target.files?.[0] || null)}
@@ -295,17 +434,6 @@ export default function AdminCreateImportPage() {
                           </p>
                         )}
                       </div>
-
-                      <AccessibleInput
-                        id="db-dir"
-                        label="Dossier des bases de données :"
-                        type="text"
-                        value={databaseDir}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDatabaseDir(e.target.value)}
-                        placeholder="."
-                        className="w-full max-w-md"
-                        help="Si vide, le répertoire actuel sera utilisé"
-                      />
 
                       <AccessibleInput
                         id="output-name"
@@ -339,7 +467,7 @@ export default function AdminCreateImportPage() {
                 <h2 className="text-xl font-semibold mb-6">
                   Importer un fichier source GeneWeb
                 </h2>
-                
+
                 <form onSubmit={handleGenewebSubmit} className="space-y-6">
                   <Fieldset legend="Sélection du fichier GeneWeb">
                     <div className="space-y-4">

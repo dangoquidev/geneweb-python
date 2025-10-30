@@ -122,12 +122,39 @@ python -m backend.geneweb.cli server --port 8080 --database-dir ./data
 # Start production server
 make run
 
-# Start development server
+# Start development server  
 make run-simple
+
+# Start admin panel (separate terminal)
+make run-admin
 
 # List available databases
 make list-db
 ```
+
+## Administration Panel
+
+GenEWeb includes a separate administration panel for database management:
+
+```bash
+# Start admin panel on port 2316
+make run-admin
+
+# Show admin panel options
+make run-admin-help
+```
+
+**Access:**
+- Main server: http://localhost:2317/DATABASE_NAME  
+- Admin panel: http://localhost:2316/
+
+The admin panel provides:
+- Database creation and management
+- Import/export tools (GEDCOM, GW formats)
+- User management and permissions
+- System configuration
+
+See `ADMIN_PANEL.md` for detailed administration guide.
 
 **Direct Python execution:**
 
