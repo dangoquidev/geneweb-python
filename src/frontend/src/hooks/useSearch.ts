@@ -21,26 +21,28 @@ export const useSearch = (baseName: string | undefined) => {
     if (formData.surname.trim()) searchTerms.push(formData.surname.trim());
     if (formData.title.trim()) searchTerms.push(formData.title.trim());
     if (formData.field.trim()) searchTerms.push(formData.field.trim());
-    
+
     if (searchTerms.length === 0) return;
 
     const query = searchTerms.join(' ');
-    
+
     setSearching(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`/api/${baseName}/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/databases/${encodeURIComponent(baseName)}/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setSearchResults(data.results || []);
-      
+      // The new route returns an array directly, not {results: [...]}
+      const results = Array.isArray(data) ? data : (data.results || []);
+      setSearchResults(results);
+
       // Scroll to results after a short delay
-      if (data.results && data.results.length > 0) {
+      if (results && results.length > 0) {
         setTimeout(() => {
-          searchResultsRef.current?.scrollIntoView({ 
+          searchResultsRef.current?.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
           });

@@ -16,7 +16,7 @@ export default function HomePage() {
   const { announce } = useLiveRegion();
 
   useEffect(() => {
-    fetch('/api/databases')
+    fetch('http://127.0.0.1:8000/api/databases')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

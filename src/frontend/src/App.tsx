@@ -21,15 +21,16 @@ export default function App() {
 
   useEffect(() => {
     if (!selected) return
-    fetch(`/api/${selected}/info`).then(r => r.json()).then(setInfo)
+    fetch(`/api/databases/${encodeURIComponent(selected)}`).then(r => r.json()).then(setInfo)
   }, [selected])
 
   const onSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selected || !q) return
-    const r = await fetch(`/api/${selected}/search?q=${encodeURIComponent(q)}`)
+    const r = await fetch(`/api/databases/${encodeURIComponent(selected)}/search?q=${encodeURIComponent(q)}`)
     const d = await r.json()
-    setResults(d.results || [])
+    // New route returns array directly
+    setResults(Array.isArray(d) ? d : (d.results || []))
   }
 
   return (

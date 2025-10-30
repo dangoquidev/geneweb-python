@@ -12,10 +12,10 @@ export const useDatabaseInfo = (baseName: string | undefined) => {
 
   useEffect(() => {
     if (!baseName) return;
-    
+
     const fetchDatabaseInfo = async () => {
       try {
-        const response = await fetch(`/api/${baseName}/info`);
+        const response = await fetch(`/api/databases/${encodeURIComponent(baseName)}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -200,7 +200,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node.js dependencies and caches
 node_modules
+.pnpm-store
+.pnpm-cache
 dist
 dist-ssr
 *.local
@@ -228,4 +231,29 @@ genewebsample.ged
 data.json
 package-lock.json
 lib64
-instructions/
+
+# Docker-related temporary files
+logs/
+tmp/
+*.tmp
+.tmp/
+
+# Python/GenEWeb specific
+*.pickle
+*.pickle.backup
+*.pickle.bak
+!showcase.pickle
+
+# Build artifacts
+build/
+dist-local/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*~
+*.orig

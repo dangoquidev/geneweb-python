@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
-import { Database, FileUp, Save, Settings, Trash2, RefreshCw } from 'lucide-react'
+import {
+  Database, FileUp, Save, Settings, Trash2, RefreshCw,
+  Merge, Archive, GitBranch, Diff, Wrench, Users
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -55,7 +58,7 @@ export default function AdminHomePage() {
                   <ul className="space-y-3">
                     <li>
                       <Link
-                        to="/admin/export/gedcom"
+                        to="/admin/export?tab=gedcom"
                         className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                       >
                         <Save className="h-4 w-4" />
@@ -64,7 +67,7 @@ export default function AdminHomePage() {
                     </li>
                     <li>
                       <Link
-                        to="/admin/export/geneweb"
+                        to="/admin/export?tab=geneweb"
                         className="flex items-center gap-2 text-primary hover:text-primary/80 hover:underline transition-colors"
                       >
                         <Save className="h-4 w-4" />

@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom'
 import BaseLayout from './BaseLayout'
 import { Database, AlertCircle, Activity } from 'lucide-react'
 import { useLiveRegion } from '../components/shared/LiveRegion'
+import { listDatabases, ApiError } from '../services/api'
 import { useTranslation } from 'react-i18next'
 
 type DatabaseInfo = {
   name: string
   url: string
-  last_modified?: string
-  size?: string
 }
 
 /**
@@ -39,31 +38,13 @@ export default function AdminConsultPage() {
         setError(null)
         announce(t('database.loading'))
 
-        const response = await fetch('/api/admin/databases')
+        const result = await listDatabases()
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-
-          // Gestion spécifique des erreurs selon le code HTTP
-          switch (response.status) {
-            case 403:
-              throw new Error('Forbidden')
-            case 404:
-              throw new Error('Databases directory not found')
-            case 503:
-              const resourceError = errorData.code === 'ERR_INSUFFICIENT_RESOURCES'
-                ? 'Insufficient system resources - Please try again later'
-                : 'Service temporarily unavailable'
-              throw new Error(resourceError)
-            case 500:
-              throw new Error('Internal server error')
-            default:
-              throw new Error(errorData.message || `HTTP ${response.status}`)
-          }
-        }
-
-        const data = await response.json()
-        const dbList = data.databases || []
+        // Transform database names to DatabaseInfo objects
+        const dbList: DatabaseInfo[] = result.databases.map(name => ({
+          name,
+          url: `/admin/databases/${encodeURIComponent(name)}` // Route vers la page de consultation
+        }))
 
         setDatabases(dbList)
 
@@ -74,9 +55,11 @@ export default function AdminConsultPage() {
         }
 
       } catch (err) {
-        let errorMsg = 'Unknown error'
+        let errorMsg = 'Erreur inconnue'
 
-        if (err instanceof Error) {
+        if (err instanceof ApiError) {
+          errorMsg = err.details?.detail || err.details?.message || err.statusText
+        } else if (err instanceof Error) {
           errorMsg = err.message
         } else if (typeof err === 'string') {
           errorMsg = err
@@ -114,7 +97,7 @@ export default function AdminConsultPage() {
           {/* Information sur le service gwd */}
           <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg">
             <p className="text-sm">
-              gwd must be running to browse a database.{' '}
+              Pour consulter une base de données, le service gwd doit avoir été lancé.{' '}
               <Link
                 to="/admin/gwd-info"
                 className="text-primary hover:text-primary/80 underline hover:no-underline font-medium"
@@ -180,24 +163,15 @@ export default function AdminConsultPage() {
                             <div className="font-medium">
                               {db.name}
                             </div>
-                            {(db.size || db.last_modified) && (
-                              <div className="text-sm text-muted-foreground mt-1">
-                                {db.size && <span>Size: {db.size}</span>}
-                                {db.size && db.last_modified && <span className="mx-2">•</span>}
-                                {db.last_modified && <span>{t('admin.modified', { date: new Date(Number(db.last_modified) * 1000).toLocaleDateString() })}</span>}
-                              </div>
-                            )}
                           </div>
                         </div>
-                        <a
-                          href={db.url}
+                        <Link
+                          to={db.url}
                           className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium hover:underline transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1"
-                          target="_blank"
-                          rel="noopener noreferrer"
                         >
                           {t('admin.consult')}
                           <span className="sr-only">{db.name}</span>
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
