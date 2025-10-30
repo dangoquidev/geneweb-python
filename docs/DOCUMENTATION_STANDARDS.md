@@ -414,6 +414,14 @@ markdown_extensions:
 - [ ] **Code Examples**: All code examples are tested and working
 - [ ] **API Changes**: Documentation reflects current API structure
 - [ ] **Dependencies**: Version requirements are accurate
+
+## See also & canonical locations
+
+- `README.md` — project overview and quick start (modern API recommended)
+- `CONTRIBUTING.md` — development workflow and how to submit docs changes
+- The modern API lives under `src/backend/api` and exposes OpenAPI at `/api/docs` (default port used by development helpers: `8000`).
+
+When updating examples or endpoint references, prefer the `/api/docs` OpenAPI spec as the single source of truth for endpoints and schemas.
 - [ ] **Compatibility**: Platform and version compatibility noted
 
 #### Style Review

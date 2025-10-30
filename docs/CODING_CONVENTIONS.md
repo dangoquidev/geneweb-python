@@ -339,3 +339,10 @@ max-line-length = 120
 Following these conventions ensures code consistency, readability, and maintainability across the project. All team members should familiarize themselves with these standards and use the recommended tools to enforce them automatically.
 
 For questions or suggestions regarding these conventions, please open an issue or discussion in the project repository.
+
+## See also
+
+- `CONTRIBUTING.md` — guide de contribution et workflow de développement
+- `docs/DOCUMENTATION_STANDARDS.md` — règles pour la documentation et templates
+
+These documents are the canonical references for coding and documentation standards in this project.

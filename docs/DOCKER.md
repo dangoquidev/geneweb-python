@@ -1,259 +1,277 @@
+
 # 🐳 GenEWeb Docker Setup
 
-Ce guide vous permet de lancer GenEWeb avec Docker facilement, sans avoir à installer Python, Node.js ou les dépendances localement.
+Note: This guide covers Docker deployment for the modern Python version of GenEWeb
+(the FastAPI application, exposed by default on port 8000). The legacy admin panel,
+if used, may be exposed on different ports (for example 2316 / 2317).
 
-## 🚀 Démarrage rapide
+This document explains how to run GenEWeb with Docker so you don't need to install
+Python, Node.js or project dependencies on your local machine.
 
-### Prérequis
-- Docker et Docker Compose installés
-- 4 Go de RAM disponible
-- Ports 8000, 5173, 2316, 2317 libres
+## 🚀 Quick start
 
-### 1. Construction de l'image
+For more information about GenEWeb see `README.md` and `CONTRIBUTING.md`.
+
+## See also
+
+- `README.md` — project overview and quickstart
+- `CONTRIBUTING.md` — developer workflow
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- At least 4 GB of RAM available
+- Ports 8000, 5173, 2316, 2317 should be free
+
+### 1. Build the image
+
 ```bash
-# Méthode 1: Avec le script helper (recommandé)
+# Method 1: Use the helper script (recommended)
 ./docker-run.sh build
 
-# Méthode 2: Avec Docker directement
+# Method 2: Build with Docker directly
 docker build -t geneweb-python:latest .
 
-# Méthode 3: Avec Make
+# Method 3: Use Make
 make docker-build
 ```
 
-### 2. Lancement des services
+### 2. Start services
 
-#### API seulement (production)
+#### API only (production)
 ```bash
 ./docker-run.sh start
-# ou
+# or
 make docker-start
 ```
 → **API**: http://localhost:8000/api/docs
 
-#### Développement complet (API + Frontend)
+#### Full development (API + frontend)
 ```bash
 ./docker-run.sh dev
-# ou
+# or
 make docker-dev
 ```
 → **API**: http://localhost:8000/api/docs
 → **Frontend**: http://localhost:5173
 
-#### Fullstack avec tmux (équivalent `make run-fullstack-tmux`)
+#### Fullstack with tmux (equivalent to `make run-fullstack-tmux`)
 ```bash
 ./docker-run.sh fullstack
-# ou
+# or
 make docker-fullstack
 ```
 → **API**: http://localhost:8001/api/docs
 → **Frontend**: http://localhost:5174
 
-#### Avec admin panel legacy
+#### With legacy admin panel
 ```bash
 ./docker-run.sh admin
 ```
 → **API**: http://localhost:8000/api/docs
 → **Admin**: http://localhost:2316
 
-## 📋 Commandes disponibles
+## 📋 Available commands
 
-### Via script helper `./docker-run.sh`
+### Using the helper script `./docker-run.sh`
 ```bash
-./docker-run.sh build           # Construire l'image
-./docker-run.sh start           # API seulement
-./docker-run.sh dev             # Mode développement
-./docker-run.sh fullstack       # Fullstack tmux
-./docker-run.sh admin           # Avec admin panel
-./docker-run.sh stop            # Arrêter tous les services
-./docker-run.sh restart         # Redémarrer
-./docker-run.sh logs            # Voir les logs
-./docker-run.sh logs --follow   # Suivre les logs en temps réel
-./docker-run.sh shell           # Shell dans le conteneur
-./docker-run.sh status          # Statut des conteneurs
-./docker-run.sh clean           # Nettoyer tout
-./docker-run.sh help            # Aide complète
+./docker-run.sh build           # Build the image
+./docker-run.sh start           # API only
+./docker-run.sh dev             # Development mode
+./docker-run.sh fullstack       # Fullstack using tmux
+./docker-run.sh admin           # Start with admin panel
+./docker-run.sh stop            # Stop all services
+./docker-run.sh restart         # Restart
+./docker-run.sh logs            # Show logs
+./docker-run.sh logs --follow   # Follow logs in real time
+./docker-run.sh shell           # Open a shell in the container
+./docker-run.sh status          # Container status
+./docker-run.sh clean           # Clean artifacts
+./docker-run.sh help            # Full help
 ```
 
-### Via Make
+### Using Make
 ```bash
-make docker-build      # Construire l'image
-make docker-start      # Démarrer (API seulement)
-make docker-dev        # Mode développement
-make docker-fullstack  # Fullstack avec tmux
-make docker-stop       # Arrêter les services
-make docker-logs       # Voir les logs
-make docker-shell      # Shell dans le conteneur
-make docker-status     # Statut
-make docker-clean      # Nettoyer
+make docker-build      # Build the image
+make docker-start      # Start (API only)
+make docker-dev        # Development mode
+make docker-fullstack  # Fullstack with tmux
+make docker-stop       # Stop services
+make docker-logs       # View logs
+make docker-shell      # Shell in container
+make docker-status     # Status
+make docker-clean      # Clean
 ```
 
-### Via Docker Compose directement
+### Using Docker Compose directly
 ```bash
-# Services de base
-docker-compose up -d                    # API seulement
-docker-compose --profile dev up -d      # Mode développement
-docker-compose --profile admin up -d    # Avec admin panel
-docker-compose --profile fullstack up -d # Fullstack tmux
+# Core services
+docker-compose up -d                    # API only
+docker-compose --profile dev up -d      # Development mode
+docker-compose --profile admin up -d    # With admin panel
+docker-compose --profile fullstack up -d # Fullstack with tmux
 
-# Gestion
-docker-compose down                     # Arrêter
-docker-compose logs -f                  # Logs temps réel
-docker-compose ps                       # Statut
+# Management
+docker-compose down                     # Stop
+docker-compose logs -f                  # Real-time logs
+docker-compose ps                       # Status
 ```
 
 ## 🔧 Configuration
 
-### Variables d'environnement
+### Environment variables
 ```bash
-# Dans docker-compose.yml ou .env
-GENEWEB_DATABASE_PATH=/app/data/showcase.pickle  # Base de données
-GENEWEB_DEBUG=true                               # Mode debug
-PYTHONPATH=/app/src                              # Path Python
+# In docker-compose.yml or .env
+GENEWEB_DATABASE_PATH=/app/data/showcase.pickle  # Database path
+GENEWEB_DEBUG=true                               # Debug mode
+PYTHONPATH=/app/src                              # Python path
 ```
 
-### Volumes persistants
-- `./data:/app/data:rw` - Données des bases (persistant)
-- `./logs:/app/logs:rw` - Logs de l'application (persistant)
-- `./src:/app/src:ro` - Code source (lecture seule, dev)
+### Persistent volumes
 
-### Ports exposés
-- **8000** - API FastAPI principale
-- **5173** - Frontend Vite dev server
-- **2316** - Admin panel legacy
-- **2317** - Admin panel legacy (fullstack)
-- **8001** - API FastAPI (mode fullstack)
-- **5174** - Frontend dev server (mode fullstack)
+- `./data:/app/data:rw` - Persistent database files
+- `./logs:/app/logs:rw` - Application logs
+- `./src:/app/src:ro` - Source code (read-only mount for dev)
 
-## 🛠️ Développement
+### Exposed ports
 
-### Shell dans le conteneur
+- **8000** - Main FastAPI application
+- **5173** - Frontend (Vite dev server)
+- **2316** - Legacy admin panel
+- **2317** - Legacy admin panel (fullstack)
+- **8001** - FastAPI (fullstack mode)
+- **5174** - Frontend dev server (fullstack)
+
+## 🛠️ Development
+
+### Open a shell in the container
 ```bash
 ./docker-run.sh shell
-# Dans le conteneur:
+# Inside the container:
 python --version
 make status
 make test
 ```
 
-### Logs en temps réel
+### Follow logs in real time
 ```bash
 ./docker-run.sh logs --follow
-# ou
+# or
 docker-compose logs -f
 ```
 
-### Reconstruire après des changements
+### Rebuild after changes
 ```bash
 ./docker-run.sh start --build
-# ou
+# or
 ./docker-run.sh dev --build
 ```
 
-### Développement avec volumes
-Le mode développement monte `./src` en lecture seule pour voir les changements sans rebuild.
+### Development with volumes
+The development mode mounts `./src` as a read-only volume so you can test
+changes without rebuilding the image.
 
 ## 📊 Health checks
 
-L'API expose un endpoint de santé pour Docker :
+The API exposes a health endpoint that Docker can use:
 - **Health check**: http://localhost:8000/api/health
-- **Status détaillé**: http://localhost:8000/api/status
+- **Detailed status**: http://localhost:8000/api/status
 
-Docker vérifie automatiquement la santé du conteneur.
+Docker will use these endpoints to determine container health.
 
-## 🗄️ Bases de données
+## 🗄️ Databases
 
-Les bases de données sont dans `./data/` :
-- `showcase.pickle` - Base de démonstration (par défaut)
-- `ma_famille.pickle` - Base famille exemple
-- `ged.pickle` - Base importée depuis GEDCOM
+Database files are stored under `./data/`:
+- `showcase.pickle` - demo database (default)
+- `ma_famille.pickle` - example family database
+- `ged.pickle` - database imported from GEDCOM
 
-Pour utiliser une autre base :
+To use a different database:
 ```bash
-# Modifier GENEWEB_DATABASE_PATH dans docker-compose.yml
+# Modify GENEWEB_DATABASE_PATH in docker-compose.yml
 GENEWEB_DATABASE_PATH=/app/data/ma_famille.pickle
 ```
 
-## 🚨 Dépannage
+## 🚨 Troubleshooting
 
-### Le conteneur ne démarre pas
+### Container won't start
 ```bash
-./docker-run.sh logs          # Voir les erreurs
-./docker-run.sh status        # Statut des conteneurs
-docker system prune           # Nettoyer Docker
+./docker-run.sh logs          # View errors
+./docker-run.sh status        # Container status
+docker system prune           # Clean up Docker
 ```
 
-### Port déjà utilisé
+### Port already in use
 ```bash
-# Vérifier les ports en cours d'utilisation
+# Check which process uses the port
 netstat -tulpn | grep :8000
-# ou
+# or
 lsof -i :8000
 
-# Arrêter les services conflictuels
+# Stop conflicting services
 ./docker-run.sh stop
 ```
 
-### Problèmes de build
+### Build issues
 ```bash
-# Nettoyer et reconstruire
+# Clean and rebuild
 ./docker-run.sh clean
 ./docker-run.sh build
 ```
 
-### Accès aux logs
+### Accessing logs
 ```bash
-# Logs de tous les services
+# Logs for all services
 docker-compose logs
 
-# Logs d'un service spécifique
+# Logs for a specific service
 docker-compose logs geneweb-app
 docker-compose logs geneweb-frontend-dev
 
-# Logs temps réel
+# Real-time logs
 docker-compose logs -f geneweb-app
 ```
 
-## 🔄 Migration depuis le développement local
+## 🔄 Migration from local development
 
-Si vous développiez localement sans Docker :
+If you were developing locally (without Docker):
 
-1. **Sauvegarder vos données** :
-   ```bash
-   cp -r data/ data-backup/
-   ```
+1. **Backup your data**:
+```bash
+cp -r data/ data-backup/
+```
 
-2. **Arrêter les services locaux** :
-   ```bash
-   make stop-fullstack  # Si vous utilisiez tmux
-   # ou Ctrl+C sur vos serveurs
-   ```
+2. **Stop local services**:
+```bash
+make stop-fullstack  # If you used tmux
+# or press Ctrl+C on running servers
+```
 
-3. **Lancer avec Docker** :
-   ```bash
-   ./docker-run.sh build
-   ./docker-run.sh dev
-   ```
+3. **Start with Docker**:
+```bash
+./docker-run.sh build
+./docker-run.sh dev
+```
 
-4. **Vérifier** que vos données sont bien accessibles dans le conteneur.
+4. Verify your data is accessible in the container.
 
 ## 📈 Performance
 
-### Ressources recommandées
-- **RAM**: 2-4 Go minimum
+### Recommended resources
+- **RAM**: 2-4 GB minimum
 - **CPU**: 2 cores minimum
-- **Disque**: 5 Go d'espace libre
+- **Disk**: 5 GB free space
 
-### Optimisations
-- Le build multi-stage optimise la taille de l'image
-- Les volumes nommés accélèrent les accès aux `node_modules`
-- Le cache Docker réutilise les layers pour des builds plus rapides
+### Optimizations
+- Multi-stage builds reduce image size
+- Named volumes speed up node_modules access
+- Docker cache reuses layers for faster builds
 
 ## 🆘 Support
 
-- **Logs détaillés** : `./docker-run.sh logs --follow`
-- **Shell debug** : `./docker-run.sh shell`
-- **Status complet** : `./docker-run.sh status`
-- **Aide complète** : `./docker-run.sh help`
+- **Detailed logs**: `./docker-run.sh logs --follow`
+- **Debug shell**: `./docker-run.sh shell`
+- **Full status**: `./docker-run.sh status`
+- **Full help**: `./docker-run.sh help`
 
-Pour plus d'informations sur GenEWeb, voir [README.md](README.md) et [CONTRIBUTING.md](CONTRIBUTING.md).
+For more information about GenEWeb, see `README.md` and `CONTRIBUTING.md`.

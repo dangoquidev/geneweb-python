@@ -8,6 +8,14 @@
 - **Standards target:** WCAG **2.2 Level AA** (minimum), align with **EN 301 549** for public‑sector deployments. Follow **WAI‑ARIA** for semantics and **ATAG** principles for authoring flows.
 - **Platforms:** desktop and mobile web (progressive enhancement), including offline/low‑connectivity modes where applicable.
 
+If you discover accessibility regressions or wish to propose improvements, please open an issue with the `a11y` label and include:
+
+- steps to reproduce
+- browser/AT versions used
+- screenshots or a short recording (if helpful)
+
+Maintainers should link accessibility fixes to regression tests and changelog entries whenever possible.
+
 ## User Needs to Address
 
 - **Blind/low‑vision:** screen‑reader compatibility, keyboard access, strong focus indication, scalable text (200–400%) with reflow, high contrast.
