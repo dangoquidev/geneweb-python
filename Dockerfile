@@ -2,7 +2,7 @@
 # Builds both frontend and backend in an optimized container
 
 # Stage 1: Build Frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
@@ -37,7 +37,14 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
+    tmux \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 and pnpm for fullstack mode
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g pnpm && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -72,9 +79,6 @@ COPY --from=frontend-builder /app/frontend/dist ./src/frontend/dist
 # Create directories and set permissions
 RUN mkdir -p /app/logs /app/tmp && \
     chown -R geneweb:geneweb /app
-
-# Install tmux for fullstack mode
-RUN apt-get update && apt-get install -y tmux && rm -rf /var/lib/apt/lists/*
 
 # Switch to non-root user
 USER geneweb

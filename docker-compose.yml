@@ -31,12 +31,13 @@ services:
 
   # Service de développement frontend (pour le dev en mode watch)
   geneweb-frontend-dev:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: geneweb-frontend-dev
     ports:
       - "5173:5173"  # Vite dev server
     environment:
       - NODE_ENV=development
+      - VITE_API_URL=http://geneweb-app:8000
     working_dir: /app
     command: >
       sh -c "
@@ -91,11 +92,12 @@ services:
       - GENEWEB_DEBUG=true
       - PYTHONPATH=/app/src
     working_dir: /app
-    command: ["make", "run-fullstack-tmux"]
+    entrypoint: ["/bin/bash", "/app/docker-entrypoint-fullstack.sh"]
     volumes:
       - ./data:/app/data:rw
       - ./logs:/app/logs:rw
       - ./src:/app/src:rw
+      - ./docker-entrypoint-fullstack.sh:/app/docker-entrypoint-fullstack.sh:ro
     profiles:
       - fullstack  # Ce service ne démarre que avec --profile fullstack
     tty: true  # Nécessaire pour tmux

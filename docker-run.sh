@@ -37,8 +37,16 @@ check_dependencies() {
         exit 1
     fi
 
-    if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
-        log_error "Docker Compose n'est pas disponible. Veuillez installer Docker Compose et réessayer."
+    # Determine which docker compose command to use. Prefer the modern `docker compose`
+    # plugin (two-word command). Fall back to the legacy `docker-compose` if available
+    # and functional. This avoids executing a possibly broken PyInstaller-built
+    # `docker-compose` binary (which can fail with an OpenSSL symbol error).
+    if docker compose version >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD=(docker compose)
+    elif command -v docker-compose >/dev/null 2>&1 && docker-compose version >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD=(docker-compose)
+    else
+        log_error "Docker Compose n'est pas disponible ou est cassé. Installez le plugin 'docker compose' ou une version compatible de 'docker-compose'."
         exit 1
     fi
 }
@@ -107,19 +115,19 @@ start_service() {
     case "$profile" in
         "")
             log_info "Démarrage de GenEWeb (API seulement)..."
-            docker-compose up -d geneweb-app
+            "${DOCKER_COMPOSE_CMD[@]}" up -d geneweb-app
             ;;
         "dev")
             log_info "Démarrage en mode développement (API + Frontend dev)..."
-            docker-compose --profile dev up -d
+            "${DOCKER_COMPOSE_CMD[@]}" --profile dev up -d
             ;;
         "admin")
             log_info "Démarrage avec admin panel..."
-            docker-compose --profile admin up -d
+            "${DOCKER_COMPOSE_CMD[@]}" --profile admin up -d
             ;;
         "fullstack")
             log_info "Démarrage fullstack avec tmux..."
-            docker-compose --profile fullstack up -d
+            "${DOCKER_COMPOSE_CMD[@]}" --profile fullstack up
             ;;
         *)
             log_error "Profil inconnu: $profile"
@@ -162,7 +170,7 @@ show_urls() {
 # Stop services
 stop_services() {
     log_info "Arrêt de tous les services GenEWeb..."
-    docker-compose --profile dev --profile admin --profile fullstack down
+    "${DOCKER_COMPOSE_CMD[@]}" --profile dev --profile admin --profile fullstack down
     log_success "Tous les services arrêtés!"
 }
 
@@ -178,10 +186,10 @@ show_logs() {
 
     if [[ "$follow_flag" == "--follow" ]]; then
         log_info "Affichage des logs en temps réel (Ctrl+C pour arrêter)..."
-        docker-compose logs -f
+        "${DOCKER_COMPOSE_CMD[@]}" logs -f
     else
         log_info "Affichage des logs récents..."
-        docker-compose logs --tail=50
+        "${DOCKER_COMPOSE_CMD[@]}" logs --tail=50
     fi
 }
 
@@ -208,8 +216,8 @@ clean_resources() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log_info "Nettoyage des ressources Docker..."
 
-        # Stop services
-        docker-compose --profile dev --profile admin --profile fullstack down -v
+    # Stop services
+    "${DOCKER_COMPOSE_CMD[@]}" --profile dev --profile admin --profile fullstack down -v
 
         # Remove images
         docker rmi geneweb-python:latest 2>/dev/null || true
