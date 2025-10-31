@@ -415,7 +415,9 @@ For questions, issues, or contributions:
 - [example_usage.py](example_usage.py) — Python example of basic usage  
 - [test_basic.py](test_basic.py) — Core functionality tests  
 - [Makefile](Makefile) — Developer commands reference
-- [docs/DEPLOYMENT.md](/docs/DEPLOYMENT.md) - Developer guidelines for deployement
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Developer guidelines for deployement
+- [QUICKSTART.md](QUICKSTART.MD) - How to start & launch the project
+- [docs/ACCESSIBILTY.md](docs/ACCESSIBILITY.md) - Our apporach for accessibility
 
 ## 🔗 Links & Tools
 
