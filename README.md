@@ -66,6 +66,20 @@ make all          # Format, check, and test everything
 
 **Complete developer guide:** 👉 **[CONTRIBUTING.md](CONTRIBUTING.md)**
 
+## Continuous Integration
+
+Every push to `main` and each pull request automatically runs GitHub Actions checks to keep the project healthy:
+
+- `.github/workflows/ci.yml` runs formatting/linting (`make check`), unit tests (`make test`), and a Docker build sanity check.
+
+To reproduce the same validation locally before opening a PR:
+
+```bash
+make check
+make test
+docker build -f Dockerfile .
+```
+
 ## Quick Start
 
 ### 1. Create a Sample Database
@@ -122,7 +136,7 @@ python -m backend.geneweb.cli server --port 8080 --database-dir ./data
 # Start production server
 make run
 
-# Start development server  
+# Start development server
 make run-simple
 
 # Start admin panel (separate terminal)
@@ -145,7 +159,7 @@ make run-admin-help
 ```
 
 **Access:**
-- Main server: http://localhost:2317/DATABASE_NAME  
+- Main server: http://localhost:2317/DATABASE_NAME
 - Admin panel: http://localhost:2316/
 
 The admin panel provides:
@@ -182,6 +196,8 @@ Run the test suite to verify installation:
 # Run all tests (recommended)
 make test
 ```
+
+Detailed guidance (scope, commands, fixtures, CI) lives in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md).
 
 ## Status
 
@@ -383,3 +399,20 @@ For questions, issues, or contributions:
 ---
 
 **Status**: Core functionality complete and tested. Ready for production use with ongoing development of advanced features.
+
+## Continuous Integration
+
+This repository uses GitHub Actions to guarantee each change passes formatting, linting, static typing, unit tests, and Docker image build.
+
+- Workflow file: `.github/workflows/ci.yml`
+- Jobs: `Lint & Type Check`, `Tests`, and `Docker Build`
+- Triggered on every push to `main` and on pull requests
+
+To reproduce the same checks locally before opening a pull request:
+
+```bash
+make check
+make test
+# Optional but recommended:
+docker build -f Dockerfile .
+```
