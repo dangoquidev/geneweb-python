@@ -35,6 +35,10 @@ GenEWeb is a genealogical software system that manages family trees, genealogica
 
 ## Project Structure
 
+The following diagram illustrates the overall architecture of the project, showing how the main components interact with each other and how data flows between the frontend, backend, and database layers.
+
+![Technical Diagram](legacy_technical_chart.png)
+
 ```
 python-geneweb-modernization/
 ├── src/                        # Source code
