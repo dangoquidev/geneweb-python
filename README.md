@@ -35,6 +35,10 @@ GenEWeb is a genealogical software system that manages family trees, genealogica
 
 ## Project Structure
 
+The following diagram illustrates the overall architecture of the project, showing how the main components interact with each other and how data flows between the frontend, backend, and database layers.
+
+![Technical Diagram](legacy_technical_chart.png)
+
 ```
 python-geneweb-modernization/
 ├── src/                        # Source code
@@ -81,6 +85,20 @@ make all          # Format, check, and test everything
 ```
 
 **Complete developer guide:** 👉 **[CONTRIBUTING.md](CONTRIBUTING.md)**
+
+## Continuous Integration
+
+Every push to `main` and each pull request automatically runs GitHub Actions checks to keep the project healthy:
+
+- `.github/workflows/ci.yml` runs formatting/linting (`make check`), unit tests (`make test`), and a Docker build sanity check.
+
+To reproduce the same validation locally before opening a PR:
+
+```bash
+make check
+make test
+docker build -f Dockerfile .
+```
 
 ## Quick Start
 
@@ -138,6 +156,9 @@ python -m backend.geneweb.cli server --port 8000 --database-dir ./data
 # Start modern API server (FastAPI). API docs: http://127.0.0.1:8000/api/docs
 make run
 
+# Start development server
+make run-simple
+
 # Start admin panel (separate terminal)
 make run-admin
 
@@ -157,14 +178,9 @@ make run-admin
 make run-admin-help
 ```
 
-**Access (modern vs legacy):**
-
-- Modern API (recommended): `http://localhost:8000/` — API docs: `http://localhost:8000/api/docs`.
-- Admin panel (legacy/admin): `http://localhost:2316/` (only if you run the admin component).
-
-Note: some legacy targets and admin tools expect a classic GenEWeb daemon at port `2317`; prefer
-the modern FastAPI (`make run`) for development. If you need to run legacy admin tooling, consult
-`Makefile` target notes and the `legacy/` folder.
+**Access:**
+- Main server: http://localhost:2317/DATABASE_NAME
+- Admin panel: http://localhost:2316/
 
 The admin panel provides:
 - Database creation and management
@@ -195,6 +211,8 @@ Run the test suite to verify installation:
 # Run all tests (recommended)
 make test
 ```
+
+Detailed guidance (scope, commands, fixtures, CI) lives in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md).
 
 ## Status
 
@@ -397,6 +415,22 @@ For questions, issues, or contributions:
 
 **Status**: Core functionality complete and tested. Ready for production use with ongoing development of advanced features.
 
+## Continuous Integration
+
+This repository uses GitHub Actions to guarantee each change passes formatting, linting, static typing, unit tests, and Docker image build.
+
+- Workflow file: `.github/workflows/ci.yml`
+- Jobs: `Lint & Type Check`, `Tests`, and `Docker Build`
+- Triggered on every push to `main` and on pull requests
+
+To reproduce the same checks locally before opening a pull request:
+
+```bash
+make check
+make test
+# Optional but recommended:
+docker build -f Dockerfile .
+```
 ---
 
 ## 📚 Documentation
