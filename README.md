@@ -2,6 +2,36 @@
 
 This project is a complete Python modernization of the original GenEWeb genealogical software, originally written in OCaml. The modernization preserves all core functionality while providing a modern Python implementation with improved maintainability, extensibility, and user experience.
 
+## 🧭 Table of Contents
+1. [Overview](#overview)
+2. [Project Structure](#project-structure)
+3. [Installation](#installation)
+4. [For Developers](#-for-developers)
+5. [Quick Start](#quick-start)
+6. [Administration Panel](#administration-panel)
+7. [Testing](#testing)
+8. [Status](#status)
+9. [Features](#features)
+10. [Configuration](#configuration)
+11. [Architecture](#architecture)
+12. [Migration from Original GenEWeb](#migration-from-original-geneweb)
+13. [Development](#development)
+14. [License](#license)
+15. [Acknowledgments](#acknowledgments)
+16. [Support](#support)
+17. [📚 Documentation](#-documentation)
+18. [🔗 Liens & Outils](#-liens--outils)
+
+## 📚 Documentation
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Developer guidelines and contribution process  
+- [ADMIN_PANEL.md](ADMIN_PANEL.md) — Administration panel usage and configuration  
+- [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md) — Code style and standards  
+- [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) — Documentation structure  
+- [example_usage.py](example_usage.py) — Python example of basic usage  
+- [test_basic.py](test_basic.py) — Core functionality tests  
+- [Makefile](Makefile) — Developer commands reference  
+
 ## Overview
 
 GenEWeb is a genealogical software system that manages family trees, genealogical data, and provides web-based access to family databases. This Python modernization maintains full compatibility with the original system while offering:
@@ -383,3 +413,10 @@ For questions, issues, or contributions:
 ---
 
 **Status**: Core functionality complete and tested. Ready for production use with ongoing development of advanced features.
+
+---
+
+## 🔗 Liens & Outils
+
+- 🧩 **Trello (To-Do List & Follow-up on Tasks)** → [https://trello.com/b/TON_TRELLO](https://trello.com/b/TON_TRELLO)  
+- 💬 **Discord (Join the Project / Dscussions)** → [https://discord.gg/TON_DISCORD](https://discord.gg/TON_DISCORD)
