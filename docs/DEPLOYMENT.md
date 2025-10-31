@@ -29,7 +29,7 @@ This guide provides step-by-step instructions for deploying the GenEWeb applicat
 - **RAM**: Minimum 2GB, recommended 4GB+
 - **Disk**: Minimum 10GB free space
 - **OS**: Linux (Ubuntu 20.04+, Debian 11+, CentOS 8+, etc.)
-- **Ports**: 8080 (or your chosen port) must be available
+- **Ports**: 8000 (or your chosen port) must be available
 
 ### Check Prerequisites
 
@@ -39,7 +39,7 @@ docker --version
 docker compose version
 
 # Check available ports
-sudo netstat -tulpn | grep :8080
+sudo netstat -tulpn | grep :8000
 
 # Check system resources
 free -h
@@ -63,10 +63,10 @@ docker compose -f docker-compose.prod.yml up -d
 
 # 3. Check if it's running
 docker ps
-curl http://localhost:8080/api/health
+curl http://localhost:8000/api/health
 
 # 4. Access the application
-# Open your browser to: http://YOUR_VPS_IP:8080
+# Open your browser to: http://YOUR_VPS_IP:8000
 ```
 
 That's it! The application should now be running.
@@ -139,14 +139,15 @@ docker ps
 ### Step 5: Verify Deployment
 
 ```bash
+
 # Check application health
-curl http://localhost:8080/api/health
+curl http://localhost:8000/api/health
 
 # Expected output:
 # {"status":"healthy","timestamp":"...","version":"1.0.0","database_accessible":true}
 
 # Check if frontend is served
-curl http://localhost:8080/ | grep "GenEWeb"
+curl http://localhost:8000/ | grep "GenEWeb"
 
 # View logs
 docker logs geneweb-app --tail 50
@@ -158,7 +159,7 @@ docker logs geneweb-app --tail 50
 
 ### Port Configuration
 
-By default, the application is exposed on **port 8080**. To change this:
+By default, the application is exposed on **port 8000**. To change this:
 
 1. Edit `docker-compose.prod.yml`:
 
@@ -320,23 +321,23 @@ curl -4 ifconfig.me
 
 Once deployed, access the application at:
 
-- **Frontend**: `http://YOUR_VPS_IP:8080/`
-- **API Documentation**: `http://YOUR_VPS_IP:8080/api/docs`
-- **API ReDoc**: `http://YOUR_VPS_IP:8080/api/redoc`
-- **Health Check**: `http://YOUR_VPS_IP:8080/api/health`
+- **Frontend**: `http://YOUR_VPS_IP:8000/`
+- **API Documentation**: `http://YOUR_VPS_IP:8000/api/docs`
+- **API ReDoc**: `http://YOUR_VPS_IP:8000/api/redoc`
+- **Health Check**: `http://YOUR_VPS_IP:8000/api/health`
 
 **Example** (if your VPS IP is 51.75.203.14):
-- Frontend: http://51.75.203.14:8080/
-- API Docs: http://51.75.203.14:8080/api/docs
+- Frontend: http://51.75.203.14:8000/
+- API Docs: http://51.75.203.14:8000/api/docs
 
 ### Testing from Your Computer
 
 ```bash
 # Test health endpoint
-curl http://YOUR_VPS_IP:8080/api/health
+curl http://YOUR_VPS_IP:8000/api/health
 
 # Test database list
-curl http://YOUR_VPS_IP:8080/api/databases
+curl http://YOUR_VPS_IP:8000/api/databases
 ```
 
 ---
@@ -355,8 +356,8 @@ docker logs geneweb-app
 1. **Port already in use**
    ```bash
    # Check what's using the port
-   sudo lsof -i :8080
-   
+   sudo lsof -i :8000
+
    # Change port in docker-compose.prod.yml
    ```
 
@@ -370,7 +371,7 @@ docker logs geneweb-app
    ```bash
    # Check disk usage
    df -h
-   
+
    # Clean Docker cache
    docker system prune -a
    ```
@@ -421,14 +422,14 @@ docker exec -it geneweb-app python -c "import pickle; print(pickle.load(open('/a
 ```bash
 # 1. Check if firewall is blocking the port
 sudo ufw status
-sudo ufw allow 8080/tcp
+sudo ufw allow 8000/tcp
 
 # 2. Check if the application is listening
-netstat -tulpn | grep :8080
+netstat -tulpn | grep :8000
 
 # 3. For cloud providers (AWS, GCP, Azure, OVH, etc.):
 #    - Check Security Groups / Firewall Rules
-#    - Ensure port 8080 is allowed for inbound traffic
+#    - Ensure port 8000 is allowed for inbound traffic
 ```
 
 ### High Memory Usage
@@ -459,7 +460,7 @@ docker compose -f docker-compose.prod.yml up -d
    ```bash
    # Install nginx
    sudo apt install nginx
-   
+
    # Configure reverse proxy (see nginx configuration below)
    ```
 
@@ -481,7 +482,7 @@ docker compose -f docker-compose.prod.yml up -d
    ```bash
    # Update system packages
    sudo apt update && sudo apt upgrade -y
-   
+
    # Update application
    git pull origin main
    docker compose -f docker-compose.prod.yml build
@@ -493,7 +494,7 @@ docker compose -f docker-compose.prod.yml up -d
 1. **Enable health check monitoring**
    ```bash
    # Add to crontab
-   */5 * * * * curl -f http://localhost:8080/api/health || systemctl restart docker
+   */5 * * * * curl -f http://localhost:8000/api/health || systemctl restart docker
    ```
 
 2. **Log rotation**
@@ -523,9 +524,9 @@ docker compose -f docker-compose.prod.yml up -d
    # Keep only last 7 days
    find $BACKUP_DIR -name "geneweb-backup-*.tar.gz" -mtime +7 -delete
    EOF
-   
+
    chmod +x /usr/local/bin/backup-geneweb.sh
-   
+
    # Add to crontab (daily at 2 AM)
    0 2 * * * /usr/local/bin/backup-geneweb.sh
    ```
@@ -564,7 +565,7 @@ server {
     server_name YOUR_VPS_IP;
 
     location / {
-        proxy_pass http://localhost:8080;
+   proxy_pass http://localhost:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -585,7 +586,7 @@ sudo systemctl reload nginx
 ## Support & Resources
 
 - **Project Documentation**: See `README.md` and `CONTRIBUTING.md`
-- **API Documentation**: http://YOUR_VPS_IP:8080/api/docs
+- **API Documentation**: http://YOUR_VPS_IP:8000/api/docs
 - **Check Logs**: `docker logs geneweb-app`
 - **Report Issues**: Create an issue in the repository
 
@@ -606,9 +607,9 @@ docker compose -f docker-compose.prod.yml down
 docker logs -f geneweb-app
 
 # Access application
-http://YOUR_VPS_IP:8080/
+http://YOUR_VPS_IP:8000/
 ```
 
-**Your application is now running at: `http://YOUR_VPS_IP:8080`**
+**Your application is now running at: `http://YOUR_VPS_IP:8000`**
 
 Enjoy using GenEWeb! 🎉

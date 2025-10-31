@@ -39,29 +39,25 @@ GenEWeb is a genealogical software system that manages family trees, genealogica
 python-geneweb-modernization/
 ├── src/                        # Source code
 │   ├── backend/                # Backend Python implementation
-│   │   ├── geneweb/            # Core GenEWeb package
-│   │   │   ├── core/           # Core functionality and data structures
-│   │   │   ├── db/             # Database abstraction layer
-│   │   │   ├── security/       # Authentication and authorization
-│   │   │   ├── util/           # Utility functions and helpers
-│   │   │   └── web/            # Web server components
-│   │   ├── servers/            # Server implementations
-│   │   ├── static/             # Static web assets
-│   │   ├── templates/          # HTML templates
-│   │   └── template_engine.py  # Template rendering engine
-│   └── frontend/               # Frontend React/Vite application
+│   │   ├── api/                # Modern REST API (FastAPI)
+│   │   ├── core/               # Core functionality and data structures
+│   │   ├── database/           # Database abstraction layer and drivers
+│   │   ├── exporters/          # Exporters (GEDCOM, etc.)
+│   │   ├── parsers/            # Parsers (GEDCOM, imports)
+│   │   ├── services/           # Business logic / services
+│   │   └── utils/              # Utilities and helpers
+│   └── frontend/               # Frontend React/Vite application (optional)
 │       ├── src/                # Frontend source code
 │       ├── public/             # Static assets and index.html
-│       ├── dist/               # Built application (production)
-│       └── node_modules/       # Frontend dependencies
+│       └── dist/               # Built application (production)
 ├── tests/                      # Test suite and compliance tests
 ├── scripts/                    # Development and utility scripts
 ├── data/                       # Sample database files
 ├── config/                     # Configuration files (flake8, mypy, etc.)
 ├── docs/                       # Project documentation
 ├── Makefile                    # Development workflow automation
-├── pyproject.toml             # Python project configuration
-└── requirements.txt           # Python dependencies
+├── pyproject.toml              # Python project configuration
+└── requirements.txt            # Python dependencies
 ```
 
 ## Installation
@@ -130,8 +126,8 @@ python -m backend.geneweb.cli info my_family --database-dir ./data
 # Search for persons
 python -m backend.geneweb.cli search my_family "John" --database-dir ./data
 
-# Start web server
-python -m backend.geneweb.cli server --port 8080 --database-dir ./data
+# Start web server (CLI example)
+python -m backend.geneweb.cli server --port 8000 --database-dir ./data
 ```
 
 ### 3. Starting the Web Server
@@ -139,11 +135,8 @@ python -m backend.geneweb.cli server --port 8080 --database-dir ./data
 **Using the Makefile (recommended):**
 
 ```bash
-# Start production server
+# Start modern API server (FastAPI). API docs: http://127.0.0.1:8000/api/docs
 make run
-
-# Start development server  
-make run-simple
 
 # Start admin panel (separate terminal)
 make run-admin
@@ -164,9 +157,14 @@ make run-admin
 make run-admin-help
 ```
 
-**Access:**
-- Main server: http://localhost:2317/DATABASE_NAME  
-- Admin panel: http://localhost:2316/
+**Access (modern vs legacy):**
+
+- Modern API (recommended): `http://localhost:8000/` — API docs: `http://localhost:8000/api/docs`.
+- Admin panel (legacy/admin): `http://localhost:2316/` (only if you run the admin component).
+
+Note: some legacy targets and admin tools expect a classic GenEWeb daemon at port `2317`; prefer
+the modern FastAPI (`make run`) for development. If you need to run legacy admin tooling, consult
+`Makefile` target notes and the `legacy/` folder.
 
 The admin panel provides:
 - Database creation and management
@@ -176,23 +174,18 @@ The admin panel provides:
 
 See `ADMIN_PANEL.md` for detailed administration guide.
 
-**Direct Python execution:**
+**Direct Python execution (recommended modern approach):**
 
-```python
-from backend.geneweb.web.server import GeneWebServer
-from backend.geneweb.core.config import Config
-import asyncio
+To run the modern API programmatically, prefer the `run_api.py` entrypoint which wires the
+FastAPI application and configuration:
 
-async def run_server():
-    config = Config()
-    config.port = 8080
-
-    server = GeneWebServer(config)
-    await server.start()
-
-# Run the server
-asyncio.run(run_server())
+```bash
+# recommended: use the helper script (prints API docs URL)
+python run_api.py --port 8000 --db data/showcase.pickle --debug
 ```
+
+If you need to run legacy server code (archive), see `legacy/ocaml-old-project` and the
+`Makefile` legacy targets (note: legacy modules may be deprecated).
 
 ## Testing
 
@@ -266,14 +259,14 @@ Configuration is handled through the `Config` class and environment variables:
 from backend.geneweb.core.config import Config
 
 config = Config()
-config.port = 8080
+config.port = 8000
 config.database_dir = "/path/to/databases"
 config.wizard = True  # Enable wizard mode
 config.friend = False # Disable friend mode
 ```
 
 Environment variables:
-- `GENEWEB_PORT`: Server port (default: 2317)
+- `GENEWEB_PORT`: Server port (default: 8000)
 - `GENEWEB_DATABASE_DIR`: Database directory
 - `GENEWEB_SECRET_KEY`: Secret key for sessions
 - `GENEWEB_DEBUG`: Enable debug mode
@@ -408,12 +401,12 @@ For questions, issues, or contributions:
 
 ## 📚 Documentation
 
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Developer guidelines and contribution process  
-- [ADMIN_PANEL.md](ADMIN_PANEL.md) — Administration panel usage and configuration  
-- [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md) — Code style and standards  
-- [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) — Documentation structure  
-- [example_usage.py](example_usage.py) — Python example of basic usage  
-- [test_basic.py](test_basic.py) — Core functionality tests  
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Developer guidelines and contribution process
+- [ADMIN_PANEL.md](ADMIN_PANEL.md) — Administration panel usage and configuration
+- [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md) — Code style and standards
+- [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) — Documentation structure
+- [example_usage.py](example_usage.py) — Python example of basic usage
+- [test_basic.py](test_basic.py) — Core functionality tests
 - [Makefile](Makefile) — Developer commands reference
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Developer guidelines for deployement
 - [QUICKSTART.md](QUICKSTART.MD) - How to start & launch the project
@@ -421,5 +414,5 @@ For questions, issues, or contributions:
 
 ## 🔗 Links & Tools
 
-- 🧩 **Trello (To-Do List & Follow-up on Tasks)** → [https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy](https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy)  
+- 🧩 **Trello (To-Do List & Follow-up on Tasks)** → [https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy](https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy)
 - 💬 **Discord (Join the Project / Discussions)** → [https://discord.gg/WpvHV8Ez](https://discord.gg/WpvHV8Ez)
