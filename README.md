@@ -20,7 +20,7 @@ This project is a complete Python modernization of the original GenEWeb genealog
 15. [Acknowledgments](#acknowledgments)
 16. [Support](#support)
 17. [📚 Documentation](#-documentation)
-18. [🔗 Liens & Outils](#-liens--outils)
+18. [🔗 Links & Tools](#-links--tools)
 
 ## Overview
 
@@ -417,7 +417,7 @@ For questions, issues, or contributions:
 - [Makefile](Makefile) — Developer commands reference
 - [docs/DEPLOYMENT.md](/docs/DEPLOYMENT.md) - Developer guidelines for deployement
 
-## 🔗 Liens & Outils
+## 🔗 Links & Tools
 
 - 🧩 **Trello (To-Do List & Follow-up on Tasks)** → [https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy](https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy)  
-- 💬 **Discord (Join the Project / Discussions)** → [https://discord.gg/TON_DISCORD](https://discord.gg/WpvHV8Ez)
+- 💬 **Discord (Join the Project / Discussions)** → [https://discord.gg/WpvHV8Ez](https://discord.gg/WpvHV8Ez)
