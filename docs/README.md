@@ -28,6 +28,8 @@ archive and may contain French.
   compose, commands and troubleshooting).
 - [docs/ACCESSIBILITY.md](./ACCESSIBILITY.md) — Accessibility (A11y) requirements,
   manual checks and suggested automated checks.
+- [docs/LEGACY_POLICIES.md](./LEGACY_POLICIES.md) — Policies regarding legacy files
+  and translations.
 
 ## Additional / developer documents
 

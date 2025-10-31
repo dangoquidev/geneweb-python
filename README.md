@@ -445,6 +445,9 @@ docker build -f Dockerfile .
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Developer guidelines for deployement
 - [QUICKSTART.md](QUICKSTART.MD) - How to start & launch the project
 - [docs/ACCESSIBILTY.md](docs/ACCESSIBILITY.md) - Our apporach for accessibility
+- [docs/DOCKER.md](./DOCKER.md) — Docker build and runtime instructions
+- [docs/LEGACY_POLICIES.md](./LEGACY_POLICIES.md) — Policies regarding legacy files
+  and translations.
 
 ## 🔗 Links & Tools
 
