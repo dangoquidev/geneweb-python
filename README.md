@@ -2,6 +2,26 @@
 
 This project is a complete Python modernization of the original GenEWeb genealogical software, originally written in OCaml. The modernization preserves all core functionality while providing a modern Python implementation with improved maintainability, extensibility, and user experience.
 
+## 🧭 Table of Contents
+1. [Overview](#overview)
+2. [Project Structure](#project-structure)
+3. [Installation](#installation)
+4. [For Developers](#-for-developers)
+5. [Quick Start](#quick-start)
+6. [Administration Panel](#administration-panel)
+7. [Testing](#testing)
+8. [Status](#status)
+9. [Features](#features)
+10. [Configuration](#configuration)
+11. [Architecture](#architecture)
+12. [Migration from Original GenEWeb](#migration-from-original-geneweb)
+13. [Development](#development)
+14. [License](#license)
+15. [Acknowledgments](#acknowledgments)
+16. [Support](#support)
+17. [📚 Documentation](#-documentation)
+18. [🔗 Links & Tools](#-links--tools)
+
 ## Overview
 
 GenEWeb is a genealogical software system that manages family trees, genealogical data, and provides web-based access to family databases. This Python modernization maintains full compatibility with the original system while offering:
@@ -14,6 +34,10 @@ GenEWeb is a genealogical software system that manages family trees, genealogica
 - **Extensibility**: Plugin-ready architecture for future enhancements
 
 ## Project Structure
+
+The following diagram illustrates the overall architecture of the project, showing how the main components interact with each other and how data flows between the frontend, backend, and database layers.
+
+![Technical Diagram](legacy_technical_chart.png)
 
 ```
 python-geneweb-modernization/
@@ -416,3 +440,22 @@ make test
 # Optional but recommended:
 docker build -f Dockerfile .
 ```
+---
+
+## 📚 Documentation
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Developer guidelines and contribution process
+- [ADMIN_PANEL.md](ADMIN_PANEL.md) — Administration panel usage and configuration
+- [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md) — Code style and standards
+- [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) — Documentation structure
+- [example_usage.py](example_usage.py) — Python example of basic usage
+- [test_basic.py](test_basic.py) — Core functionality tests
+- [Makefile](Makefile) — Developer commands reference
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Developer guidelines for deployement
+- [QUICKSTART.md](QUICKSTART.MD) - How to start & launch the project
+- [docs/ACCESSIBILTY.md](docs/ACCESSIBILITY.md) - Our apporach for accessibility
+
+## 🔗 Links & Tools
+
+- 🧩 **Trello (To-Do List & Follow-up on Tasks)** → [https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy](https://trello.com/invite/b/68c39fb118b917bfd74fb2cd/ATTI27f2ce9aca669f60ca54dbc4c6c3a1975D8BA768/awkward-legacy)
+- 💬 **Discord (Join the Project / Discussions)** → [https://discord.gg/WpvHV8Ez](https://discord.gg/WpvHV8Ez)
